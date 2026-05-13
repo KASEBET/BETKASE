@@ -684,13 +684,55 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const ADMIN_EMAIL = "camargosantiago2003@gmail.com";
 
-// Planes por defecto
-const defaultPlans = [
-    { id: "basic", name: "Plan Básico", price: 10000, period: "mensual", features: ["Acceso a picks premium", "Análisis básicos", "Soporte 24/7"], recommended: false },
-    { id: "pro", name: "Plan Pro", price: 25000, period: "mensual", features: ["Todo del Básico", "Picks exclusivos VIP", "Asesoría personalizada", "Grupo privado"], recommended: true },
-    { id: "unlimited", name: "Plan Ilimitado", price: 50000, period: "mensual", features: ["Todo del Pro", "Acceso ilimitado", "Contenido exclusivo", "Eventos en vivo"], recommended: false }
-];
+// Reemplaza los defaultPlans con esto:
 
+const defaultPlans = [
+    { 
+        id: "quincenal", 
+        name: "Plan Quincenal", 
+        price: 30000, 
+        period: "15 días", 
+        features: [
+            "✓ Acceso a picks premium",
+            "✓ Análisis diarios",
+            "✓ Alertas en vivo",
+            "✓ Soporte prioritario"
+        ], 
+        recommended: false,
+        popular: false
+    },
+    { 
+        id: "mensual", 
+        name: "Plan Mensual", 
+        price: 50000, 
+        period: "mes", 
+        features: [
+            "✓ Todo del Plan Quincenal",
+            "✓ Picks exclusivos VIP",
+            "✓ Asesoría personalizada",
+            "✓ Grupo privado de Telegram",
+            "✓ 20% de descuento"
+        ], 
+        recommended: true,
+        popular: true
+    },
+    { 
+        id: "anual", 
+        name: "Plan Anual", 
+        price: 500000, 
+        period: "año", 
+        features: [
+            "✓ Todo del Plan Mensual",
+            "✓ Acceso ilimitado",
+            "✓ Contenido exclusivo",
+            "✓ Eventos en vivo",
+            "✓ 2 meses gratis",
+            "✓ Soporte VIP 24/7"
+        ], 
+        recommended: false,
+        popular: false
+    }
+];
 const teams = [
     { name: "Manchester City", logo: "https://i.postimg.cc/j5w9hyxR/2026-05-13-73f43f96-4ece-4239-aa63-b065cf33697e.png" },
     { name: "Manchester United", logo: "https://i.postimg.cc/yYx0KgrL/manutd.png" },
@@ -874,28 +916,52 @@ async function loadPlans() {
         for (const plan of defaultPlans) {
             await plansRef.doc(plan.id).set(plan);
         }
+    }async function loadPlans() {
+    const plansRef = db.collection('plans');
+    const snapshot = await plansRef.get();
+    
+    if (snapshot.empty) {
+        for (const plan of defaultPlans) {
+            await plansRef.doc(plan.id).set(plan);
+        }
     }
     
-    // Mostrar planes en la sección pública
     const plansContainer = document.getElementById('plansContainer');
     const plansAdminContainer = document.getElementById('plansAdmin');
     plansContainer.innerHTML = '';
     plansAdminContainer.innerHTML = '';
     
     const plansSnapshot = await plansRef.get();
+    const plans = [];
     plansSnapshot.forEach(doc => {
-        const plan = doc.data();
-        
-        // Mostrar en sección pública
+        plans.push({ id: doc.id, ...doc.data() });
+    });
+    
+    // Ordenar por precio
+    plans.sort((a, b) => a.price - b.price);
+    
+    plans.forEach(plan => {
+        // Mostrar en sección pública con diseño mejorado
         plansContainer.innerHTML += `
-            <div class="plan-card ${plan.recommended ? 'recommended' : ''}" onclick="selectPlan('${doc.id}', '${plan.name}', ${plan.price})">
-                ${plan.recommended ? '<div class="plan-badge">⭐ RECOMENDADO</div>' : ''}
+            <div class="plan-card ${plan.recommended ? 'recommended' : ''}" onclick="selectPlan('${plan.id}', '${plan.name}', ${plan.price})">
+                ${plan.recommended ? '<div class="plan-badge">⭐ MÁS POPULAR</div>' : ''}
                 <div class="plan-name">${plan.name}</div>
-                <div class="plan-price">$${plan.price.toLocaleString()}<span> COP/${plan.period}</span></div>
+                <div class="plan-price">
+                    $${plan.price.toLocaleString()}<span> COP / ${plan.period}</span>
+                </div>
+                <div style="font-size:14px; color:#888; margin-bottom:20px;">
+                    ${plan.period === '15 días' ? '💰 Solo $2.000 por día' : 
+                      plan.period === 'mes' ? '💰 Solo $1.667 por día' : 
+                      '💰 Solo $1.370 por día'}
+                </div>
                 <ul class="plan-features">
                     ${plan.features.map(f => `<li>${f}</li>`).join('')}
                 </ul>
-                <button class="btn btn-green">Seleccionar Plan</button>
+                <button class="btn btn-green" style="margin-top:20px;">
+                    ${plan.period === '15 días' ? '🔥 Probar 15 días' : 
+                      plan.period === 'mes' ? '⚡ Suscribirme al Mes' : 
+                      '🌟 Suscripción Anual'}
+                </button>
             </div>
         `;
         
@@ -903,17 +969,30 @@ async function loadPlans() {
         if (document.getElementById('adminPanel').style.display === 'block') {
             plansAdminContainer.innerHTML += `
                 <div style="background:#0c0c0c; padding:20px; border-radius:15px; margin-bottom:20px;">
-                    <h4>${plan.name}</h4>
-                    <input type="text" id="plan_name_${doc.id}" value="${plan.name}" placeholder="Nombre" style="margin:10px 0;">
-                    <input type="number" id="plan_price_${doc.id}" value="${plan.price}" placeholder="Precio" style="margin:10px 0;">
-                    <input type="text" id="plan_features_${doc.id}" value="${plan.features.join(', ')}" placeholder="Características (separadas por coma)" style="margin:10px 0;">
-                    <button class="btn btn-green" onclick="updatePlan('${doc.id}')">Actualizar Plan</button>
+                    <h4 style="color:#00ff88;">${plan.name}</h4>
+                    <label style="display:block; margin-top:10px;">Nombre:</label>
+                    <input type="text" id="plan_name_${plan.id}" value="${plan.name}" style="width:100%; padding:10px; margin:5px 0; background:#050505; border:1px solid #333; border-radius:10px; color:white;">
+                    
+                    <label style="display:block; margin-top:10px;">Precio (COP):</label>
+                    <input type="number" id="plan_price_${plan.id}" value="${plan.price}" style="width:100%; padding:10px; margin:5px 0; background:#050505; border:1px solid #333; border-radius:10px; color:white;">
+                    
+                    <label style="display:block; margin-top:10px;">Período:</label>
+                    <input type="text" id="plan_period_${plan.id}" value="${plan.period}" style="width:100%; padding:10px; margin:5px 0; background:#050505; border:1px solid #333; border-radius:10px; color:white;">
+                    
+                    <label style="display:block; margin-top:10px;">Características (separadas por coma):</label>
+                    <textarea id="plan_features_${plan.id}" rows="3" style="width:100%; padding:10px; margin:5px 0; background:#050505; border:1px solid #333; border-radius:10px; color:white;">${plan.features.join(', ')}</textarea>
+                    
+                    <label style="display:block; margin-top:10px;">
+                        <input type="checkbox" id="plan_recommended_${plan.id}" ${plan.recommended ? 'checked' : ''}>
+                        Marcar como recomendado
+                    </label>
+                    
+                    <button class="btn btn-green" onclick="updatePlan('${plan.id}')" style="margin-top:15px;">💾 Actualizar Plan</button>
                 </div>
             `;
         }
     });
 }
-
 function updatePlan(planId) {
     const name = document.getElementById(`plan_name_${planId}`).value;
     const price = parseInt(document.getElementById(`plan_price_${planId}`).value);
