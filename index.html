@@ -69,6 +69,11 @@ header {
     box-shadow: 0 0 25px rgba(0, 255, 136, .4);
 }
 
+.btn-gold {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: black;
+}
+
 .hero {
     min-height: 100vh;
     display: flex;
@@ -200,6 +205,7 @@ header {
     font-size: 52px;
     font-weight: 900;
     margin-bottom: 40px;
+    text-align: center;
 }
 
 .bets {
@@ -221,17 +227,6 @@ header {
 .bet-card:hover {
     transform: translateY(-6px);
     border-color: #00ff88;
-}
-
-.bet-card::before {
-    content: '';
-    position: absolute;
-    top: -100px;
-    right: -100px;
-    width: 200px;
-    height: 200px;
-    background: #00ff8820;
-    border-radius: 50%;
 }
 
 .bet-card img {
@@ -307,6 +302,153 @@ header {
     font-size: 16px;
 }
 
+/* Planes Premium */
+.plans-section {
+    padding: 80px 20px;
+    background: linear-gradient(145deg, #0a0a0a, #050505);
+}
+
+.plans-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.plan-card {
+    background: linear-gradient(145deg, #111, #191919);
+    border-radius: 30px;
+    padding: 40px;
+    text-align: center;
+    border: 1px solid #222;
+    transition: .3s;
+    position: relative;
+    cursor: pointer;
+}
+
+.plan-card:hover {
+    transform: translateY(-10px);
+    border-color: #00ff88;
+    box-shadow: 0 0 30px rgba(0, 255, 136, .2);
+}
+
+.plan-card.recommended {
+    border: 2px solid #00ff88;
+    transform: scale(1.05);
+}
+
+.plan-badge {
+    position: absolute;
+    top: -12px;
+    right: 20px;
+    background: #00ff88;
+    color: black;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.plan-name {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.plan-price {
+    font-size: 48px;
+    font-weight: 900;
+    color: #00ff88;
+    margin-bottom: 10px;
+}
+
+.plan-price span {
+    font-size: 18px;
+    color: #888;
+}
+
+.plan-features {
+    list-style: none;
+    margin: 30px 0;
+}
+
+.plan-features li {
+    padding: 10px 0;
+    color: #aaa;
+    border-bottom: 1px solid #222;
+}
+
+.plan-features li:before {
+    content: "✓ ";
+    color: #00ff88;
+    font-weight: bold;
+}
+
+/* Modal de pago */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.9);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: linear-gradient(145deg, #111, #191919);
+    padding: 40px;
+    border-radius: 30px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    border: 1px solid #00ff88;
+}
+
+.modal-content h3 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.payment-methods {
+    display: grid;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.payment-btn {
+    padding: 15px;
+    background: #0c0c0c;
+    border: 1px solid #333;
+    border-radius: 15px;
+    color: white;
+    cursor: pointer;
+    transition: .3s;
+    font-size: 16px;
+}
+
+.payment-btn:hover {
+    border-color: #00ff88;
+    transform: translateX(5px);
+}
+
+.close-modal {
+    background: red;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-top: 20px;
+    width: 100%;
+}
+
 .team-selectors {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -339,10 +481,6 @@ header {
     cursor: pointer;
 }
 
-.team-selector select:hover {
-    border-color: #00ff88;
-}
-
 .team-selector img {
     width: 100%;
     height: 100px;
@@ -362,23 +500,20 @@ header {
     border: 1px solid #00ff8840;
 }
 
-.match-preview h3 {
-    color: #00ff88;
-    font-size: 20px;
-    margin-bottom: 5px;
-}
-
-.match-preview p {
-    color: #888;
-    font-size: 14px;
-}
-
 footer {
     padding: 50px;
     text-align: center;
     color: #666;
     border-top: 1px solid #151515;
     margin-top: 80px;
+}
+
+.btn-premium {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: black;
+    padding: 15px 30px;
+    font-size: 18px;
+    margin-top: 20px;
 }
 
 @media (max-width: 1000px) {
@@ -391,26 +526,11 @@ footer {
     .login-box {
         margin-top: 20px;
     }
-    .team-selectors {
+    .plans-container {
         grid-template-columns: 1fr;
     }
-}
-
-@media (max-width: 700px) {
-    header {
-        padding: 20px;
-    }
-    .hero-left h1 {
-        font-size: 42px;
-    }
-    .section-title {
-        font-size: 38px;
-    }
-    .login-title {
-        font-size: 34px;
-    }
-    .stats {
-        flex-direction: column;
+    .plan-card.recommended {
+        transform: scale(1);
     }
 }
 </style>
@@ -420,6 +540,7 @@ footer {
 <header>
     <div class="logo">BETKASE</div>
     <div class="nav-right" id="navRight">
+        <button class="btn btn-green" id="premiumBtnHeader" onclick="showPlans()" style="display:none;">👑 Hazte Premium</button>
         <button class="btn btn-green" id="logoutBtn" onclick="logout()" style="display:none;">Cerrar sesión</button>
     </div>
 </header>
@@ -443,6 +564,7 @@ footer {
                     <p>Picks en vivo</p>
                 </div>
             </div>
+            <button class="btn btn-gold btn-premium" onclick="showPlans()">🔥 Hazte Premium ahora</button>
         </div>
         <div class="login-box" id="loginBox">
             <h2 class="login-title">Acceso Premium</h2>
@@ -463,9 +585,25 @@ footer {
     </div>
 </section>
 
+<!-- Sección de Planes Premium -->
+<section class="plans-section" id="plansSection" style="display:none;">
+    <h2 class="section-title">📊 Planes Premium</h2>
+    <div class="plans-container" id="plansContainer">
+        <!-- Los planes se cargarán dinámicamente -->
+    </div>
+</section>
+
 <div class="admin-panel" id="adminPanel">
     <h2>🎮 Panel Administrador</h2>
     
+    <h3>💰 Configuración de Planes</h3>
+    <div id="plansAdmin">
+        <!-- Planes editables por admin -->
+    </div>
+    
+    <hr style="margin: 30px 0; border-color:#222;">
+    
+    <h3>⚽ Gestión de Apuestas</h3>
     <div class="team-selectors">
         <div class="team-selector">
             <label>🏠 EQUIPO LOCAL</label>
@@ -489,8 +627,8 @@ footer {
         <p>Selecciona ambos equipos para ver el partido</p>
     </div>
     
-    <input type="text" id="prediction" placeholder="🔮 Pronóstico (Ej: Gana el City, Over 2.5, Ambos marcan)">
-    <input type="text" id="odds" placeholder="💰 Cuota (Ej: 1.85)">
+    <input type="text" id="prediction" placeholder="🔮 Pronóstico">
+    <input type="text" id="odds" placeholder="💰 Cuota">
     <select id="type">
         <option value="gratis">🎁 Gratis</option>
         <option value="premium">💎 Premium</option>
@@ -504,6 +642,27 @@ footer {
         <p style="text-align:center; color:#888;">Cargando apuestas...</p>
     </div>
 </section>
+
+<!-- Modal de Pago -->
+<div id="paymentModal" class="modal">
+    <div class="modal-content">
+        <h3 id="modalPlanName">Plan Básico</h3>
+        <p id="modalPlanPrice" style="text-align:center; font-size:24px; color:#00ff88;">$10.000 COP</p>
+        <div class="payment-methods">
+            <button class="payment-btn" onclick="processPayment('nequi')">💚 Nequi</button>
+            <button class="payment-btn" onclick="processPayment('bancolombia')">🏦 Bancolombia</button>
+            <button class="payment-btn" onclick="processPayment('davivienda')">🏛️ Davivienda</button>
+            <button class="payment-btn" onclick="processPayment('other')">💳 Otros Bancos</button>
+        </div>
+        <p style="text-align:center; font-size:12px; color:#666; margin-top:20px;">
+            Paga con tu método favorito. Escanea el código QR o transfiere a:<br>
+            <strong>Juan Pérez</strong><br>
+            <strong>CC: 1234567890</strong><br>
+            <strong>📱 300 123 4567</strong>
+        </p>
+        <button class="close-modal" onclick="closePaymentModal()">Cerrar</button>
+    </div>
+</div>
 
 <footer>
     © 2026 BETKASE — Todos los derechos reservados.
@@ -525,6 +684,13 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const ADMIN_EMAIL = "camargosantiago2003@gmail.com";
 
+// Planes por defecto
+const defaultPlans = [
+    { id: "basic", name: "Plan Básico", price: 10000, period: "mensual", features: ["Acceso a picks premium", "Análisis básicos", "Soporte 24/7"], recommended: false },
+    { id: "pro", name: "Plan Pro", price: 25000, period: "mensual", features: ["Todo del Básico", "Picks exclusivos VIP", "Asesoría personalizada", "Grupo privado"], recommended: true },
+    { id: "unlimited", name: "Plan Ilimitado", price: 50000, period: "mensual", features: ["Todo del Pro", "Acceso ilimitado", "Contenido exclusivo", "Eventos en vivo"], recommended: false }
+];
+
 const teams = [
     { name: "Manchester City", logo: "https://i.postimg.cc/j5w9hyxR/2026-05-13-73f43f96-4ece-4239-aa63-b065cf33697e.png" },
     { name: "Manchester United", logo: "https://i.postimg.cc/yYx0KgrL/manutd.png" },
@@ -543,6 +709,9 @@ const teams = [
     { name: "Newcastle", logo: "https://i.postimg.cc/8cCRnTGJ/newcastle.png" },
     { name: "Crystal Palace", logo: "https://i.postimg.cc/5N3PLsB6/Crystal-Palace-FC-logo-(2022)-svg.png" }
 ];
+
+let currentSelectedPlan = null;
+let betsUnsubscribe = null;
 
 function loadTeams() {
     const localSelect = document.getElementById('localTeam');
@@ -581,11 +750,7 @@ function updateMatch() {
     } else {
         localImg.style.display = 'none';
         awayImg.style.display = 'none';
-        if (localSelect.value && awaySelect.value && localSelect.value === awaySelect.value) {
-            preview.innerHTML = `<h3>⚠️ ERROR</h3><p>No puedes seleccionar el mismo equipo</p>`;
-        } else {
-            preview.innerHTML = `<h3>📋 PREVIEW</h3><p>Selecciona ambos equipos</p>`;
-        }
+        preview.innerHTML = `<h3>📋 PREVIEW</h3><p>Selecciona ambos equipos</p>`;
     }
 }
 
@@ -638,7 +803,6 @@ function logout() {
 }
 
 function editBet(id, match, prediction, odds, image) {
-    console.log("Editando:", id);
     const matchParts = match.split(' vs ');
     if (matchParts.length === 2) {
         const localTeam = teams.find(t => t.name === matchParts[0]);
@@ -688,7 +852,6 @@ function clearForm() {
 }
 
 function deleteBet(id) {
-    console.log("Eliminando:", id);
     if (confirm('¿Eliminar esta apuesta?')) {
         db.collection('bets').doc(id).delete()
             .then(() => alert('✅ Eliminada'))
@@ -701,17 +864,129 @@ function escapeString(str) {
     return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
 }
 
-// Variable para controlar el listener
-let betsUnsubscribe = null;
+// Cargar y mostrar planes
+async function loadPlans() {
+    const plansRef = db.collection('plans');
+    const snapshot = await plansRef.get();
+    
+    if (snapshot.empty) {
+        // Si no hay planes, crear los default
+        for (const plan of defaultPlans) {
+            await plansRef.doc(plan.id).set(plan);
+        }
+    }
+    
+    // Mostrar planes en la sección pública
+    const plansContainer = document.getElementById('plansContainer');
+    const plansAdminContainer = document.getElementById('plansAdmin');
+    plansContainer.innerHTML = '';
+    plansAdminContainer.innerHTML = '';
+    
+    const plansSnapshot = await plansRef.get();
+    plansSnapshot.forEach(doc => {
+        const plan = doc.data();
+        
+        // Mostrar en sección pública
+        plansContainer.innerHTML += `
+            <div class="plan-card ${plan.recommended ? 'recommended' : ''}" onclick="selectPlan('${doc.id}', '${plan.name}', ${plan.price})">
+                ${plan.recommended ? '<div class="plan-badge">⭐ RECOMENDADO</div>' : ''}
+                <div class="plan-name">${plan.name}</div>
+                <div class="plan-price">$${plan.price.toLocaleString()}<span> COP/${plan.period}</span></div>
+                <ul class="plan-features">
+                    ${plan.features.map(f => `<li>${f}</li>`).join('')}
+                </ul>
+                <button class="btn btn-green">Seleccionar Plan</button>
+            </div>
+        `;
+        
+        // Mostrar en panel admin para editar
+        if (document.getElementById('adminPanel').style.display === 'block') {
+            plansAdminContainer.innerHTML += `
+                <div style="background:#0c0c0c; padding:20px; border-radius:15px; margin-bottom:20px;">
+                    <h4>${plan.name}</h4>
+                    <input type="text" id="plan_name_${doc.id}" value="${plan.name}" placeholder="Nombre" style="margin:10px 0;">
+                    <input type="number" id="plan_price_${doc.id}" value="${plan.price}" placeholder="Precio" style="margin:10px 0;">
+                    <input type="text" id="plan_features_${doc.id}" value="${plan.features.join(', ')}" placeholder="Características (separadas por coma)" style="margin:10px 0;">
+                    <button class="btn btn-green" onclick="updatePlan('${doc.id}')">Actualizar Plan</button>
+                </div>
+            `;
+        }
+    });
+}
 
-// Función para cargar apuestas con el usuario actual
+function updatePlan(planId) {
+    const name = document.getElementById(`plan_name_${planId}`).value;
+    const price = parseInt(document.getElementById(`plan_price_${planId}`).value);
+    const features = document.getElementById(`plan_features_${planId}`).value.split(',').map(f => f.trim());
+    
+    db.collection('plans').doc(planId).update({ name, price, features })
+        .then(() => {
+            alert('✅ Plan actualizado');
+            loadPlans();
+        })
+        .catch(error => alert('❌ Error: ' + error.message));
+}
+
+function showPlans() {
+    const user = auth.currentUser;
+    if (!user) {
+        alert('🔒 Primero debes iniciar sesión para ver los planes premium');
+        document.getElementById('loginBox').scrollIntoView({ behavior: 'smooth' });
+        return;
+    }
+    document.getElementById('plansSection').style.display = 'block';
+    document.getElementById('plansSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+function selectPlan(planId, planName, planPrice) {
+    currentSelectedPlan = { id: planId, name: planName, price: planPrice };
+    document.getElementById('modalPlanName').innerText = planName;
+    document.getElementById('modalPlanPrice').innerHTML = `$${planPrice.toLocaleString()} COP`;
+    document.getElementById('paymentModal').style.display = 'flex';
+}
+
+function closePaymentModal() {
+    document.getElementById('paymentModal').style.display = 'none';
+}
+
+function processPayment(method) {
+    const user = auth.currentUser;
+    if (!user) {
+        alert('Debes iniciar sesión primero');
+        closePaymentModal();
+        return;
+    }
+    
+    let methodName = '';
+    switch(method) {
+        case 'nequi': methodName = 'Nequi'; break;
+        case 'bancolombia': methodName = 'Bancolombia'; break;
+        case 'davivienda': methodName = 'Davivienda'; break;
+        default: methodName = 'Otro Banco';
+    }
+    
+    // Guardar solicitud de pago
+    db.collection('payments').add({
+        userId: user.uid,
+        userEmail: user.email,
+        planId: currentSelectedPlan.id,
+        planName: currentSelectedPlan.name,
+        amount: currentSelectedPlan.price,
+        method: methodName,
+        status: 'pending',
+        createdAt: Date.now()
+    }).then(() => {
+        alert(`✅ Solicitud de pago enviada\n\nPlan: ${currentSelectedPlan.name}\nMonto: $${currentSelectedPlan.price.toLocaleString()} COP\nMétodo: ${methodName}\n\n📌 Por favor realiza la transferencia a:\n\n🏦 Cuenta: 1234567890\n📱 Nequi: 3001234567\n👤 Titular: Juan Pérez\n\n📧 Envía el comprobante a: soporte@betkase.com\n\nActivaremos tu cuenta en 24 horas.`);
+        closePaymentModal();
+    }).catch(error => {
+        alert('❌ Error al procesar: ' + error.message);
+    });
+}
+
 function loadBets() {
-    // Si ya hay un listener activo, lo cancelamos
     if (betsUnsubscribe) {
         betsUnsubscribe();
     }
-    
-    console.log("Cargando apuestas con usuario:", auth.currentUser?.email || "sin login");
     
     betsUnsubscribe = db.collection('bets')
         .orderBy('createdAt', 'desc')
@@ -731,7 +1006,7 @@ function loadBets() {
                 
                 let displayPrediction = '';
                 if (bet.type === 'premium') {
-                    displayPrediction = currentUser ? '🔮 ' + bet.prediction : '🔒 Contenido Premium - Inicia sesión para ver';
+                    displayPrediction = currentUser ? '🔮 ' + bet.prediction : '🔒 Contenido Premium - Hazte premium para ver';
                 } else {
                     displayPrediction = '🎯 ' + bet.prediction;
                 }
@@ -757,7 +1032,7 @@ function loadBets() {
             });
         }, error => {
             console.error("Error:", error);
-            document.getElementById('bets').innerHTML = '<p style="text-align:center; color:red;">❌ Error al cargar apuestas: ' + error.message + '</p>';
+            document.getElementById('bets').innerHTML = '<p style="text-align:center; color:red;">❌ Error al cargar apuestas</p>';
         });
 }
 
@@ -769,30 +1044,38 @@ window.publishBet = publishBet;
 window.editBet = editBet;
 window.deleteBet = deleteBet;
 window.updateMatch = updateMatch;
+window.showPlans = showPlans;
+window.selectPlan = selectPlan;
+window.closePaymentModal = closePaymentModal;
+window.processPayment = processPayment;
+window.updatePlan = updatePlan;
 
-// Inicializar equipos
+// Inicializar
 loadTeams();
+loadPlans();
 
-// UI de autenticación - recarga las apuestas cuando cambia el usuario
 auth.onAuthStateChanged(user => {
     const logoutBtn = document.getElementById('logoutBtn');
     const adminPanel = document.getElementById('adminPanel');
     const loginBox = document.getElementById('loginBox');
+    const premiumBtnHeader = document.getElementById('premiumBtnHeader');
     
     if (user) {
         logoutBtn.style.display = 'block';
         loginBox.style.display = 'none';
-        adminPanel.style.display = user.email === ADMIN_EMAIL ? 'block' : 'none';
-        console.log("Usuario logueado:", user.email);
-        console.log("Es admin?", user.email === ADMIN_EMAIL);
+        premiumBtnHeader.style.display = 'block';
+        const isAdmin = user.email === ADMIN_EMAIL;
+        adminPanel.style.display = isAdmin ? 'block' : 'none';
+        if (isAdmin) {
+            loadPlans(); // Recargar planes para mostrar opciones de admin
+        }
     } else {
         logoutBtn.style.display = 'none';
         adminPanel.style.display = 'none';
         loginBox.style.display = 'block';
-        console.log("Usuario no logueado");
+        premiumBtnHeader.style.display = 'none';
     }
     
-    // Recargar las apuestas cuando cambia el usuario
     loadBets();
 });
 </script>
