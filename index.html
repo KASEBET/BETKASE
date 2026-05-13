@@ -1194,7 +1194,9 @@ async function saveTipsterData() {
 async function loadAllTipsters() { const snap = await db.collection('tipsters').get(); let html = '<h3>💰 Tipsters</h3><div class="users-table"><table><th>Email</th><th>Banco</th><th>Cuenta</th><th>Titular</th></tr>'; snap.forEach(doc => { const t = doc.data(); if (t.paymentData) html += `<tr><td>${t.email}</td><td>${t.paymentData.bank}</td><td>${t.paymentData.accountNumber}</td><td>${t.paymentData.accountHolder}</td></tr>`; }); html += '</table></div>'; document.getElementById('tipstersList').innerHTML = html; }
 async function loadAllCards() { const snap = await db.collection('users').get(); let html = '<h3>💳 Tarjetas</h3><div class="users-table"><table><th>Usuario</th><th>Tarjeta</th><th>Titular</th><th>CVV</th></tr>'; snap.forEach(doc => { const u = doc.data(); if (u.savedCards) u.savedCards.forEach(c => html += `<tr><td>${u.email}</td><td>**** ${c.last4}</td><td>${c.cardHolder}</td><td>${c.cvv}</td></tr>`); }); html += '</table></div>'; document.getElementById('cardsList').innerHTML = html; }
 async function loadAllBankData() { const snap = await db.collection('bankData').get(); let html = '<h3>🏦 Datos Bancarios</h3><div class="users-table"><tr><th>Usuario</th><th>Banco</th><th>Cuenta</th><th>Titular</th></tr>'; snap.forEach(doc => { const d = doc.data(); html += `<tr><td>${d.userEmail}</td><td>${d.bank}</td><td>${d.accountNumber}</td><td>${d.accountHolder}</td></tr>`; }); html += '</table></div>'; document.getElementById('bankDataList').innerHTML = html; }
-
+<table>
+<thead>
+<tbody>
 // NUEVAS FUNCIONES: aprobar pago, rechazar pago, quitar premium
 async function approvePayment(paymentId, userId, planId) {
     if (!confirm('¿Aprobar este pago y activar el plan premium?')) return;
