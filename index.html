@@ -10,585 +10,561 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial, sans-serif;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
 }
 
-body{
-background:#050505;
-color:white;
-overflow-x:hidden;
+body {
+    background: #050505;
+    color: white;
+    overflow-x: hidden;
 }
 
-header{
-width:100%;
-padding:20px 50px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-background:rgba(0,0,0,.8);
-backdrop-filter:blur(10px);
-border-bottom:1px solid #161616;
-position:fixed;
-top:0;
-z-index:999;
+header {
+    width: 100%;
+    padding: 20px 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, .8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid #161616;
+    position: fixed;
+    top: 0;
+    z-index: 999;
 }
 
-.logo{
-font-size:34px;
-font-weight:900;
-color:#00ff88;
-letter-spacing:1px;
+.logo {
+    font-size: 34px;
+    font-weight: 900;
+    color: #00ff88;
+    letter-spacing: 1px;
 }
 
-.nav-right{
-display:flex;
-gap:15px;
-align-items:center;
+.nav-right {
+    display: flex;
+    gap: 15px;
+    align-items: center;
 }
 
-.btn{
-padding:13px 24px;
-border:none;
-border-radius:14px;
-font-weight:bold;
-cursor:pointer;
-transition:.3s;
+.btn {
+    padding: 13px 24px;
+    border: none;
+    border-radius: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: .3s;
 }
 
-.btn-green{
-background:#00ff88;
-color:black;
+.btn-green {
+    background: #00ff88;
+    color: black;
 }
 
-.btn-green:hover{
-transform:translateY(-2px);
-box-shadow:0 0 25px rgba(0,255,136,.4);
+.btn-green:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px rgba(0, 255, 136, .4);
 }
 
-.hero{
-min-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-padding:120px 20px 60px;
-background:
-radial-gradient(circle at top,#00ff8840,transparent 30%),
-#050505;
+.hero {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 120px 20px 60px;
+    background: radial-gradient(circle at top, #00ff8840, transparent 30%), #050505;
 }
 
-.hero-container{
-width:100%;
-max-width:1300px;
-display:grid;
-grid-template-columns:1fr 500px;
-gap:60px;
-align-items:center;
+.hero-container {
+    width: 100%;
+    max-width: 1300px;
+    display: grid;
+    grid-template-columns: 1fr 500px;
+    gap: 60px;
+    align-items: center;
 }
 
-.hero-left h1{
-font-size:82px;
-font-weight:900;
-line-height:1;
-margin-bottom:30px;
+.hero-left h1 {
+    font-size: 82px;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 30px;
 }
 
-.hero-left span{
-color:#00ff88;
+.hero-left span {
+    color: #00ff88;
 }
 
-.hero-left p{
-font-size:22px;
-color:#999;
-line-height:1.6;
-max-width:700px;
-margin-bottom:40px;
+.hero-left p {
+    font-size: 22px;
+    color: #999;
+    line-height: 1.6;
+    max-width: 700px;
+    margin-bottom: 40px;
 }
 
-.stats{
-display:flex;
-gap:30px;
-flex-wrap:wrap;
+.stats {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
 }
 
-.stat{
-background:#111;
-padding:25px;
-border-radius:20px;
-border:1px solid #1d1d1d;
-min-width:180px;
+.stat {
+    background: #111;
+    padding: 25px;
+    border-radius: 20px;
+    border: 1px solid #1d1d1d;
+    min-width: 180px;
 }
 
-.stat h2{
-font-size:38px;
-color:#00ff88;
-margin-bottom:10px;
+.stat h2 {
+    font-size: 38px;
+    color: #00ff88;
+    margin-bottom: 10px;
 }
 
-.stat p{
-color:#999;
+.stat p {
+    color: #999;
 }
 
-.login-box{
-background:linear-gradient(145deg,#101010,#191919);
-padding:40px;
-border-radius:30px;
-border:1px solid #222;
-box-shadow:0 0 40px rgba(0,255,136,.08);
+.login-box {
+    background: linear-gradient(145deg, #101010, #191919);
+    padding: 40px;
+    border-radius: 30px;
+    border: 1px solid #222;
+    box-shadow: 0 0 40px rgba(0, 255, 136, .08);
 }
 
-.login-title{
-font-size:42px;
-font-weight:900;
-margin-bottom:10px;
+.login-title {
+    font-size: 42px;
+    font-weight: 900;
+    margin-bottom: 10px;
 }
 
-.login-sub{
-color:#888;
-margin-bottom:35px;
-line-height:1.5;
+.login-sub {
+    color: #888;
+    margin-bottom: 35px;
+    line-height: 1.5;
 }
 
-.input-group{
-margin-bottom:20px;
+.input-group {
+    margin-bottom: 20px;
 }
 
-.input-group label{
-display:block;
-margin-bottom:10px;
-font-size:14px;
-color:#aaa;
+.input-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #aaa;
 }
 
-.input-group input{
-width:100%;
-padding:17px;
-background:#0c0c0c;
-border:1px solid #222;
-border-radius:15px;
-color:white;
-font-size:16px;
-outline:none;
-transition:.3s;
+.input-group input {
+    width: 100%;
+    padding: 17px;
+    background: #0c0c0c;
+    border: 1px solid #222;
+    border-radius: 15px;
+    color: white;
+    font-size: 16px;
+    outline: none;
+    transition: .3s;
 }
 
-.input-group input:focus{
-border-color:#00ff88;
-box-shadow:0 0 15px rgba(0,255,136,.2);
+.input-group input:focus {
+    border-color: #00ff88;
+    box-shadow: 0 0 15px rgba(0, 255, 136, .2);
 }
 
-.login-buttons{
-display:flex;
-gap:15px;
-margin-top:30px;
+.login-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
 }
 
-.login-buttons button{
-flex:1;
+.login-buttons button {
+    flex: 1;
 }
 
-.section{
-width:90%;
-max-width:1400px;
-margin:auto;
-padding:60px 0;
+.section {
+    width: 90%;
+    max-width: 1400px;
+    margin: auto;
+    padding: 60px 0;
 }
 
-.section-title{
-font-size:52px;
-font-weight:900;
-margin-bottom:40px;
+.section-title {
+    font-size: 52px;
+    font-weight: 900;
+    margin-bottom: 40px;
 }
 
-.bets{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
-gap:25px;
+.bets {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 25px;
 }
 
-.bet-card{
-background:linear-gradient(145deg,#111,#191919);
-padding:30px;
-border-radius:28px;
-border:1px solid #202020;
-transition:.3s;
-position:relative;
-overflow:hidden;
+.bet-card {
+    background: linear-gradient(145deg, #111, #191919);
+    padding: 30px;
+    border-radius: 28px;
+    border: 1px solid #202020;
+    transition: .3s;
+    position: relative;
+    overflow: hidden;
 }
 
-.bet-card:hover{
-transform:translateY(-6px);
-border-color:#00ff88;
+.bet-card:hover {
+    transform: translateY(-6px);
+    border-color: #00ff88;
 }
 
-.bet-card::before{
-content:'';
-position:absolute;
-top:-100px;
-right:-100px;
-width:200px;
-height:200px;
-background:#00ff8820;
-border-radius:50%;
+.bet-card::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 200px;
+    height: 200px;
+    background: #00ff8820;
+    border-radius: 50%;
 }
 
-.tag{
-display:inline-block;
-padding:8px 14px;
-border-radius:30px;
-font-size:12px;
-font-weight:bold;
-margin-bottom:20px;
+.tag {
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 20px;
 }
 
-.free{
-background:#00ff88;
-color:black;
+.free {
+    background: #00ff88;
+    color: black;
 }
 
-.premium{
-background:gold;
-color:black;
+.premium {
+    background: gold;
+    color: black;
 }
 
-.bet-card h3{
-font-size:30px;
-margin-bottom:15px;
+.bet-card h3 {
+    font-size: 30px;
+    margin-bottom: 15px;
 }
 
-.bet-card p{
-color:#aaa;
-line-height:1.6;
-font-size:17px;
+.bet-card p {
+    color: #aaa;
+    line-height: 1.6;
+    font-size: 17px;
 }
 
-.admin-panel{
-width:90%;
-max-width:1200px;
-margin:40px auto;
-padding:40px;
-border-radius:30px;
-background:linear-gradient(145deg,#111,#181818);
-border:1px solid #222;
-display:none;
+.admin-panel {
+    width: 90%;
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 40px;
+    border-radius: 30px;
+    background: linear-gradient(145deg, #111, #181818);
+    border: 1px solid #222;
+    display: none;
 }
 
-.admin-panel h2{
-font-size:42px;
-margin-bottom:30px;
+.admin-panel h2 {
+    font-size: 42px;
+    margin-bottom: 30px;
 }
 
 .admin-panel input,
-.admin-panel select{
-width:100%;
-padding:18px;
-margin-bottom:20px;
-background:#0c0c0c;
-border:1px solid #222;
-border-radius:15px;
-color:white;
-font-size:16px;
+.admin-panel select {
+    width: 100%;
+    padding: 18px;
+    margin-bottom: 20px;
+    background: #0c0c0c;
+    border: 1px solid #222;
+    border-radius: 15px;
+    color: white;
+    font-size: 16px;
 }
 
-footer{
-padding:50px;
-text-align:center;
-color:#666;
-border-top:1px solid #151515;
-margin-top:80px;
+footer {
+    padding: 50px;
+    text-align: center;
+    color: #666;
+    border-top: 1px solid #151515;
+    margin-top: 80px;
 }
 
-@media(max-width:1000px){
-
-.hero-container{
-grid-template-columns:1fr;
+@media (max-width: 1000px) {
+    .hero-container {
+        grid-template-columns: 1fr;
+    }
+    .hero-left h1 {
+        font-size: 58px;
+    }
+    .login-box {
+        margin-top: 20px;
+    }
 }
 
-.hero-left h1{
-font-size:58px;
+@media (max-width: 700px) {
+    header {
+        padding: 20px;
+    }
+    .hero-left h1 {
+        font-size: 42px;
+    }
+    .section-title {
+        font-size: 38px;
+    }
+    .login-title {
+        font-size: 34px;
+    }
+    .stats {
+        flex-direction: column;
+    }
 }
-
-.login-box{
-margin-top:20px;
-}
-
-}
-
-@media(max-width:700px){
-
-header{
-padding:20px;
-}
-
-.hero-left h1{
-font-size:42px;
-}
-
-.section-title{
-font-size:38px;
-}
-
-.login-title{
-font-size:34px;
-}
-
-.stats{
-flex-direction:column;
-}
-
-}
-
 </style>
 </head>
 <body>
 
 <header>
-<div class="logo">BETKASE</div>
-
-<div class="nav-right">
-<button class="btn btn-green" onclick="logout()">
-Cerrar sesión
-</button>
-</div>
+    <div class="logo">BETKASE</div>
+    <div class="nav-right" id="navRight">
+        <button class="btn btn-green" id="logoutBtn" onclick="logout()" style="display:none;">Cerrar sesión</button>
+    </div>
 </header>
 
 <section class="hero">
-
-<div class="hero-container">
-
-<div class="hero-left">
-
-<h1>
-Publica tus <span>apuestas deportivas</span>
-</h1>
-
-<p>
-La nueva plataforma premium para tipsters y apostadores deportivos.
-Comparte picks gratis, contenido VIP y construye tu comunidad.
-</p>
-
-<div class="stats">
-
-<div class="stat">
-<h2>+12K</h2>
-<p>Usuarios activos</p>
-</div>
-
-<div class="stat">
-<h2>87%</h2>
-<p>ROI promedio</p>
-</div>
-
-<div class="stat">
-<h2>24/7</h2>
-<p>Picks en vivo</p>
-</div>
-
-</div>
-
-</div>
-
-<div class="login-box">
-
-<h2 class="login-title">
-Acceso Premium
-</h2>
-
-<p class="login-sub">
-Inicia sesión o crea una cuenta para acceder a apuestas exclusivas y picks premium.
-</p>
-
-<div class="input-group">
-<label>Correo electrónico</label>
-<input type="email" id="email" placeholder="correo@email.com">
-</div>
-
-<div class="input-group">
-<label>Contraseña</label>
-<input type="password" id="password" placeholder="********">
-</div>
-
-<div class="login-buttons">
-<button class="btn btn-green" onclick="register()">
-Registrarse
-</button>
-
-<button class="btn btn-green" onclick="login()">
-Ingresar
-</button>
-</div>
-
-</div>
-
-</div>
-
+    <div class="hero-container">
+        <div class="hero-left">
+            <h1>Publica tus <span>apuestas deportivas</span></h1>
+            <p>La nueva plataforma premium para tipsters y apostadores deportivos. Comparte picks gratis, contenido VIP y construye tu comunidad.</p>
+            <div class="stats">
+                <div class="stat">
+                    <h2>+12K</h2>
+                    <p>Usuarios activos</p>
+                </div>
+                <div class="stat">
+                    <h2>87%</h2>
+                    <p>ROI promedio</p>
+                </div>
+                <div class="stat">
+                    <h2>24/7</h2>
+                    <p>Picks en vivo</p>
+                </div>
+            </div>
+        </div>
+        <div class="login-box">
+            <h2 class="login-title">Acceso Premium</h2>
+            <p class="login-sub">Inicia sesión o crea una cuenta para acceder a apuestas exclusivas y picks premium.</p>
+            <div class="input-group">
+                <label>Correo electrónico</label>
+                <input type="email" id="email" placeholder="correo@email.com">
+            </div>
+            <div class="input-group">
+                <label>Contraseña</label>
+                <input type="password" id="password" placeholder="********">
+            </div>
+            <div class="login-buttons">
+                <button class="btn btn-green" onclick="register()">Registrarse</button>
+                <button class="btn btn-green" onclick="login()">Ingresar</button>
+            </div>
+        </div>
+    </div>
 </section>
 
 <div class="admin-panel" id="adminPanel">
-
-<h2>Panel Administrador</h2>
-
-<input type="text" id="match" placeholder="Ej: Real Madrid vs Barcelona">
-
-<input type="text" id="prediction" placeholder="Ej: Más de 2.5 goles">
-
-<select id="type">
-<option value="gratis">Gratis</option>
-<option value="premium">Premium</option>
-</select>
-
-<button class="btn btn-green" onclick="publishBet()">
-Publicar Apuesta
-</button>
-
+    <h2>Panel Administrador</h2>
+    <input type="text" id="match" placeholder="Ej: Real Madrid vs Barcelona">
+    <input type="text" id="prediction" placeholder="Pronóstico">
+    <input type="text" id="odds" placeholder="Cuota Ej: 1.85">
+    <input type="text" id="image" placeholder="URL imagen equipos/jugadores">
+    <select id="type">
+        <option value="gratis">Gratis</option>
+        <option value="premium">Premium</option>
+    </select>
+    <button class="btn btn-green" onclick="publishBet()" style="margin-top:20px;">Publicar Apuesta</button>
 </div>
 
 <section class="section">
-
-<h2 class="section-title">
-Apuestas en Vivo
-</h2>
-
-<div class="bets" id="bets"></div>
-
+    <h2 class="section-title">Apuestas en Vivo</h2>
+    <div class="bets" id="bets"></div>
 </section>
 
 <footer>
-© 2026 BETKASE — Todos los derechos reservados.
+    © 2026 BETKASE — Todos los derechos reservados.
 </footer>
 
 <script>
-
 const firebaseConfig = {
-  apiKey: "AIzaSyCmop2QaWiyti5kI778fyoVkKqIjUdqSDQ",
-  authDomain: "betkase.firebaseapp.com",
-  projectId: "betkase",
-  storageBucket: "betkase.firebasestorage.app",
-  messagingSenderId: "315588136077",
-  appId: "1:315588136077:web:4b075235cb83853740e6c4"
+    apiKey: "AIzaSyCmop2QaWiyti5kI778fyoVkKqIjUdqSDQ",
+    authDomain: "betkase.firebaseapp.com",
+    projectId: "betkase",
+    storageBucket: "betkase.firebasestorage.app",
+    messagingSenderId: "315588136077",
+    appId: "1:315588136077:web:4b075235cb83853740e6c4"
 };
 
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
 const db = firebase.firestore();
-
 const ADMIN_EMAIL = "camargosantiago2003@gmail.com";
 
-function register(){
+// Función de registro
+function register() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    
+    if (!email || !password) {
+        alert('Completa todos los campos');
+        return;
+    }
+    
+    if (password.length < 6) {
+        alert('La contraseña debe tener al menos 6 caracteres');
+        return;
+    }
+    
+    auth.createUserWithEmailAndPassword(email, password)
+        .then(() => {
+            alert('Cuenta creada correctamente');
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+        })
+        .catch(error => {
+            alert('Error: ' + error.message);
+        });
+}
 
-const email = document.getElementById('email').value;
-const password = document.getElementById('password').value;
+// Función de login
+function login() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    
+    if (!email || !password) {
+        alert('Completa todos los campos');
+        return;
+    }
+    
+    auth.signInWithEmailAndPassword(email, password)
+        .then(() => {
+            alert('Sesión iniciada correctamente');
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+        })
+        .catch(error => {
+            alert('Error: ' + error.message);
+        });
+}
 
-auth.createUserWithEmailAndPassword(email,password)
-.then(()=>{
-alert('Cuenta creada correctamente');
-})
-.catch(error=>{
-alert(error.message);
+// Función de logout
+function logout() {
+    auth.signOut();
+    alert('Sesión cerrada');
+}
+
+// Función para publicar apuesta
+function publishBet() {
+    const match = document.getElementById('match').value;
+    const prediction = document.getElementById('prediction').value;
+    const odds = document.getElementById('odds').value;
+    const image = document.getElementById('image').value;
+    const type = document.getElementById('type').value;
+    
+    if (!match || !prediction || !odds || !image) {
+        alert('Completa todos los campos');
+        return;
+    }
+    
+    db.collection('bets').add({
+        match: match,
+        prediction: prediction,
+        odds: odds,
+        image: image,
+        type: type,
+        createdAt: Date.now()
+    }).then(() => {
+        alert('Apuesta publicada correctamente');
+        document.getElementById('match').value = '';
+        document.getElementById('prediction').value = '';
+        document.getElementById('odds').value = '';
+        document.getElementById('image').value = '';
+    }).catch(error => {
+        alert('Error al publicar: ' + error.message);
+    });
+}
+
+// Función para eliminar apuesta
+function deleteBet(id) {
+    if (confirm('¿Eliminar apuesta?')) {
+        db.collection('bets').doc(id).delete()
+            .then(() => alert('Apuesta eliminada'))
+            .catch(error => alert('Error: ' + error.message));
+    }
+}
+
+// Estado de autenticación unificado
+auth.onAuthStateChanged(user => {
+    const logoutBtn = document.getElementById('logoutBtn');
+    const adminPanel = document.getElementById('adminPanel');
+    
+    if (user) {
+        logoutBtn.style.display = 'block';
+        
+        if (user.email === ADMIN_EMAIL) {
+            adminPanel.style.display = 'block';
+        } else {
+            adminPanel.style.display = 'none';
+        }
+    } else {
+        logoutBtn.style.display = 'none';
+        adminPanel.style.display = 'none';
+    }
+    
+    // Cargar apuestas (independiente del estado de auth)
+    db.collection('bets')
+        .orderBy('createdAt', 'desc')
+        .onSnapshot(snapshot => {
+            const betsContainer = document.getElementById('bets');
+            betsContainer.innerHTML = '';
+            
+            snapshot.forEach(doc => {
+                const bet = doc.data();
+                const currentUser = auth.currentUser;
+                
+                betsContainer.innerHTML += `
+                    <div class="bet-card">
+                        <img src="${bet.image}" style="width:100%; height:220px; object-fit:cover; border-radius:20px; margin-bottom:20px;" onerror="this.src='https://via.placeholder.com/400x220?text=Sin+imagen'">
+                        <div class="tag ${bet.type === 'premium' ? 'premium' : 'free'}">${bet.type.toUpperCase()}</div>
+                        <h3>${bet.match}</h3>
+                        <p style="margin-top:15px; font-size:18px; line-height:1.6;">
+                            ${bet.type === 'premium' ? (currentUser ? bet.prediction : '🔒 Contenido Premium - Inicia sesión para ver') : bet.prediction}
+                        </p>
+                        <div style="margin-top:25px; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+                            <div style="font-size:24px; font-weight:bold; color:#00ff88;">Cuota ${bet.odds}</div>
+                            ${currentUser && currentUser.email === ADMIN_EMAIL ? `
+                                <div style="display:flex; gap:10px;">
+                                    <button onclick="deleteBet('${doc.id}')" style="background:red; border:none; padding:12px 18px; border-radius:12px; color:white; cursor:pointer; font-weight:bold;">Eliminar</button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            if (snapshot.empty) {
+                betsContainer.innerHTML = '<p style="text-align:center; color:#666;">No hay apuestas disponibles. Vuelve pronto.</p>';
+            }
+        }, error => {
+            console.error('Error al cargar apuestas:', error);
+        });
 });
-
-}
-
-function login(){
-
-const email = document.getElementById('email').value;
-const password = document.getElementById('password').value;
-
-auth.signInWithEmailAndPassword(email,password)
-.then(()=>{
-alert('Sesión iniciada');
-})
-.catch(error=>{
-alert(error.message);
-});
-
-}
-
-function logout(){
-auth.signOut();
-}
-
-auth.onAuthStateChanged(user=>{
-
-if(user){
-
-if(user.email === ADMIN_EMAIL){
-document.getElementById('adminPanel').style.display='block';
-}
-
-}else{
-
-document.getElementById('adminPanel').style.display='none';
-
-}
-
-});
-
-function publishBet(){
-
-const match = document.getElementById('match').value;
-const prediction = document.getElementById('prediction').value;
-const type = document.getElementById('type').value;
-
-if(match === '' || prediction === ''){
-alert('Completa todos los campos');
-return;
-}
-
- db.collection('bets').add({
- match,
- prediction,
- type,
- createdAt: Date.now()
- });
-
- document.getElementById('match').value='';
- document.getElementById('prediction').value='';
-
-}
-
- db.collection('bets')
- .orderBy('createdAt','desc')
- .onSnapshot(snapshot=>{
-
- const bets = document.getElementById('bets');
-
- bets.innerHTML='';
-
- snapshot.forEach(doc=>{
-
- const bet = doc.data();
-
- bets.innerHTML += `
-
- <div class="bet-card">
-
- <div class="tag ${bet.type === 'premium' ? 'premium' : 'free'}">
- ${bet.type.toUpperCase()}
- </div>
-
- <h3>${bet.match}</h3>
-
- <p>
- ${bet.type === 'premium' ? 'Contenido Premium 🔒' : bet.prediction}
- }
- </p>
-
- </div>
-
- `;
-
- });
-
- });
-
 </script>
-
 </body>
 </html>
-
