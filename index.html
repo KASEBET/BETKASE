@@ -1012,10 +1012,16 @@ function showPlans() {
         document.getElementById('loginBox').scrollIntoView({ behavior: 'smooth' });
         return;
     }
-    document.getElementById('plansSection').style.display = 'block';
-    document.getElementById('plansSection').scrollIntoView({ behavior: 'smooth' });
+    
+    const plansSection = document.getElementById('plansSection');
+    if (plansSection) {
+        plansSection.style.display = 'block';
+        plansSection.scrollIntoView({ behavior: 'smooth' });
+        console.log("Mostrando planes...");
+    } else {
+        console.error("No se encontró la sección de planes");
+    }
 }
-
 function selectPlan(planId, planName, planPrice) {
     currentSelectedPlan = { id: planId, name: planName, price: planPrice };
     document.getElementById('modalPlanName').innerText = planName;
