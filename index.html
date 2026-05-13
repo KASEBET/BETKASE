@@ -302,10 +302,41 @@ header {
     font-size: 16px;
 }
 
+/* Panel de Usuario */
+.user-panel {
+    width: 90%;
+    max-width: 600px;
+    margin: 40px auto;
+    display: none;
+}
+
+.user-panel .input-group {
+    margin-bottom: 20px;
+}
+
+.user-panel .input-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #aaa;
+}
+
+.user-panel .input-group input,
+.user-panel .input-group select {
+    width: 100%;
+    padding: 17px;
+    background: #0c0c0c;
+    border: 1px solid #222;
+    border-radius: 15px;
+    color: white;
+    font-size: 16px;
+}
+
 /* Planes Premium */
 .plans-section {
     padding: 80px 20px;
     background: linear-gradient(145deg, #0a0a0a, #050505);
+    display: none;
 }
 
 .plans-container {
@@ -416,6 +447,28 @@ header {
     text-align: center;
 }
 
+.modal-content .input-group {
+    margin-bottom: 15px;
+}
+
+.modal-content .input-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 12px;
+    color: #aaa;
+}
+
+.modal-content .input-group input,
+.modal-content .input-group select {
+    width: 100%;
+    padding: 12px;
+    background: #0c0c0c;
+    border: 1px solid #333;
+    border-radius: 10px;
+    color: white;
+    font-size: 14px;
+}
+
 .payment-methods {
     display: grid;
     gap: 15px;
@@ -516,6 +569,37 @@ footer {
     margin-top: 20px;
 }
 
+/* Tabla de usuarios */
+.users-table {
+    overflow-x: auto;
+    margin-top: 20px;
+}
+
+.users-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.users-table th {
+    background: #00ff88;
+    color: black;
+    padding: 10px;
+    text-align: left;
+}
+
+.users-table td {
+    padding: 10px;
+    border-bottom: 1px solid #333;
+}
+
+.copy-btn {
+    background: #00ff88;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
 @media (max-width: 1000px) {
     .hero-container {
         grid-template-columns: 1fr;
@@ -585,15 +669,65 @@ footer {
     </div>
 </section>
 
+<!-- Panel de Usuario (Datos Bancarios) -->
+<section class="user-panel" id="userPanel">
+    <div style="background: linear-gradient(145deg, #111, #181818); padding: 40px; border-radius: 30px; border: 1px solid #222;">
+        <h2 style="font-size: 32px; margin-bottom: 20px;">🏦 Mis Datos Bancarios</h2>
+        <p style="color:#888; margin-bottom:20px;">Registra tus datos bancarios para recibir pagos por tus apuestas</p>
+        
+        <div class="input-group">
+            <label>🏦 Banco</label>
+            <select id="userBank">
+                <option value="">Selecciona tu banco</option>
+                <option value="bancolombia">Bancolombia</option>
+                <option value="nequi">Nequi</option>
+                <option value="davivienda">Davivienda</option>
+                <option value="bbva">BBVA</option>
+                <option value="occidente">Banco de Occidente</option>
+                <option value="popular">Banco Popular</option>
+                <option value="caja_social">Caja Social</option>
+                <option value="otro">Otro banco</option>
+            </select>
+        </div>
+        
+        <div class="input-group">
+            <label>📱 Número de cuenta / Nequi / Daviplata</label>
+            <input type="text" id="userAccountNumber" placeholder="Ej: 3001234567 o 1234567890">
+        </div>
+        
+        <div class="input-group">
+            <label>👤 Nombre del titular</label>
+            <input type="text" id="userAccountHolder" placeholder="Nombre completo del titular">
+        </div>
+        
+        <div class="input-group">
+            <label>📧 Correo para pagos (opcional)</label>
+            <input type="email" id="userPaymentEmail" placeholder="correo@ejemplo.com">
+        </div>
+        
+        <div class="input-group">
+            <label>🆔 Número de identificación</label>
+            <input type="text" id="userIdNumber" placeholder="CC: 1234567890">
+        </div>
+        
+        <button class="btn btn-green" onclick="saveUserBankData()" style="width:100%;">💾 Guardar Datos Bancarios</button>
+        
+        <div id="bankDataStatus" style="margin-top:15px; text-align:center;"></div>
+    </div>
+</section>
+
 <!-- Sección de Planes Premium -->
-<section class="plans-section" id="plansSection" style="display:none;">
+<section class="plans-section" id="plansSection">
     <h2 class="section-title">📊 Planes Premium</h2>
     <div class="plans-container" id="plansContainer">
         <!-- Los planes se cargarán dinámicamente -->
     </div>
 </section>
+
 <div class="admin-panel" id="adminPanel">
     <h2>🎮 Panel Administrador</h2>
+    
+    <button class="btn btn-green" onclick="loadUsersBankData()" style="margin-bottom:20px;">🏦 Ver Datos Bancarios de Usuarios</button>
     
     <h3>💰 Configuración de Planes</h3>
     <div id="plansAdmin">
@@ -633,6 +767,8 @@ footer {
         <option value="premium">💎 Premium</option>
     </select>
     <button class="btn btn-green" onclick="publishBet()" style="margin-top:20px;">📤 Publicar Apuesta</button>
+    
+    <div id="usersBankList" style="margin-top:30px;"></div>
 </div>
 
 <section class="section">
@@ -647,15 +783,44 @@ footer {
     <div class="modal-content">
         <h3 id="modalPlanName">Plan Básico</h3>
         <p id="modalPlanPrice" style="text-align:center; font-size:24px; color:#00ff88;">$10.000 COP</p>
-        <div class="payment-methods">
-            <button class="payment-btn" onclick="processPayment('nequi')">💚 Nequi</button>
-            <button class="payment-btn" onclick="processPayment('bancolombia')">🏦 Bancolombia</button>
-            <button class="payment-btn" onclick="processPayment('davivienda')">🏛️ Davivienda</button>
-            <button class="payment-btn" onclick="processPayment('other')">💳 Otros Bancos</button>
+        
+        <div class="input-group">
+            <label>🏦 Banco</label>
+            <select id="bankSelect">
+                <option value="">Selecciona tu banco</option>
+                <option value="bancolombia">Bancolombia</option>
+                <option value="nequi">Nequi</option>
+                <option value="davivienda">Davivienda</option>
+                <option value="bbva">BBVA</option>
+                <option value="occidente">Banco de Occidente</option>
+                <option value="popular">Banco Popular</option>
+                <option value="caja_social">Caja Social</option>
+                <option value="otro">Otro banco</option>
+            </select>
         </div>
+        
+        <div class="input-group">
+            <label>📱 Número de cuenta / Nequi / Daviplata</label>
+            <input type="text" id="accountNumber" placeholder="Ej: 3001234567 o 1234567890">
+        </div>
+        
+        <div class="input-group">
+            <label>👤 Nombre del titular</label>
+            <input type="text" id="accountHolder" placeholder="Nombre completo del titular">
+        </div>
+        
+        <div class="input-group">
+            <label>📧 Correo para enviar comprobante</label>
+            <input type="email" id="paymentEmail" placeholder="correo@ejemplo.com">
+        </div>
+        
+        <div class="payment-methods">
+            <button class="payment-btn" onclick="submitPaymentData()">✅ Confirmar Pago</button>
+        </div>
+        
         <p style="text-align:center; font-size:12px; color:#666; margin-top:20px;">
-            Paga con tu método favorito. Escanea el código QR o transfiere a:<br>
-            <strong>📱 3137845052</strong>
+            📌 Tus datos quedarán registrados en nuestra base de datos<br>
+            ⏱️ Activaremos tu cuenta en máximo 24 horas
         </p>
         <button class="close-modal" onclick="closePaymentModal()">Cerrar</button>
     </div>
@@ -681,55 +846,33 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const ADMIN_EMAIL = "camargosantiago2003@gmail.com";
 
-// Reemplaza los defaultPlans con esto:
-
 const defaultPlans = [
     { 
         id: "quincenal", 
         name: "Plan Quincenal", 
         price: 30000, 
         period: "15 días", 
-        features: [
-            "✓ Acceso a picks premium",
-            "✓ Análisis diarios",
-            "✓ Alertas en vivo",
-            "✓ Soporte prioritario"
-        ], 
-        recommended: false,
-        popular: false
+        features: ["Acceso a picks premium", "Análisis diarios", "Alertas en vivo", "Soporte prioritario"], 
+        recommended: false
     },
     { 
         id: "mensual", 
         name: "Plan Mensual", 
         price: 50000, 
         period: "mes", 
-        features: [
-            "✓ Todo del Plan Quincenal",
-            "✓ Picks exclusivos VIP",
-            "✓ Asesoría personalizada",
-            "✓ Grupo privado de Telegram",
-            "✓ 20% de descuento"
-        ], 
-        recommended: true,
-        popular: true
+        features: ["Todo del Plan Quincenal", "Picks exclusivos VIP", "Asesoría personalizada", "Grupo privado de Telegram", "20% de descuento"], 
+        recommended: true
     },
     { 
         id: "anual", 
         name: "Plan Anual", 
         price: 500000, 
         period: "año", 
-        features: [
-            "✓ Todo del Plan Mensual",
-            "✓ Acceso ilimitado",
-            "✓ Contenido exclusivo",
-            "✓ Eventos en vivo",
-            "✓ 2 meses gratis",
-            "✓ Soporte VIP 24/7"
-        ], 
-        recommended: false,
-        popular: false
+        features: ["Todo del Plan Mensual", "Acceso ilimitado", "Contenido exclusivo", "Eventos en vivo", "2 meses gratis", "Soporte VIP 24/7"], 
+        recommended: false
     }
 ];
+
 const teams = [
     { name: "Manchester City", logo: "https://i.postimg.cc/j5w9hyxR/2026-05-13-73f43f96-4ece-4239-aa63-b065cf33697e.png" },
     { name: "Manchester United", logo: "https://i.postimg.cc/yYx0KgrL/manutd.png" },
@@ -751,6 +894,7 @@ const teams = [
 
 let currentSelectedPlan = null;
 let betsUnsubscribe = null;
+let editingId = null;
 
 function loadTeams() {
     const localSelect = document.getElementById('localTeam');
@@ -813,8 +957,6 @@ function getMatchImage() {
     return '';
 }
 
-window.editingId = null;
-
 function register() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
@@ -854,11 +996,17 @@ function editBet(id, match, prediction, odds, image) {
     }
     document.getElementById('prediction').value = prediction;
     document.getElementById('odds').value = odds;
-    window.editingId = id;
+    editingId = id;
     document.getElementById('adminPanel').scrollIntoView({ behavior: 'smooth' });
 }
 
 function publishBet() {
+    const user = auth.currentUser;
+    if (!user) {
+        alert('❌ Debes iniciar sesión para publicar apuestas');
+        return;
+    }
+    
     const matchText = getMatchText();
     const prediction = document.getElementById('prediction').value;
     const odds = document.getElementById('odds').value;
@@ -869,14 +1017,25 @@ function publishBet() {
     if (!prediction) return alert('❌ Escribe un pronóstico');
     if (!odds) return alert('❌ Escribe la cuota');
     
-    if (window.editingId) {
-        db.collection('bets').doc(window.editingId).update({ match: matchText, prediction, odds, image, type })
-            .then(() => { alert('✅ Actualizada'); clearForm(); window.editingId = null; })
+    const betData = {
+        match: matchText,
+        prediction: prediction,
+        odds: odds,
+        image: image,
+        type: type,
+        createdAt: Date.now(),
+        userId: user.uid,
+        userEmail: user.email
+    };
+    
+    if (editingId) {
+        db.collection('bets').doc(editingId).update(betData)
+            .then(() => { alert('✅ Actualizada'); clearForm(); editingId = null; })
             .catch(error => alert('❌ Error: ' + error.message));
         return;
     }
     
-    db.collection('bets').add({ match: matchText, prediction, odds, image, type, createdAt: Date.now() })
+    db.collection('bets').add(betData)
         .then(() => { alert('✅ Publicada'); clearForm(); })
         .catch(error => alert('❌ Error: ' + error.message));
 }
@@ -903,7 +1062,110 @@ function escapeString(str) {
     return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
 }
 
-// Cargar y mostrar planes
+// Guardar datos bancarios del usuario
+async function saveUserBankData() {
+    const user = auth.currentUser;
+    if (!user) {
+        alert('❌ Debes iniciar sesión primero');
+        return;
+    }
+    
+    const bank = document.getElementById('userBank').value;
+    const accountNumber = document.getElementById('userAccountNumber').value;
+    const accountHolder = document.getElementById('userAccountHolder').value;
+    const paymentEmail = document.getElementById('userPaymentEmail').value;
+    const idNumber = document.getElementById('userIdNumber').value;
+    
+    if (!bank) return alert('❌ Selecciona tu banco');
+    if (!accountNumber) return alert('❌ Ingresa tu número de cuenta');
+    if (!accountHolder) return alert('❌ Ingresa el nombre del titular');
+    
+    const bankData = {
+        bank: bank,
+        accountNumber: accountNumber,
+        accountHolder: accountHolder,
+        paymentEmail: paymentEmail || user.email,
+        idNumber: idNumber,
+        updatedAt: Date.now()
+    };
+    
+    try {
+        await db.collection('users').doc(user.uid).set({
+            email: user.email,
+            bankData: bankData,
+            createdAt: Date.now()
+        }, { merge: true });
+        
+        document.getElementById('bankDataStatus').innerHTML = '<p style="color:#00ff88;">✅ Datos bancarios guardados correctamente</p>';
+        setTimeout(() => {
+            document.getElementById('bankDataStatus').innerHTML = '';
+        }, 3000);
+        
+        if (user.email === ADMIN_EMAIL) {
+            loadUsersBankData();
+        }
+    } catch (error) {
+        alert('❌ Error al guardar: ' + error.message);
+    }
+}
+
+// Cargar datos bancarios del usuario
+async function loadUserBankData() {
+    const user = auth.currentUser;
+    if (!user) return;
+    
+    const doc = await db.collection('users').doc(user.uid).get();
+    if (doc.exists && doc.data().bankData) {
+        const bankData = doc.data().bankData;
+        document.getElementById('userBank').value = bankData.bank || '';
+        document.getElementById('userAccountNumber').value = bankData.accountNumber || '';
+        document.getElementById('userAccountHolder').value = bankData.accountHolder || '';
+        document.getElementById('userPaymentEmail').value = bankData.paymentEmail || '';
+        document.getElementById('userIdNumber').value = bankData.idNumber || '';
+        document.getElementById('bankDataStatus').innerHTML = '<p style="color:#00ff88;">✅ Tus datos bancarios ya están registrados</p>';
+    }
+}
+
+// Cargar todos los usuarios (solo admin)
+async function loadUsersBankData() {
+    if (auth.currentUser?.email !== ADMIN_EMAIL) return;
+    
+    const snapshot = await db.collection('users').get();
+    
+    if (snapshot.empty) {
+        document.getElementById('usersBankList').innerHTML = '<h3>🏦 Usuarios registrados</h3><p>No hay usuarios registrados</p>';
+        return;
+    }
+    
+    let html = '<h3>🏦 Usuarios Registrados</h3><div class="users-table"><table><tr><th>Email</th><th>Banco</th><th>Cuenta</th><th>Titular</th><th>Acciones</th></tr>';
+    
+    snapshot.forEach(doc => {
+        const userData = doc.data();
+        if (userData.bankData) {
+            const bankData = userData.bankData;
+            html += `
+                <tr>
+                    <td>${userData.email}</td>
+                    <td>${bankData.bank}</td>
+                    <td>${bankData.accountNumber}</td>
+                    <td>${bankData.accountHolder}</td>
+                    <td><button class="copy-btn" onclick="copyBankData('${bankData.accountNumber}', '${bankData.accountHolder}', '${bankData.bank}')">📋 Copiar</button></td>
+                </tr>
+            `;
+        }
+    });
+    
+    html += '</table></div>';
+    document.getElementById('usersBankList').innerHTML = html;
+}
+
+function copyBankData(account, holder, bank) {
+    const text = `Banco: ${bank}\nCuenta: ${account}\nTitular: ${holder}`;
+    navigator.clipboard.writeText(text);
+    alert('✅ Datos bancarios copiados');
+}
+
+// Planes
 async function loadPlans() {
     const plansRef = db.collection('plans');
     const snapshot = await plansRef.get();
@@ -916,8 +1178,8 @@ async function loadPlans() {
     
     const plansContainer = document.getElementById('plansContainer');
     const plansAdminContainer = document.getElementById('plansAdmin');
-    plansContainer.innerHTML = '';
-    plansAdminContainer.innerHTML = '';
+    if (plansContainer) plansContainer.innerHTML = '';
+    if (plansAdminContainer) plansAdminContainer.innerHTML = '';
     
     const plansSnapshot = await plansRef.get();
     const plans = [];
@@ -925,57 +1187,31 @@ async function loadPlans() {
         plans.push({ id: doc.id, ...doc.data() });
     });
     
-    // Ordenar por precio
     plans.sort((a, b) => a.price - b.price);
     
     plans.forEach(plan => {
-        // Mostrar en sección pública con diseño mejorado
-        plansContainer.innerHTML += `
-            <div class="plan-card ${plan.recommended ? 'recommended' : ''}" onclick="selectPlan('${plan.id}', '${plan.name}', ${plan.price})">
-                ${plan.recommended ? '<div class="plan-badge">⭐ MÁS POPULAR</div>' : ''}
-                <div class="plan-name">${plan.name}</div>
-                <div class="plan-price">
-                    $${plan.price.toLocaleString()}<span> COP / ${plan.period}</span>
+        if (plansContainer) {
+            plansContainer.innerHTML += `
+                <div class="plan-card ${plan.recommended ? 'recommended' : ''}" onclick="selectPlan('${plan.id}', '${plan.name}', ${plan.price})">
+                    ${plan.recommended ? '<div class="plan-badge">⭐ MÁS POPULAR</div>' : ''}
+                    <div class="plan-name">${plan.name}</div>
+                    <div class="plan-price">$${plan.price.toLocaleString()}<span> COP / ${plan.period}</span></div>
+                    <ul class="plan-features">${plan.features.map(f => `<li>${f}</li>`).join('')}</ul>
+                    <button class="btn btn-green">Seleccionar Plan</button>
                 </div>
-                <div style="font-size:14px; color:#888; margin-bottom:20px;">
-                    ${plan.period === '15 días' ? '💰 Solo $2.000 por día' : 
-                      plan.period === 'mes' ? '💰 Solo $1.667 por día' : 
-                      '💰 Solo $1.370 por día'}
-                </div>
-                <ul class="plan-features">
-                    ${plan.features.map(f => `<li>${f}</li>`).join('')}
-                </ul>
-                <button class="btn btn-green" style="margin-top:20px;">
-                    ${plan.period === '15 días' ? '🔥 Probar 15 días' : 
-                      plan.period === 'mes' ? '⚡ Suscribirme al Mes' : 
-                      '🌟 Suscripción Anual'}
-                </button>
-            </div>
-        `;
+            `;
+        }
         
-        // Mostrar en panel admin para editar
-        if (document.getElementById('adminPanel').style.display === 'block') {
+        if (plansAdminContainer && document.getElementById('adminPanel').style.display === 'block') {
             plansAdminContainer.innerHTML += `
                 <div style="background:#0c0c0c; padding:20px; border-radius:15px; margin-bottom:20px;">
-                    <h4 style="color:#00ff88;">${plan.name}</h4>
-                    <label style="display:block; margin-top:10px;">Nombre:</label>
-                    <input type="text" id="plan_name_${plan.id}" value="${plan.name}" style="width:100%; padding:10px; margin:5px 0; background:#050505; border:1px solid #333; border-radius:10px; color:white;">
-                    
-                    <label style="display:block; margin-top:10px;">Precio (COP):</label>
-                    <input type="number" id="plan_price_${plan.id}" value="${plan.price}" style="width:100%; padding:10px; margin:5px 0; background:#050505; border:1px solid #333; border-radius:10px; color:white;">
-                    
-                    <label style="display:block; margin-top:10px;">Período:</label>
-                    <input type="text" id="plan_period_${plan.id}" value="${plan.period}" style="width:100%; padding:10px; margin:5px 0; background:#050505; border:1px solid #333; border-radius:10px; color:white;">
-                    
-                    <label style="display:block; margin-top:10px;">Características (separadas por coma):</label>
-                    <textarea id="plan_features_${plan.id}" rows="3" style="width:100%; padding:10px; margin:5px 0; background:#050505; border:1px solid #333; border-radius:10px; color:white;">${plan.features.join(', ')}</textarea>
-                    
-                    <label style="display:block; margin-top:10px;">
-                        <input type="checkbox" id="plan_recommended_${plan.id}" ${plan.recommended ? 'checked' : ''}>
-                        Marcar como recomendado
-                    </label>
-                    
-                    <button class="btn btn-green" onclick="updatePlan('${plan.id}')" style="margin-top:15px;">💾 Actualizar Plan</button>
+                    <h4>${plan.name}</h4>
+                    <input type="text" id="plan_name_${plan.id}" value="${plan.name}" style="width:100%; padding:10px; margin:5px 0;">
+                    <input type="number" id="plan_price_${plan.id}" value="${plan.price}" style="width:100%; padding:10px; margin:5px 0;">
+                    <input type="text" id="plan_period_${plan.id}" value="${plan.period}" style="width:100%; padding:10px; margin:5px 0;">
+                    <textarea id="plan_features_${plan.id}" rows="2" style="width:100%; padding:10px; margin:5px 0;">${plan.features.join(', ')}</textarea>
+                    <label><input type="checkbox" id="plan_recommended_${plan.id}" ${plan.recommended ? 'checked' : ''}> Recomendado</label>
+                    <button class="btn btn-green" onclick="updatePlan('${plan.id}')" style="margin-top:10px;">Actualizar</button>
                 </div>
             `;
         }
@@ -989,36 +1225,23 @@ function updatePlan(planId) {
     const features = document.getElementById(`plan_features_${planId}`).value.split(',').map(f => f.trim());
     const recommended = document.getElementById(`plan_recommended_${planId}`).checked;
     
-    db.collection('plans').doc(planId).update({ 
-        name, 
-        price, 
-        period,
-        features, 
-        recommended 
-    })
-    .then(() => {
-        alert('✅ Plan actualizado correctamente');
-        loadPlans();
-    })
-    .catch(error => alert('❌ Error: ' + error.message));
+    db.collection('plans').doc(planId).update({ name, price, period, features, recommended })
+        .then(() => { alert('✅ Plan actualizado'); loadPlans(); })
+        .catch(error => alert('❌ Error: ' + error.message));
 }
+
 function showPlans() {
     const user = auth.currentUser;
     if (!user) {
-        alert('🔒 Primero debes iniciar sesión para ver los planes premium');
+        alert('🔒 Primero debes iniciar sesión');
         document.getElementById('loginBox').scrollIntoView({ behavior: 'smooth' });
         return;
     }
-    
     const plansSection = document.getElementById('plansSection');
-    if (plansSection) {
-        plansSection.style.display = 'block';
-        plansSection.scrollIntoView({ behavior: 'smooth' });
-        console.log("Mostrando planes...");
-    } else {
-        console.error("No se encontró la sección de planes");
-    }
+    plansSection.style.display = 'block';
+    plansSection.scrollIntoView({ behavior: 'smooth' });
 }
+
 function selectPlan(planId, planName, planPrice) {
     currentSelectedPlan = { id: planId, name: planName, price: planPrice };
     document.getElementById('modalPlanName').innerText = planName;
@@ -1030,38 +1253,43 @@ function closePaymentModal() {
     document.getElementById('paymentModal').style.display = 'none';
 }
 
-function processPayment(method) {
+async function submitPaymentData() {
     const user = auth.currentUser;
     if (!user) {
-        alert('Debes iniciar sesión primero');
-        closePaymentModal();
+        alert('❌ Debes iniciar sesión primero');
         return;
     }
     
-    let methodName = '';
-    switch(method) {
-        case 'nequi': methodName = 'Nequi'; break;
-        case 'bancolombia': methodName = 'Bancolombia'; break;
-        case 'davivienda': methodName = 'Davivienda'; break;
-        default: methodName = 'Otro Banco';
-    }
+    const bank = document.getElementById('bankSelect').value;
+    const accountNumber = document.getElementById('accountNumber').value;
+    const accountHolder = document.getElementById('accountHolder').value;
+    const paymentEmail = document.getElementById('paymentEmail').value;
     
-    // Guardar solicitud de pago
-    db.collection('payments').add({
+    if (!bank) return alert('❌ Selecciona tu banco');
+    if (!accountNumber) return alert('❌ Ingresa tu número de cuenta');
+    if (!accountHolder) return alert('❌ Ingresa el nombre del titular');
+    
+    const paymentData = {
         userId: user.uid,
         userEmail: user.email,
         planId: currentSelectedPlan.id,
         planName: currentSelectedPlan.name,
-        amount: currentSelectedPlan.price,
-        method: methodName,
+        planPrice: currentSelectedPlan.price,
+        bank: bank,
+        accountNumber: accountNumber,
+        accountHolder: accountHolder,
+        paymentEmail: paymentEmail || user.email,
         status: 'pending',
         createdAt: Date.now()
-    }).then(() => {
-        alert(`✅ Solicitud de pago enviada\n\nPlan: ${currentSelectedPlan.name}\nMonto: $${currentSelectedPlan.price.toLocaleString()} COP\nMétodo: ${methodName}\n\n📌 Por favor realiza la transferencia a:\n\n🏦 llave: @nequisan9617\n📱 Nequi: 3137845052\n\n📧 Envía el comprobante a: soportebetkase@gmail.com\n\nActivaremos tu cuenta brevemente.`);
+    };
+    
+    try {
+        await db.collection('payments').add(paymentData);
+        alert(`✅ Solicitud enviada!\n\nPlan: ${currentSelectedPlan.name}\nMonto: $${currentSelectedPlan.price.toLocaleString()} COP\n\n⏱️ Activaremos tu cuenta en 24 horas`);
         closePaymentModal();
-    }).catch(error => {
-        alert('❌ Error al procesar: ' + error.message);
-    });
+    } catch (error) {
+        alert('❌ Error: ' + error.message);
+    }
 }
 
 function loadBets() {
@@ -1076,7 +1304,7 @@ function loadBets() {
             betsContainer.innerHTML = '';
             
             if (snapshot.empty) {
-                betsContainer.innerHTML = '<p style="text-align:center; color:#666;">📭 No hay apuestas disponibles. Publica la primera!</p>';
+                betsContainer.innerHTML = '<p style="text-align:center; color:#666;">📭 No hay apuestas disponibles</p>';
                 return;
             }
             
@@ -1092,32 +1320,28 @@ function loadBets() {
                     displayPrediction = '🎯 ' + bet.prediction;
                 }
                 
-                const betHTML = `
+                betsContainer.innerHTML += `
                     <div class="bet-card">
-                        <img src="${bet.image || 'https://via.placeholder.com/400x200?text=Sin+logo'}" onerror="this.src='https://via.placeholder.com/400x200?text=Logo+no+disponible'">
+                        <img src="${bet.image || 'https://via.placeholder.com/400x200?text=Sin+logo'}" onerror="this.src='https://via.placeholder.com/400x200?text=Sin+logo'">
                         <div class="tag ${bet.type === 'premium' ? 'premium' : 'free'}">${bet.type === 'premium' ? '💎 PREMIUM' : '🎁 GRATIS'}</div>
                         <h3>🏆 ${bet.match}</h3>
-                        <p style="margin-top:15px; font-size:18px; line-height:1.6;">${displayPrediction}</p>
-                        <div style="margin-top:25px; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
-                            <div style="font-size:24px; font-weight:bold; color:#00ff88;">💰 Cuota ${bet.odds}</div>
+                        <p style="margin-top:15px;">${displayPrediction}</p>
+                        <div style="margin-top:25px; display:flex; justify-content:space-between; align-items:center;">
+                            <div style="font-size:24px; font-weight:bold; color:#00ff88;">💰 ${bet.odds}</div>
                             ${isAdmin ? `
                                 <div style="display:flex; gap:10px;">
-                                    <button onclick="editBet('${doc.id}', '${escapeString(bet.match)}', '${escapeString(bet.prediction)}', '${bet.odds}', '${escapeString(bet.image || '')}')" style="background:#00ff88; border:none; padding:12px 18px; border-radius:12px; color:black; cursor:pointer;">✏️ Editar</button>
-                                    <button onclick="deleteBet('${doc.id}')" style="background:red; border:none; padding:12px 18px; border-radius:12px; color:white; cursor:pointer;">🗑️ Eliminar</button>
+                                    <button onclick="editBet('${doc.id}', '${escapeString(bet.match)}', '${escapeString(bet.prediction)}', '${bet.odds}', '${escapeString(bet.image || '')}')" style="background:#00ff88; border:none; padding:10px 15px; border-radius:10px; cursor:pointer;">✏️</button>
+                                    <button onclick="deleteBet('${doc.id}')" style="background:red; border:none; padding:10px 15px; border-radius:10px; cursor:pointer; color:white;">🗑️</button>
                                 </div>
                             ` : ''}
                         </div>
                     </div>
                 `;
-                betsContainer.innerHTML += betHTML;
             });
-        }, error => {
-            console.error("Error:", error);
-            document.getElementById('bets').innerHTML = '<p style="text-align:center; color:red;">❌ Error al cargar apuestas</p>';
         });
 }
 
-// Hacer funciones globales
+// Funciones globales
 window.register = register;
 window.login = login;
 window.logout = logout;
@@ -1128,7 +1352,10 @@ window.updateMatch = updateMatch;
 window.showPlans = showPlans;
 window.selectPlan = selectPlan;
 window.closePaymentModal = closePaymentModal;
-window.processPayment = processPayment;
+window.submitPaymentData = submitPaymentData;
+window.saveUserBankData = saveUserBankData;
+window.loadUsersBankData = loadUsersBankData;
+window.copyBankData = copyBankData;
 window.updatePlan = updatePlan;
 
 // Inicializar
@@ -1140,21 +1367,34 @@ auth.onAuthStateChanged(user => {
     const adminPanel = document.getElementById('adminPanel');
     const loginBox = document.getElementById('loginBox');
     const premiumBtnHeader = document.getElementById('premiumBtnHeader');
+    const userPanel = document.getElementById('userPanel');
+    const plansSection = document.getElementById('plansSection');
     
     if (user) {
         logoutBtn.style.display = 'block';
         loginBox.style.display = 'none';
         premiumBtnHeader.style.display = 'block';
+        userPanel.style.display = 'block';
+        
         const isAdmin = user.email === ADMIN_EMAIL;
         adminPanel.style.display = isAdmin ? 'block' : 'none';
+        
+        loadUserBankData();
+        
         if (isAdmin) {
-            loadPlans(); // Recargar planes para mostrar opciones de admin
+            loadPlans();
+            loadUsersBankData();
+        }
+        
+        if (plansSection) {
+            plansSection.style.display = 'none';
         }
     } else {
         logoutBtn.style.display = 'none';
         adminPanel.style.display = 'none';
         loginBox.style.display = 'block';
         premiumBtnHeader.style.display = 'none';
+        if (userPanel) userPanel.style.display = 'none';
     }
     
     loadBets();
