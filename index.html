@@ -733,7 +733,7 @@ function loadBets() {
                         <p style="margin-top:15px; font-size:18px; line-height:1.6;">${displayPrediction}</p>
                         <div style="margin-top:25px; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
                             <div style="font-size:24px; font-weight:bold; color:#00ff88;">💰 Cuota ${bet.odds}</div>
-                            ${currentUser && currentUser.email === ADMIN_EMAIL ? `
+                            ${currentUser && currentUser.email && currentUser.email === ADMIN_EMAIL ? `
                                 <div style="display:flex; gap:10px;">
                                     <button onclick="editBet('${doc.id}', '${escapeString(bet.match)}', '${escapeString(bet.prediction)}', '${bet.odds}', '${escapeString(bet.image || '')}')" style="background:#00ff88; border:none; padding:12px 18px; border-radius:12px; color:black; cursor:pointer;">✏️ Editar</button>
                                     <button onclick="deleteBet('${doc.id}')" style="background:red; border:none; padding:12px 18px; border-radius:12px; color:white; cursor:pointer;">🗑️ Eliminar</button>
