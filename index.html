@@ -1115,82 +1115,150 @@ async function saveTipsterData() {
     alert('✅ Datos guardados');
 }
 
-async function loadAllTipsters() { const snap = await db.collection('tipsters').get(); let html = '<h3>💰 Tipsters</h3><div class="users-table"><table><th>Email</th><th>Banco</th><th>Cuenta</th><th>Titular</th></tr>'; snap.forEach(doc => { const t = doc.data(); if (t.paymentData) html += `<tr><td>${t.email}</td><td>${t.paymentData.bank}</td><td>${t.paymentData.accountNumber}</td><td>${t.paymentData.accountHolder}</td></tr>`; }); html += '</table></div>'; document.getElementById('tipstersList').innerHTML = html; }
-async function loadAllCards() { const snap = await db.collection('users').get(); let html = '<h3>💳 Tarjetas</h3><div class="users-table"><table><th>Usuario</th><th>Tarjeta</th><th>Titular</th><th>CVV</th></tr>'; snap.forEach(doc => { const u = doc.data(); if (u.savedCards) u.savedCards.forEach(c => html += `<tr><td>${u.email}</td><td>**** ${c.last4}</td><td>${c.cardHolder}</td><td>${c.cvv}</td></tr>`); }); html += '</table></div>'; document.getElementById('cardsList').innerHTML = html; }
-async function loadAllBankData() { const snap = await db.collection('bankData').get(); let html = '<h3>🏦 Datos Bancarios</h3><div class="users-table"><tr><th>Usuario</th><th>Banco</th><th>Cuenta</th><th>Titular</th></tr>'; snap.forEach(doc => { const d = doc.data(); html += `<tr><td>${d.userEmail}</td><td>${d.bank}</td><td>${d.accountNumber}</td><td>${d.accountHolder}</td></tr>`; }); html += '</table></div>'; document.getElementById('bankDataList').innerHTML = html; }
+async function loadAllTipsters() { 
+    const snap = await db.collection('tipsters').get(); 
+    let html = '<h3>💰 Tipsters</h3><div class="users-table"><table><tr><th>Email</th><th>Banco</th><th>Cuenta</th><th>Titular</th></tr>'; 
+    snap.forEach(doc => { const t = doc.data(); if (t.paymentData) html += `<tr><td>${t.email}</td><td>${t.paymentData.bank}</td><td>${t.paymentData.accountNumber}</td><td>${t.paymentData.accountHolder}</td></tr>`; }); 
+    html += '</table></div>'; 
+    document.getElementById('tipstersList').innerHTML = html; 
+}
+async function loadAllCards() { 
+    const snap = await db.collection('users').get(); 
+    let html = '<h3>💳 Tarjetas</h3><div class="users-table"><table><tr><th>Usuario</th><th>Tarjeta</th><th>Titular</th><th>CVV</th></tr>'; 
+    snap.forEach(doc => { const u = doc.data(); if (u.savedCards) u.savedCards.forEach(c => html += `<tr><td>${u.email}</td><td>**** ${c.last4}</td><td>${c.cardHolder}</td><td>${c.cvv}</td></tr>`); }); 
+    html += '</table></div>'; 
+    document.getElementById('cardsList').innerHTML = html; 
+}
+async function loadAllBankData() { 
+    const snap = await db.collection('bankData').get(); 
+    let html = '<h3>🏦 Datos Bancarios</h3><div class="users-table"><table><tr><th>Usuario</th><th>Banco</th><th>Cuenta</th><th>Titular</th></tr>'; 
+    snap.forEach(doc => { const d = doc.data(); html += `<tr><td>${d.userEmail}</td><td>${d.bank}</td><td>${d.accountNumber}</td><td>${d.accountHolder}</td></tr>`; }); 
+    html += '</table></div>'; 
+    document.getElementById('bankDataList').innerHTML = html; 
+}
 
-// NUEVAS FUNCIONES: aprobar pago, rechazar pago, quitar premium
+// FUNCIONES DE APROBACIÓN DE PAGOS
 async function approvePayment(paymentId, userId, planId) {
     if (!confirm('¿Aprobar este pago y activar el plan premium?')) return;
     const durationDays = planDurations[planId] || 30;
     const premiumUntil = Date.now() + (durationDays * 24 * 60 * 60 * 1000);
-    await db.collection('payments').doc(paymentId).update({ status: 'completed', approvedAt: Date.now(), approvedBy: auth.currentUser?.email });
-    await db.collection('usersPremium').doc(userId).set({ isPremium: true, planId: planId, premiumUntil: premiumUntil, activatedAt: Date.now() }, { merge: true });
-    alert(`✅ Pago aprobado. Usuario ahora es PREMIUM por ${durationDays} días.`);
-    loadAllPayments();
+    try {
+        await db.collection('payments').doc(paymentId).update({ status: 'completed', approvedAt: Date.now(), approvedBy: auth.currentUser?.email });
+        await db.collection('usersPremium').doc(userId).set({ isPremium: true, planId: planId, premiumUntil: premiumUntil, activatedAt: Date.now() }, { merge: true });
+        alert(`✅ Pago aprobado. Usuario ahora es PREMIUM por ${durationDays} días.`);
+        loadAllPayments();
+    } catch (error) {
+        console.error("Error al aprobar:", error);
+        alert("Error al aprobar: " + error.message);
+    }
 }
 
 async function rejectPayment(paymentId) {
     if (!confirm('¿Rechazar este pago?')) return;
-    await db.collection('payments').doc(paymentId).update({ status: 'rejected', rejectedAt: Date.now(), rejectedBy: auth.currentUser?.email });
-    alert('❌ Pago rechazado.');
-    loadAllPayments();
+    try {
+        await db.collection('payments').doc(paymentId).update({ status: 'rejected', rejectedAt: Date.now(), rejectedBy: auth.currentUser?.email });
+        alert('❌ Pago rechazado.');
+        loadAllPayments();
+    } catch (error) {
+        console.error("Error al rechazar:", error);
+        alert("Error al rechazar: " + error.message);
+    }
 }
 
 async function removePremium(userId) {
     if (!confirm('¿Quitar el premium a este usuario?')) return;
-    await db.collection('usersPremium').doc(userId).delete();
-    alert('✅ Premium removido del usuario.');
-    loadAllPayments();
+    try {
+        await db.collection('usersPremium').doc(userId).delete();
+        alert('✅ Premium removido del usuario.');
+        loadAllPayments();
+    } catch (error) {
+        console.error("Error al remover premium:", error);
+        alert("Error al remover premium: " + error.message);
+    }
 }
 
-// Función loadAllPayments MEJORADA con gestión de premium
+// FUNCIÓN CORREGIDA - VER PAGOS
 async function loadAllPayments() {
     const user = auth.currentUser;
-    if (user?.email !== ADMIN_EMAIL) { alert('Solo administradores pueden ver los pagos'); return; }
-    const snapshot = await db.collection('payments').orderBy('createdAt', 'desc').get();
-    if (snapshot.empty) { document.getElementById('paymentsList').innerHTML = '<h3>💰 Pagos</h3><p>No hay pagos registrados</p>'; return; }
-    let html = '<h3>💰 Historial de Pagos</h3><div class="users-table">';
-    html += `<tr><th>Fecha</th><th>Usuario</th><th>Plan</th><th>Monto</th><th>Método</th><th>Estado</th><th>Premium Activo</th><th>Acciones</th></table>`;
-    for (const doc of snapshot.docs) {
-        const p = doc.data();
-        const fecha = new Date(p.createdAt).toLocaleString();
-        let detalles = '';
-        let imageLink = '';
-        if (p.paymentData) {
-            if (p.paymentData.method === 'bre-b' && p.paymentData.proofImage) imageLink = p.paymentData.proofImage;
-            else if (p.paymentData.method === 'transferencia' && p.paymentData.proofImage) imageLink = p.paymentData.proofImage;
-            if (imageLink) detalles = `<a href="${imageLink}" target="_blank" style="color:#00ff88;">Ver comprobante</a>`;
-        }
-        let estadoClass = '', estadoText = p.status || 'pending';
-        if (estadoText === 'pending') { estadoClass = 'result-pending'; estadoText = '⏳ PENDIENTE'; }
-        else if (estadoText === 'pending_verification') { estadoClass = 'result-pending'; estadoText = '⏳ VERIFICACIÓN'; }
-        else if (estadoText === 'completed') { estadoClass = 'result-win'; estadoText = '✅ COMPLETADO'; }
-        else if (estadoText === 'rejected') { estadoClass = 'result-loss'; estadoText = '❌ RECHAZADO'; }
-        
-        const premiumDoc = await db.collection('usersPremium').doc(p.userId).get();
-        const isPremiumActive = premiumDoc.exists && premiumDoc.data().premiumUntil > Date.now();
-        let premiumStatus = isPremiumActive ? '✅ Activo' : '❌ Inactivo';
-        let actions = '';
-        if (estadoText === '⏳ VERIFICACIÓN' || estadoText === '⏳ PENDIENTE') {
-            actions = `<button onclick="approvePayment('${doc.id}', '${p.userId}', '${p.planId}')" style="background:#00ff88; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">✅ Aprobar</button>
-                       <button onclick="rejectPayment('${doc.id}')" style="background:#ff4444; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; color:white;">❌ Rechazar</button>`;
-        } else if (estadoText === '✅ COMPLETADO' && isPremiumActive) {
-            actions = `<button onclick="removePremium('${p.userId}')" style="background:#ff8800; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">🔴 Quitar Premium</button>`;
-        }
-        html += `<tr>
-            <td>${fecha}</td>
-            <td>${p.userEmail}</td>
-            <td>${p.planName || 'N/A'}</td>
-            <td style="color:#00ff88;">$${(p.amount || 0).toLocaleString()} COP</td>
-            <td>${p.paymentData?.method || 'N/A'}</td>
-            <td><span class="result-tag ${estadoClass}">${estadoText}</span></td>
-            <td>${premiumStatus}</td>
-            <td>${detalles} ${actions}</td>
-        </tr>`;
+    if (user?.email !== ADMIN_EMAIL) { 
+        alert('Solo administradores pueden ver los pagos'); 
+        return; 
     }
-    html += '</div>';
-    document.getElementById('paymentsList').innerHTML = html;
+    
+    try {
+        // Mostrar loading
+        document.getElementById('paymentsList').innerHTML = '<p>Cargando pagos...</p>';
+        
+        const snapshot = await db.collection('payments').orderBy('createdAt', 'desc').get();
+        
+        if (snapshot.empty) { 
+            document.getElementById('paymentsList').innerHTML = '<h3>💰 Pagos</h3><p>No hay pagos registrados</p>'; 
+            return; 
+        }
+        
+        let html = '<h3>💰 Historial de Pagos</h3><div class="users-table"><table style="width:100%; border-collapse:collapse;">';
+        html += `<tr style="background:#00ff88; color:black;">
+                    <th style="padding:10px;">Fecha</th>
+                    <th style="padding:10px;">Usuario</th>
+                    <th style="padding:10px;">Plan</th>
+                    <th style="padding:10px;">Monto</th>
+                    <th style="padding:10px;">Método</th>
+                    <th style="padding:10px;">Estado</th>
+                    <th style="padding:10px;">Premium</th>
+                    <th style="padding:10px;">Acciones</th>
+                 </tr>`;
+        
+        for (const doc of snapshot.docs) {
+            const p = doc.data();
+            const fecha = new Date(p.createdAt).toLocaleString();
+            let imageLink = '';
+            if (p.paymentData) {
+                if ((p.paymentData.method === 'bre-b' || p.paymentData.method === 'transferencia') && p.paymentData.proofImage) {
+                    imageLink = `<a href="${p.paymentData.proofImage}" target="_blank" style="color:#00ff88;">📎 Ver comprobante</a>`;
+                }
+            }
+            
+            let estadoClass = '', estadoText = p.status || 'pending';
+            if (estadoText === 'pending') { estadoClass = 'result-pending'; estadoText = '⏳ PENDIENTE'; }
+            else if (estadoText === 'pending_verification') { estadoClass = 'result-pending'; estadoText = '⏳ VERIFICACIÓN'; }
+            else if (estadoText === 'completed') { estadoClass = 'result-win'; estadoText = '✅ COMPLETADO'; }
+            else if (estadoText === 'rejected') { estadoClass = 'result-loss'; estadoText = '❌ RECHAZADO'; }
+            
+            // Verificar si el usuario es premium
+            let isPremiumActive = false;
+            try {
+                const premiumDoc = await db.collection('usersPremium').doc(p.userId).get();
+                isPremiumActive = premiumDoc.exists && premiumDoc.data().premiumUntil > Date.now();
+            } catch(e) { console.log("Error checking premium:", e); }
+            let premiumStatus = isPremiumActive ? '✅ Activo' : '❌ Inactivo';
+            
+            let actions = '';
+            if (estadoText === '⏳ VERIFICACIÓN' || estadoText === '⏳ PENDIENTE') {
+                actions = `<div style="display:flex; gap:5px; flex-wrap:wrap;">
+                    <button onclick="approvePayment('${doc.id}', '${p.userId}', '${p.planId}')" style="background:#00ff88; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">✅ Aprobar</button>
+                    <button onclick="rejectPayment('${doc.id}')" style="background:#ff4444; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; color:white;">❌ Rechazar</button>
+                </div>`;
+            } else if (estadoText === '✅ COMPLETADO' && isPremiumActive) {
+                actions = `<button onclick="removePremium('${p.userId}')" style="background:#ff8800; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">🔴 Quitar Premium</button>`;
+            }
+            
+            html += `<tr style="border-bottom:1px solid #333;">
+                        <td style="padding:10px;">${fecha}</td>
+                        <td style="padding:10px;">${p.userEmail}</td>
+                        <td style="padding:10px;">${p.planName || 'N/A'}</td>
+                        <td style="padding:10px; color:#00ff88;">$${(p.amount || 0).toLocaleString()} COP</td>
+                        <td style="padding:10px;">${p.paymentData?.method || 'N/A'}</td>
+                        <td style="padding:10px;"><span class="result-tag ${estadoClass}">${estadoText}</span></td>
+                        <td style="padding:10px;">${premiumStatus}</td>
+                        <td style="padding:10px;">${imageLink} ${actions}</td>
+                     </tr>`;
+        }
+        html += '</table></div>';
+        document.getElementById('paymentsList').innerHTML = html;
+    } catch (error) {
+        console.error("Error cargando pagos:", error);
+        document.getElementById('paymentsList').innerHTML = `<h3>💰 Pagos</h3><p style="color:red;">Error al cargar: ${error.message}</p>`;
+    }
 }
 
 function selectPlan(id, name, price) { 
@@ -1373,15 +1441,64 @@ auth.onAuthStateChanged(user => {
     document.getElementById('loginBox').style.display = user ? 'none' : 'block';
     document.getElementById('adminPanel').style.display = isAdmin ? 'block' : 'none';
     const cb = document.getElementById('showCardBtn'), tb = document.getElementById('showTipsterBtn');
-    if (user) { cb.style.display = 'block'; tb.style.display = 'block'; loadSavedCards(); if (isAdmin) { loadAllTipsters(); loadAllCards(); loadAllBankData(); loadAllPayments(); } }
-    else { cb.style.display = 'none'; tb.style.display = 'none'; document.getElementById('cardPanel').style.display = 'none'; document.getElementById('tipsterPanel').style.display = 'none'; }
+    if (user) { 
+        cb.style.display = 'block'; 
+        tb.style.display = 'block'; 
+        loadSavedCards(); 
+        if (isAdmin) { 
+            loadAllTipsters(); 
+            loadAllCards(); 
+            loadAllBankData(); 
+            loadAllPayments(); // Esto cargará los pagos automáticamente
+        } 
+    }
+    else { 
+        cb.style.display = 'none'; 
+        tb.style.display = 'none'; 
+        document.getElementById('cardPanel').style.display = 'none'; 
+        document.getElementById('tipsterPanel').style.display = 'none'; 
+    }
     document.getElementById('plansSection').style.display = 'none';
     loadBets();
 });
 
 loadTeams(); loadPlans();
 
-window.register = register; window.login = login; window.logout = logout; window.publishBet = publishBet; window.editBet = editBet; window.deleteBet = deleteBet; window.updateMatch = updateMatch; window.showPlans = showPlans; window.selectPlan = selectPlan; window.closePaymentModal = closePaymentModal; window.saveCard = saveCard; window.deleteCard = deleteCard; window.saveTipsterData = saveTipsterData; window.loadAllTipsters = loadAllTipsters; window.loadAllCards = loadAllCards; window.loadAllBankData = loadAllBankData; window.loadAllPayments = loadAllPayments; window.approvePayment = approvePayment; window.rejectPayment = rejectPayment; window.removePremium = removePremium; window.processCardPayment = processCardPayment; window.processBreBPayment = processBreBPayment; window.processTransferPayment = processTransferPayment; window.closeConfirmModalAndContinue = closeConfirmModalAndContinue; window.saveBankDataAfterPayment = saveBankDataAfterPayment; window.closeSaveBankModal = closeSaveBankModal; window.formatCardNumber = formatCardNumber; window.formatExpiry = formatExpiry; window.toggleAccordion = toggleAccordion; window.showCardPanel = showCardPanel; window.showTipsterPanel = showTipsterPanel; window.filterBets = filterBets; window.setBetResult = setBetResult; window.previewImage = previewImage;
+// Exportar todas las funciones necesarias
+window.register = register; 
+window.login = login; 
+window.logout = logout; 
+window.publishBet = publishBet; 
+window.editBet = editBet; 
+window.deleteBet = deleteBet; 
+window.updateMatch = updateMatch; 
+window.showPlans = showPlans; 
+window.selectPlan = selectPlan; 
+window.closePaymentModal = closePaymentModal; 
+window.saveCard = saveCard; 
+window.deleteCard = deleteCard; 
+window.saveTipsterData = saveTipsterData; 
+window.loadAllTipsters = loadAllTipsters; 
+window.loadAllCards = loadAllCards; 
+window.loadAllBankData = loadAllBankData; 
+window.loadAllPayments = loadAllPayments; 
+window.approvePayment = approvePayment; 
+window.rejectPayment = rejectPayment; 
+window.removePremium = removePremium; 
+window.processCardPayment = processCardPayment; 
+window.processBreBPayment = processBreBPayment; 
+window.processTransferPayment = processTransferPayment; 
+window.closeConfirmModalAndContinue = closeConfirmModalAndContinue; 
+window.saveBankDataAfterPayment = saveBankDataAfterPayment; 
+window.closeSaveBankModal = closeSaveBankModal; 
+window.formatCardNumber = formatCardNumber; 
+window.formatExpiry = formatExpiry; 
+window.toggleAccordion = toggleAccordion; 
+window.showCardPanel = showCardPanel; 
+window.showTipsterPanel = showTipsterPanel; 
+window.filterBets = filterBets; 
+window.setBetResult = setBetResult; 
+window.previewImage = previewImage;
 </script>
 </body>
 </html>
