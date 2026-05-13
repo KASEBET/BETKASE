@@ -1100,13 +1100,30 @@ function filterBets(filter) { currentFilter = filter; document.querySelectorAll(
 function previewImage(input, previewId) {
     const preview = document.getElementById(previewId);
     if (input.files && input.files[0]) {
+        const file = input.files[0];
+        
+        // Limitar tamaño (1MB)
+        if (file.size > 1048576) {
+            alert('La imagen es demasiado grande (máx 1MB). Por favor, comprime la imagen.');
+            input.value = '';
+            preview.innerHTML = '';
+            return;
+        }
+        
         const reader = new FileReader();
         reader.onload = function(e) {
-            preview.innerHTML = `<img src="${e.target.result}" alt="Vista previa">`;
-            if (previewId === 'brebPreview') brebImageBase64 = e.target.result;
-            else if (previewId === 'transferPreview') transferImageBase64 = e.target.result;
+            preview.innerHTML = '<img src="' + e.target.result + '" style="max-width:150px; max-height:80px; border-radius:10px; border:2px solid #00ff88; margin-top:10px;">';
+            if (previewId === 'brebPreview') {
+                brebImageBase64 = e.target.result;
+            } else if (previewId === 'transferPreview') {
+                transferImageBase64 = e.target.result;
+            }
         };
-        reader.readAsDataURL(input.files[0]);
+        reader.onerror = function() {
+            alert('Error al leer el archivo. Intenta con otra imagen.');
+            input.value = '';
+        };
+        reader.readAsDataURL(file);
     }
 }
 
