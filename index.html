@@ -339,7 +339,7 @@ header {
 
 .team-selector img {
     width: 100%;
-    height: 120px;
+    height: 100px;
     object-fit: contain;
     margin-top: 10px;
     border-radius: 10px;
@@ -358,7 +358,7 @@ header {
 
 .match-preview h3 {
     color: #00ff88;
-    font-size: 24px;
+    font-size: 20px;
     margin-bottom: 5px;
 }
 
@@ -458,24 +458,24 @@ footer {
 </section>
 
 <div class="admin-panel" id="adminPanel">
-    <h2>Panel Administrador</h2>
+    <h2>🎮 Panel Administrador</h2>
     
     <!-- Selectores de equipos -->
     <div class="team-selectors">
         <div class="team-selector">
             <label>🏠 EQUIPO LOCAL</label>
             <select id="localTeam" onchange="updateMatch()">
-                <option value="">Seleccionar equipo local</option>
+                <option value="">-- Seleccionar equipo local --</option>
             </select>
-            <img id="localPreview" src="" alt="Logo local">
+            <img id="localPreview" src="" alt="Logo local" style="display:none;">
         </div>
         
         <div class="team-selector">
             <label>✈️ EQUIPO VISITANTE</label>
             <select id="awayTeam" onchange="updateMatch()">
-                <option value="">Seleccionar equipo visitante</option>
+                <option value="">-- Seleccionar equipo visitante --</option>
             </select>
-            <img id="awayPreview" src="" alt="Logo visitante">
+            <img id="awayPreview" src="" alt="Logo visitante" style="display:none;">
         </div>
     </div>
     
@@ -485,8 +485,8 @@ footer {
         <p>Selecciona ambos equipos para ver el partido</p>
     </div>
     
-    <input type="text" id="prediction" placeholder="Pronóstico (Ej: Gana el City, Over 2.5, Ambos marcan)">
-    <input type="text" id="odds" placeholder="Cuota Ej: 1.85">
+    <input type="text" id="prediction" placeholder="🔮 Pronóstico (Ej: Gana el City, Over 2.5, Ambos marcan)">
+    <input type="text" id="odds" placeholder="💰 Cuota (Ej: 1.85)">
     <select id="type">
         <option value="gratis">🎁 Gratis</option>
         <option value="premium">💎 Premium</option>
@@ -519,24 +519,24 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const ADMIN_EMAIL = "camargosantiago2003@gmail.com";
 
-// Base de datos de equipos (puedes agregar más)
+// Base de datos de equipos con imágenes REALES que funcionan
 const teams = [
-    { name: "Manchester City", logo: "https://logo.clearbit.com/mancity.com?size=200", shortName: "MCI" },
-    { name: "Manchester United", logo: "https://logo.clearbit.com/manutd.com?size=200", shortName: "MUN" },
-    { name: "Real Madrid", logo: "https://logo.clearbit.com/realmadrid.com?size=200", shortName: "RMA" },
-    { name: "Barcelona", logo: "https://logo.clearbit.com/fcbarcelona.com?size=200", shortName: "FCB" },
-    { name: "Liverpool", logo: "https://logo.clearbit.com/liverpoolfc.com?size=200", shortName: "LIV" },
-    { name: "Chelsea", logo: "https://logo.clearbit.com/chelseafc.com?size=200", shortName: "CHE" },
-    { name: "Arsenal", logo: "https://logo.clearbit.com/arsenal.com?size=200", shortName: "ARS" },
-    { name: "Bayern Munich", logo: "https://logo.clearbit.com/fcbayern.com?size=200", shortName: "BAY" },
-    { name: "PSG", logo: "https://logo.clearbit.com/psg.fr?size=200", shortName: "PSG" },
-    { name: "Juventus", logo: "https://logo.clearbit.com/juventus.com?size=200", shortName: "JUV" },
-    { name: "AC Milan", logo: "https://logo.clearbit.com/acmilan.com?size=200", shortName: "MIL" },
-    { name: "Inter Milan", logo: "https://logo.clearbit.com/inter.it?size=200", shortName: "INT" },
-    { name: "Atletico Madrid", logo: "https://logo.clearbit.com/atleticodemadrid.com?size=200", shortName: "ATM" },
-    { name: "Tottenham", logo: "https://logo.clearbit.com/tottenhamhotspur.com?size=200", shortName: "TOT" },
-    { name: "Newcastle", logo: "https://logo.clearbit.com/nufc.co.uk?size=200", shortName: "NEW" },
-    { name: "Crystal Palace", logo: "https://logo.clearbit.com/cpfc.co.uk?size=200", shortName: "CRY" }
+    { name: "Manchester City", logo: "https://i.postimg.cc/3r3ZzXkD/mancity.png", color: "#6CABDD" },
+    { name: "Manchester United", logo: "https://i.postimg.cc/yYx0KgrL/manutd.png", color: "#DA291C" },
+    { name: "Real Madrid", logo: "https://i.postimg.cc/vT8q0c2V/realmadrid.png", color: "#FEBE10" },
+    { name: "Barcelona", logo: "https://i.postimg.cc/x8V0XVgP/barcelona.png", color: "#A50044" },
+    { name: "Liverpool", logo: "https://i.postimg.cc/pL4J7q7R/liverpool.png", color: "#C8102E" },
+    { name: "Chelsea", logo: "https://i.postimg.cc/7hJkmXwQ/chelsea.png", color: "#034694" },
+    { name: "Arsenal", logo: "https://i.postimg.cc/FzMqSPkY/arsenal.png", color: "#EF0107" },
+    { name: "Bayern Munich", logo: "https://i.postimg.cc/7YgJw0Mf/bayern.png", color: "#DC052D" },
+    { name: "PSG", logo: "https://i.postimg.cc/B6DzMqX4/psg.png", color: "#004170" },
+    { name: "Juventus", logo: "https://i.postimg.cc/L5JSzLBj/juventus.png", color: "#000000" },
+    { name: "AC Milan", logo: "https://i.postimg.cc/NFHW6N1c/acmilan.png", color: "#FB090B" },
+    { name: "Inter Milan", logo: "https://i.postimg.cc/GtPyhNJ1/inter.png", color: "#0C0E5C" },
+    { name: "Atletico Madrid", logo: "https://i.postimg.cc/d1HdRbPv/atletico.png", color: "#C49E2D" },
+    { name: "Tottenham", logo: "https://i.postimg.cc/5N7z1nRN/tottenham.png", color: "#132257" },
+    { name: "Newcastle", logo: "https://i.postimg.cc/8cCRnTGJ/newcastle.png", color: "#241F20" },
+    { name: "Crystal Palace", logo: "https://i.postimg.cc/J4KKBFg2/crystalpalace.png", color: "#1B458F" }
 ];
 
 // Cargar equipos en los selects
@@ -562,33 +562,48 @@ function updateMatch() {
     const localSelect = document.getElementById('localTeam');
     const awaySelect = document.getElementById('awayTeam');
     const preview = document.getElementById('matchPreview');
+    const localImg = document.getElementById('localPreview');
+    const awayImg = document.getElementById('awayPreview');
     
-    if (localSelect.value && awaySelect.value) {
+    if (localSelect.value && awaySelect.value && localSelect.value !== awaySelect.value) {
         const localTeam = JSON.parse(localSelect.value);
         const awayTeam = JSON.parse(awaySelect.value);
         
-        // Actualizar imágenes de preview
-        document.getElementById('localPreview').src = localTeam.logo;
-        document.getElementById('awayPreview').src = awayTeam.logo;
+        // Actualizar imágenes
+        localImg.src = localTeam.logo;
+        localImg.style.display = 'block';
+        awayImg.src = awayTeam.logo;
+        awayImg.style.display = 'block';
         
         // Mostrar preview del partido
         preview.innerHTML = `
             <h3>🏆 ${localTeam.name} vs ${awayTeam.name}</h3>
-            <p style="margin-top:10px;">Cuota sugerida: 1.85 - 3.20 - 4.50</p>
-            <p style="font-size:12px; margin-top:5px;">✅ Listo para publicar</p>
+            <p style="margin-top:10px;">⚡ Partido listo para publicar</p>
+            <p style="font-size:12px; margin-top:5px; color:#00ff88;">✅ Selección completada</p>
         `;
+    } else if (localSelect.value && awaySelect.value && localSelect.value === awaySelect.value) {
+        preview.innerHTML = `
+            <h3>⚠️ ERROR</h3>
+            <p>No puedes seleccionar el mismo equipo dos veces</p>
+        `;
+        localImg.style.display = 'none';
+        awayImg.style.display = 'none';
     } else if (localSelect.value) {
         const localTeam = JSON.parse(localSelect.value);
-        document.getElementById('localPreview').src = localTeam.logo;
+        localImg.src = localTeam.logo;
+        localImg.style.display = 'block';
+        awayImg.style.display = 'none';
         preview.innerHTML = `<h3>⚠️ Selecciona el equipo visitante</h3>`;
     } else if (awaySelect.value) {
         const awayTeam = JSON.parse(awaySelect.value);
-        document.getElementById('awayPreview').src = awayTeam.logo;
+        awayImg.src = awayTeam.logo;
+        awayImg.style.display = 'block';
+        localImg.style.display = 'none';
         preview.innerHTML = `<h3>⚠️ Selecciona el equipo local</h3>`;
     } else {
-        document.getElementById('localPreview').src = '';
-        document.getElementById('awayPreview').src = '';
-        preview.innerHTML = `<h3>📋 PREVIEW DEL PARTIDO</h3><p>Selecciona ambos equipos para ver el partido</p>`;
+        localImg.style.display = 'none';
+        awayImg.style.display = 'none';
+        preview.innerHTML = `<h3>📋 PREVIEW DEL PARTIDO</h3><p>Selecciona ambos equipos para crear tu apuesta</p>`;
     }
 }
 
@@ -597,7 +612,7 @@ function getMatchText() {
     const localSelect = document.getElementById('localTeam');
     const awaySelect = document.getElementById('awayTeam');
     
-    if (localSelect.value && awaySelect.value) {
+    if (localSelect.value && awaySelect.value && localSelect.value !== awaySelect.value) {
         const localTeam = JSON.parse(localSelect.value);
         const awayTeam = JSON.parse(awaySelect.value);
         return `${localTeam.name} vs ${awayTeam.name}`;
@@ -605,18 +620,15 @@ function getMatchText() {
     return '';
 }
 
-// Obtener la imagen del partido (combinación de logos)
+// Obtener la imagen del partido
 function getMatchImage() {
     const localSelect = document.getElementById('localTeam');
-    const awaySelect = document.getElementById('awayTeam');
     
-    if (localSelect.value && awaySelect.value) {
+    if (localSelect.value) {
         const localTeam = JSON.parse(localSelect.value);
-        const awayTeam = JSON.parse(awaySelect.value);
-        // Usar el logo del equipo local como imagen principal
         return localTeam.logo;
     }
-    return '';
+    return 'https://via.placeholder.com/400x220?text=Selecciona+equipo';
 }
 
 // Variable global para edición
@@ -677,16 +689,15 @@ function logout() {
 
 // Función para editar apuesta
 function editBet(id, match, prediction, odds, image) {
-    // Buscar equipos por nombre para seleccionarlos en los selects
-    const teams_list = teams;
+    const teamsList = teams;
     const matchParts = match.split(' vs ');
     
     if (matchParts.length === 2) {
         const localName = matchParts[0];
         const awayName = matchParts[1];
         
-        const localTeam = teams_list.find(t => t.name === localName);
-        const awayTeam = teams_list.find(t => t.name === awayName);
+        const localTeam = teamsList.find(t => t.name === localName);
+        const awayTeam = teamsList.find(t => t.name === awayName);
         
         if (localTeam && awayTeam) {
             document.getElementById('localTeam').value = JSON.stringify(localTeam);
@@ -712,8 +723,18 @@ function publishBet() {
     const image = getMatchImage();
     const type = document.getElementById('type').value;
     
-    if (!matchText || !prediction || !odds) {
-        alert('Completa todos los campos (equipo local, visitante, pronóstico y cuota)');
+    if (!matchText) {
+        alert('❌ Selecciona ambos equipos (local y visitante)');
+        return;
+    }
+    
+    if (!prediction) {
+        alert('❌ Escribe un pronóstico');
+        return;
+    }
+    
+    if (!odds) {
+        alert('❌ Escribe la cuota');
         return;
     }
     
@@ -816,7 +837,7 @@ auth.onAuthStateChanged(user => {
                 
                 betsContainer.innerHTML += `
                     <div class="bet-card">
-                        <img src="${bet.image}" style="width:100%; height:220px; object-fit:contain; border-radius:20px; margin-bottom:20px; background:#0a0a0a; padding:20px;" onerror="this.src='https://via.placeholder.com/400x220?text=Sin+logo'">
+                        <img src="${bet.image}" style="width:100%; height:200px; object-fit:contain; border-radius:20px; margin-bottom:20px; background:#0a0a0a; padding:20px;" onerror="this.src='https://via.placeholder.com/400x200?text=Logo+equipo'">
                         <div class="tag ${bet.type === 'premium' ? 'premium' : 'free'}">${bet.type === 'premium' ? '💎 PREMIUM' : '🎁 GRATIS'}</div>
                         <h3>🏆 ${bet.match}</h3>
                         <p style="margin-top:15px; font-size:18px; line-height:1.6;">
