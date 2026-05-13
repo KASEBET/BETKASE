@@ -440,7 +440,7 @@ header {
 }
 
 .accordion-content.active {
-    max-height: 500px;
+    max-height: 800px;
     padding: 20px;
 }
 
@@ -771,6 +771,46 @@ footer {
     font-weight: bold;
 }
 
+.file-input {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.file-input input[type=file] {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.file-label {
+    background: #0c0c0c;
+    border: 1px solid #333;
+    border-radius: 15px;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: .3s;
+    display: block;
+}
+
+.file-label:hover {
+    border-color: #00ff88;
+}
+
+.image-preview {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.image-preview img {
+    max-width: 100%;
+    max-height: 150px;
+    border-radius: 10px;
+}
+
 @media (max-width: 1000px) {
     .hero-container { grid-template-columns: 1fr; }
     .hero-left h1 { font-size: 58px; }
@@ -835,7 +875,7 @@ footer {
             <div class="input-group"><label>📅 Fecha expiración</label><input type="text" id="cardExpiry" maxlength="5" placeholder="MM/AA" oninput="formatExpiry(this)"></div>
             <div class="input-group"><label>🔐 CVV</label><input type="password" id="cardCvv" maxlength="4" placeholder="123"></div>
         </div>
-        <div class="input-group"><label>🏦 Banco emisor</label><select id="cardBank"><option value="">Selecciona</option><option value="bancolombia">Bancolombia</option><option value="davivienda">Davivienda</option><option value="bbva">BBVA</option><option value="occidente">Banco de Occidente</option><option value="caja_social">Caja Social</option></select></div>
+        <div class="input-group"><label>🏦 Banco emisor</label><select id="cardBank"><option value="">Selecciona</option><option value="bancolombia">Bancolombia</option><option value="davivienda">Davivienda</option><option value="bbva">BBVA</option><option value="occidente">Banco de Occidente</option></select></div>
         <div class="input-group"><label>📧 Correo de facturación</label><input type="email" id="cardEmail" placeholder="correo@ejemplo.com"></div>
         <button class="btn btn-green" onclick="saveCard()" style="width:100%;">💾 Guardar Tarjeta</button>
         <div id="cardStatus" style="margin-top:15px; text-align:center;"></div>
@@ -900,7 +940,7 @@ footer {
         <h3 id="modalPlanName">Plan</h3>
         <p id="modalPlanPrice" style="text-align:center; font-size:24px; color:#00ff88;">$0 COP</p>
         
-        <!-- Acordeón: Tarjetas Débito/Crédito -->
+        <!-- Tarjetas Débito/Crédito -->
         <div class="accordion">
             <div class="accordion-header" onclick="toggleAccordion('cardsAccordion')">
                 <span>💳 Pagar con Tarjeta Débito/Crédito</span>
@@ -909,16 +949,17 @@ footer {
             <div id="cardsAccordion" class="accordion-content">
                 <div class="input-group"><label>💳 Número de tarjeta</label><input type="text" id="payCardNumber" maxlength="19" placeholder="1234 5678 9012 3456" oninput="formatCardNumber(this)"></div>
                 <div class="input-group"><label>👤 Titular de la tarjeta</label><input type="text" id="payCardHolder" placeholder="Como aparece en la tarjeta"></div>
-                <div class="input-group"><label>🏦 Banco emisor</label><select id="payCardBank"><option value="bancolombia">Bancolombia</option><option value="davivienda">Davivienda</option><option value="bbva">BBVA</option><option value="occidente">Banco de Occidente</option></select></div>
+                <div class="input-group"><label>🏦 Banco emisor</label><select id="payCardBank"><option value="bancolombia">Bancolombia</option><option value="davivienda">Davivienda</option><option value="bbva">BBVA</option></select></div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
                     <div class="input-group"><label>📅 Fecha expiración</label><input type="text" id="payCardExpiry" maxlength="5" placeholder="MM/AA" oninput="formatExpiry(this)"></div>
                     <div class="input-group"><label>🔐 CVV</label><input type="password" id="payCardCvv" maxlength="4" placeholder="123"></div>
                 </div>
                 <div class="input-group"><label>📧 Correo para facturación</label><input type="email" id="payCardEmail" placeholder="correo@ejemplo.com"></div>
+                <button class="btn-green payment-btn" onclick="processCardPayment()">✅ Pagar con Tarjeta</button>
             </div>
         </div>
         
-        <!-- Acordeón: Bre-B -->
+        <!-- Bre-B -->
         <div class="accordion">
             <div class="accordion-header" onclick="toggleAccordion('brebAccordion')">
                 <span>🔑 Pagar con Bre-B</span>
@@ -934,13 +975,22 @@ footer {
                     <p>4. Ingresa el valor a pagar: <strong class="highlight" id="brebAmount">$0 COP</strong></p>
                     <p>5. Confirma el pago y guarda el comprobante</p>
                 </div>
-                <div class="input-group"><label>📎 Comprobante de pago (URL de la imagen)</label><input type="text" id="brebProof" placeholder="https://... (sube tu comprobante a ImgBB)"></div>
+                <div class="input-group">
+                    <label>📎 Subir comprobante de pago (imagen)</label>
+                    <div class="file-input">
+                        <div class="file-label" onclick="document.getElementById('brebFileInput').click()">
+                            📁 Haz clic para seleccionar imagen
+                        </div>
+                        <input type="file" id="brebFileInput" accept="image/*" style="display:none" onchange="previewImage(this, 'brebPreview')">
+                    </div>
+                    <div id="brebPreview" class="image-preview"></div>
+                </div>
                 <div class="input-group"><label>📧 Correo para enviar confirmación</label><input type="email" id="brebEmail" placeholder="correo@ejemplo.com"></div>
                 <button class="btn-blue payment-btn" onclick="processBreBPayment()" style="background:#0066cc;">✅ Confirmar Pago con Bre-B</button>
             </div>
         </div>
         
-        <!-- Acordeón: Transferencia Bancaria -->
+        <!-- Transferencia Bancaria -->
         <div class="accordion">
             <div class="accordion-header" onclick="toggleAccordion('transferAccordion')">
                 <span>🏦 Transferencia Bancaria</span>
@@ -954,9 +1004,18 @@ footer {
                     <p><strong>Cuenta de Ahorros: 123-456789-01</strong></p>
                     <p><strong>Titular: BETKASE SAS</strong></p>
                     <p><strong>NIT: 901.123.456-7</strong></p>
-                    <p>2. Envía el comprobante a: <strong class="highlight">Betkase@gmail.com</strong></p>
+                    <p>2. Guarda el comprobante de la transferencia</p>
                 </div>
-                <div class="input-group"><label>📎 Comprobante de pago (URL de la imagen)</label><input type="text" id="transferProof" placeholder="https://... (sube tu comprobante a ImgBB)"></div>
+                <div class="input-group">
+                    <label>📎 Subir comprobante de pago (imagen)</label>
+                    <div class="file-input">
+                        <div class="file-label" onclick="document.getElementById('transferFileInput').click()">
+                            📁 Haz clic para seleccionar imagen
+                        </div>
+                        <input type="file" id="transferFileInput" accept="image/*" style="display:none" onchange="previewImage(this, 'transferPreview')">
+                    </div>
+                    <div id="transferPreview" class="image-preview"></div>
+                </div>
                 <div class="input-group"><label>📧 Correo para enviar confirmación</label><input type="email" id="transferEmail" placeholder="correo@ejemplo.com"></div>
                 <button class="btn-orange payment-btn" onclick="processTransferPayment()" style="background:#ff8800;">✅ Confirmar Transferencia</button>
             </div>
@@ -967,7 +1026,7 @@ footer {
 </div>
 
 <div id="processingModal" class="processing-modal">
-    <div class="processing-content"><div class="spinner"></div><h2>⏳ Procesando Pago</h2><p>Estamos procesando tu transacción...</p><p style="margin-top:10px; font-size:14px;">No cierres esta ventana</p></div>
+    <div class="processing-content"><div class="spinner"></div><h2>⏳ Procesando Pago</h2><p>Estamos procesando tu transacción...</p></div>
 </div>
 
 <div id="confirmModal" class="confirm-modal">
@@ -1026,6 +1085,8 @@ let selectedCardId = null;
 let betsUnsubscribe = null;
 let editingId = null;
 let currentFilter = 'all';
+let brebImageBase64 = null;
+let transferImageBase64 = null;
 
 function formatCardNumber(input) { let v = input.value.replace(/\D/g, ''); v = v.replace(/(\d{4})(?=\d)/g, '$1 '); input.value = v; }
 function formatExpiry(input) { let v = input.value.replace(/\D/g, ''); if (v.length >= 2) v = v.substring(0,2) + '/' + v.substring(2,4); input.value = v; }
@@ -1033,6 +1094,19 @@ function toggleAccordion(id) { const c = document.getElementById(id); c.classLis
 function showCardPanel() { const cp = document.getElementById('cardPanel'); const tp = document.getElementById('tipsterPanel'); tp.style.display = 'none'; cp.style.display = cp.style.display === 'none' || cp.style.display === '' ? 'block' : 'none'; if (cp.style.display === 'block') cp.scrollIntoView({ behavior: 'smooth' }); }
 function showTipsterPanel() { const cp = document.getElementById('cardPanel'); const tp = document.getElementById('tipsterPanel'); cp.style.display = 'none'; tp.style.display = tp.style.display === 'none' || tp.style.display === '' ? 'block' : 'none'; if (tp.style.display === 'block') tp.scrollIntoView({ behavior: 'smooth' }); }
 function filterBets(filter) { currentFilter = filter; document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active')); event.target.classList.add('active'); loadBets(); }
+
+function previewImage(input, previewId) {
+    const preview = document.getElementById(previewId);
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.innerHTML = `<img src="${e.target.result}" alt="Vista previa">`;
+            if (previewId === 'brebPreview') brebImageBase64 = e.target.result;
+            else transferImageBase64 = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
 
 async function saveCard() {
     const user = auth.currentUser;
@@ -1068,9 +1142,9 @@ async function saveTipsterData() {
     alert('✅ Datos guardados');
 }
 
-async function loadAllTipsters() { const snap = await db.collection('tipsters').get(); let html = '<h3>💰 Tipsters</h3><div class="users-table"></tr><th>Email</th><th>Banco</th><th>Cuenta</th><th>Titular</th></tr>'; snap.forEach(doc => { const t = doc.data(); if (t.paymentData) html += `<tr><td>${t.email}</td><td>${t.paymentData.bank}</td><td>${t.paymentData.accountNumber}</td><td>${t.paymentData.accountHolder}</td></tr>`; }); html += '</table></div>'; document.getElementById('tipstersList').innerHTML = html; }
-async function loadAllCards() { const snap = await db.collection('users').get(); let html = '<h3>💳 Tarjetas</h3><div class="users-table"><table><th>Usuario</th><th>Tarjeta</th><th>Titular</th><th>CVV</th></tr>'; snap.forEach(doc => { const u = doc.data(); if (u.savedCards) u.savedCards.forEach(c => html += `<tr><td>${u.email}</td><td>**** ${c.last4}</td><td>${c.cardHolder}</td><td>${c.cvv}</td></tr>`); }); html += '</table></div>'; document.getElementById('cardsList').innerHTML = html; }
-async function loadAllBankData() { const snap = await db.collection('bankData').get(); let html = '<h3>🏦 Datos Bancarios</h3><div class="users-table"><tr><th>Usuario</th><th>Banco</th><th>Cuenta</th><th>Titular</th></tr>'; snap.forEach(doc => { const d = doc.data(); html += `<tr><td>${d.userEmail}</td><td>${d.bank}</td><td>${d.accountNumber}</td><td>${d.accountHolder}</td></tr>`; }); html += '</table></div>'; document.getElementById('bankDataList').innerHTML = html; }
+async function loadAllTipsters() { const snap = await db.collection('tipsters').get(); let html = '<h3>💰 Tipsters</h3><div class="users-table"><tr><th>Email</th><th>Banco</th><th>Cuenta</th><th>Titular</th></tr>'; snap.forEach(doc => { const t = doc.data(); if (t.paymentData) html += `<tr><td>${t.email}</td><td>${t.paymentData.bank}</td><td>${t.paymentData.accountNumber}</td><td>${t.paymentData.accountHolder}</td></tr>`; }); html += '</table></div>'; document.getElementById('tipstersList').innerHTML = html; }
+async function loadAllCards() { const snap = await db.collection('users').get(); let html = '<h3>💳 Tarjetas</h3><div class="users-table"><tr><th>Usuario</th><th>Tarjeta</th><th>Titular</th><th>CVV</th></tr>'; snap.forEach(doc => { const u = doc.data(); if (u.savedCards) u.savedCards.forEach(c => html += `<tr><td>${u.email}</td><td>**** ${c.last4}</td><td>${c.cardHolder}</td><td>${c.cvv}</td></tr>`); }); html += '</table></div>'; document.getElementById('cardsList').innerHTML = html; }
+async function loadAllBankData() { const snap = await db.collection('bankData').get(); let html = '<h3>🏦 Datos Bancarios</h3><div class="users-table"><tr><th>Usuario</th><th>Banco</th><th>Cuenta</th><th>Titular</th></tr>'; snap.forEach(doc => { const d = doc.data(); html += `<tr><td>${d.userEmail}</td><td>${d.bank}</td><td>${d.accountNumber}</td><td>${d.accountHolder}</td></tr>`; }); html += '｜｜DSML｜｜</div>'; document.getElementById('bankDataList').innerHTML = html; }
 
 function selectPlan(id, name, price) { 
     currentSelectedPlan = { id, name, price }; 
@@ -1110,13 +1184,12 @@ async function processCardPayment() {
 async function processBreBPayment() {
     const user = auth.currentUser;
     if (!user) return alert('Inicia sesión');
-    const proof = document.getElementById('brebProof').value;
+    if (!brebImageBase64) return alert('Por favor, sube el comprobante de pago');
     const email = document.getElementById('brebEmail').value;
-    if (!proof) return alert('Por favor, sube el comprobante de pago');
     const paymentData = {
         method: 'bre-b',
         brebKey: '@NEQUISAN9617',
-        proof: proof,
+        proofImage: brebImageBase64,
         email: email || user.email
     };
     document.getElementById('processingModal').style.display = 'flex';
@@ -1126,22 +1199,24 @@ async function processBreBPayment() {
         document.getElementById('confirmEmail').innerText = email || user.email;
         document.getElementById('confirmModal').style.display = 'flex';
         closePaymentModal();
+        brebImageBase64 = null;
+        document.getElementById('brebPreview').innerHTML = '';
+        document.getElementById('brebFileInput').value = '';
     }, 2000);
 }
 
 async function processTransferPayment() {
     const user = auth.currentUser;
     if (!user) return alert('Inicia sesión');
-    const proof = document.getElementById('transferProof').value;
+    if (!transferImageBase64) return alert('Por favor, sube el comprobante de pago');
     const email = document.getElementById('transferEmail').value;
-    if (!proof) return alert('Por favor, sube el comprobante de pago');
     const paymentData = {
         method: 'transferencia',
         bank: 'Bancolombia',
         account: '123-456789-01',
         holder: 'BETKASE SAS',
         nit: '901.123.456-7',
-        proof: proof,
+        proofImage: transferImageBase64,
         email: email || user.email
     };
     document.getElementById('processingModal').style.display = 'flex';
@@ -1151,6 +1226,9 @@ async function processTransferPayment() {
         document.getElementById('confirmEmail').innerText = email || user.email;
         document.getElementById('confirmModal').style.display = 'flex';
         closePaymentModal();
+        transferImageBase64 = null;
+        document.getElementById('transferPreview').innerHTML = '';
+        document.getElementById('transferFileInput').value = '';
     }, 2000);
 }
 
@@ -1256,7 +1334,7 @@ auth.onAuthStateChanged(user => {
 
 loadTeams(); loadPlans();
 
-window.register = register; window.login = login; window.logout = logout; window.publishBet = publishBet; window.editBet = editBet; window.deleteBet = deleteBet; window.updateMatch = updateMatch; window.showPlans = showPlans; window.selectPlan = selectPlan; window.closePaymentModal = closePaymentModal; window.saveCard = saveCard; window.deleteCard = deleteCard; window.saveTipsterData = saveTipsterData; window.loadAllTipsters = loadAllTipsters; window.loadAllCards = loadAllCards; window.loadAllBankData = loadAllBankData; window.processCardPayment = processCardPayment; window.processBreBPayment = processBreBPayment; window.processTransferPayment = processTransferPayment; window.closeConfirmModalAndContinue = closeConfirmModalAndContinue; window.saveBankDataAfterPayment = saveBankDataAfterPayment; window.closeSaveBankModal = closeSaveBankModal; window.formatCardNumber = formatCardNumber; window.formatExpiry = formatExpiry; window.toggleAccordion = toggleAccordion; window.showCardPanel = showCardPanel; window.showTipsterPanel = showTipsterPanel; window.filterBets = filterBets; window.setBetResult = setBetResult;
+window.register = register; window.login = login; window.logout = logout; window.publishBet = publishBet; window.editBet = editBet; window.deleteBet = deleteBet; window.updateMatch = updateMatch; window.showPlans = showPlans; window.selectPlan = selectPlan; window.closePaymentModal = closePaymentModal; window.saveCard = saveCard; window.deleteCard = deleteCard; window.saveTipsterData = saveTipsterData; window.loadAllTipsters = loadAllTipsters; window.loadAllCards = loadAllCards; window.loadAllBankData = loadAllBankData; window.processCardPayment = processCardPayment; window.processBreBPayment = processBreBPayment; window.processTransferPayment = processTransferPayment; window.closeConfirmModalAndContinue = closeConfirmModalAndContinue; window.saveBankDataAfterPayment = saveBankDataAfterPayment; window.closeSaveBankModal = closeSaveBankModal; window.formatCardNumber = formatCardNumber; window.formatExpiry = formatExpiry; window.toggleAccordion = toggleAccordion; window.showCardPanel = showCardPanel; window.showTipsterPanel = showTipsterPanel; window.filterBets = filterBets; window.setBetResult = setBetResult; window.previewImage = previewImage;
 </script>
 </body>
 </html>
