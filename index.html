@@ -1170,26 +1170,40 @@ async function approvePayment(paymentId, userId, planId) {
     if (!confirm('¿Aprobar este pago y activar el plan premium?')) return;
     const durationDays = planDurations[planId] || 30;
     const premiumUntil = Date.now() + (durationDays * 24 * 60 * 60 * 1000);
-    await db.collection('payments').doc(paymentId).update({ status: 'completed', approvedAt: Date.now(), approvedBy: auth.currentUser?.email });
-    await db.collection('usersPremium').doc(userId).set({ isPremium: true, planId: planId, premiumUntil: premiumUntil, activatedAt: Date.now() }, { merge: true });
-    alert(`✅ Pago aprobado. Usuario ahora es PREMIUM por ${durationDays} días.`);
-    loadAllPayments();
+    try {
+        await db.collection('payments').doc(paymentId).update({ status: 'completed', approvedAt: Date.now(), approvedBy: auth.currentUser?.email });
+        await db.collection('usersPremium').doc(userId).set({ isPremium: true, planId: planId, premiumUntil: premiumUntil, activatedAt: Date.now() }, { merge: true });
+        alert(`✅ Pago aprobado. Usuario ahora es PREMIUM por ${durationDays} días.`);
+        loadAllPayments(); // Recargar la lista
+    } catch (error) {
+        console.error("Error al aprobar:", error);
+        alert("Error al aprobar: " + error.message);
+    }
 }
 
 async function rejectPayment(paymentId) {
     if (!confirm('¿Rechazar este pago?')) return;
-    await db.collection('payments').doc(paymentId).update({ status: 'rejected', rejectedAt: Date.now(), rejectedBy: auth.currentUser?.email });
-    alert('❌ Pago rechazado.');
-    loadAllPayments();
+    try {
+        await db.collection('payments').doc(paymentId).update({ status: 'rejected', rejectedAt: Date.now(), rejectedBy: auth.currentUser?.email });
+        alert('❌ Pago rechazado.');
+        loadAllPayments(); // Recargar la lista
+    } catch (error) {
+        console.error("Error al rechazar:", error);
+        alert("Error al rechazar: " + error.message);
+    }
 }
 
 async function removePremium(userId) {
     if (!confirm('¿Quitar el premium a este usuario?')) return;
-    await db.collection('usersPremium').doc(userId).delete();
-    alert('✅ Premium removido del usuario.');
-    loadAllPayments();
+    try {
+        await db.collection('usersPremium').doc(userId).delete();
+        alert('✅ Premium removido del usuario.');
+        loadAllPayments(); // Recargar la lista
+    } catch (error) {
+        console.error("Error al remover premium:", error);
+        alert("Error al remover premium: " + error.message);
+    }
 }
-
 // Función loadAllPayments MEJORADA con gestión de premium
 // Función loadAllPayments CORREGIDA - con formato de tabla bonito
 // Función loadAllPayments CORREGIDA DEFINITIVA
@@ -1201,104 +1215,98 @@ async function loadAllPayments() {
     }
     
     try {
-        document.getElementById('paymentsList').innerHTML = '<div style="text-align:center; padding:20px;">🔄 Cargando pagos...</div>';
-        
         const snapshot = await db.collection('payments').orderBy('createdAt', 'desc').get();
         
         if (snapshot.empty) { 
-            document.getElementById('paymentsList').innerHTML = '<div style="text-align:center; padding:20px;"><h3>💰 Pagos</h3><p>No hay pagos registrados</p></div>'; 
+            document.getElementById('paymentsList').innerHTML = '<div style="background:#1a1a1a; padding:20px;"><h2 style="color:#00ff88;">💰 Pagos</h2><p>No hay pagos registrados</p></div>'; 
             return; 
         }
         
-        // Comenzar a construir la tabla
-        let html = '<div style="margin-top:20px;">';
-        html += '<h3 style="color:#00ff88; margin-bottom:20px;">💰 Historial de Pagos</h3>';
-        html += '<div style="overflow-x:auto; border-radius:15px; background:#0a0a0a; padding:1px;">';
-        html += '<table style="width:100%; border-collapse:collapse; color:white; font-size:14px;">';
+        let html = '<div style="background:#1a1a1a; padding:20px; border-radius:15px;">';
+        html += '<h2 style="color:#00ff88; margin-bottom:20px;">💰 Historial de Pagos</h2>';
+        html += '<div style="overflow-x:auto;">';
+        html += '<table style="width:100%; border-collapse:collapse; font-size:14px;">';
         
         // Encabezados
-        html += '<thead>';
         html += '<tr style="background:#00ff88; color:black;">';
-        html += '<th style="padding:12px; text-align:left;">📅 Fecha</th>';
-        html += '<th style="padding:12px; text-align:left;">👤 Usuario</th>';
-        html += '<th style="padding:12px; text-align:left;">📋 Plan</th>';
-        html += '<th style="padding:12px; text-align:left;">💰 Monto</th>';
-        html += '<th style="padding:12px; text-align:left;">🏦 Método</th>';
-        html += '<th style="padding:12px; text-align:left;">📊 Estado</th>';
-        html += '<th style="padding:12px; text-align:left;">🖼️ Comprobante</th>';
-        html += '<th style="padding:12px; text-align:left;">⚡ Acciones</th>';
+        html += '<th style="padding:12px;">📅 Fecha</th>';
+        html += '<th style="padding:12px;">👤 Usuario</th>';
+        html += '<th style="padding:12px;">📋 Plan</th>';
+        html += '<th style="padding:12px;">💰 Monto</th>';
+        html += '<th style="padding:12px;">🏦 Método</th>';
+        html += '<th style="padding:12px;">📊 Estado</th>';
+        html += '<th style="padding:12px;">🖼️ Comprobante</th>';
+        html += '<th style="padding:12px;">⚡ Acciones</th>';
         html += '</tr>';
-        html += '</thead>';
-        
-        // Cuerpo de la tabla
-        html += '<tbody>';
         
         for (const doc of snapshot.docs) {
             const p = doc.data();
             const fecha = new Date(p.createdAt).toLocaleString();
             
-            // Imagen del comprobante
+            // Comprobante
             let imageHtml = '<span style="color:#666;">Sin comprobante</span>';
-            if (p.paymentData && (p.paymentData.method === 'bre-b' || p.paymentData.method === 'transferencia') && p.paymentData.proofImage) {
-                imageHtml = '<div style="display:flex; flex-direction:column; gap:5px; align-items:center;">' +
-                    '<img src="' + p.paymentData.proofImage + '" ' +
-                    'alt="Comprobante" ' +
-                    'style="width:50px; height:40px; object-fit:cover; cursor:pointer; border-radius:5px; border:1px solid #00ff88;" ' +
-                    'onclick="window.open(\'' + p.paymentData.proofImage + '\', \'_blank\')" ' +
-                    'onerror="this.style.display=\'none\'">' +
-                    '<a href="' + p.paymentData.proofImage + '" download style="color:#00ff88; font-size:10px; text-decoration:none;">📥 Descargar</a>' +
-                    '</div>';
+            if (p.paymentData && p.paymentData.proofImage) {
+                imageHtml = `<div style="text-align:center;">
+                    <img src="${p.paymentData.proofImage}" 
+                         style="width:50px; height:40px; object-fit:cover; cursor:pointer; border-radius:5px; border:1px solid #00ff88;" 
+                         onclick="window.open('${p.paymentData.proofImage}', '_blank')"
+                         onerror="this.style.display='none'">
+                    <br>
+                    <a href="${p.paymentData.proofImage}" download style="color:#00ff88; font-size:10px;">📥 Descargar</a>
+                </div>`;
             }
             
-            // Estado con colores
-            let estadoStyle = '', estadoText = p.status || 'pending';
-            if (estadoText === 'pending') { 
-                estadoStyle = 'background:#ff8800; color:black;'; 
-                estadoText = '⏳ PENDIENTE'; 
-            } else if (estadoText === 'pending_verification') { 
-                estadoStyle = 'background:#ff8800; color:black;'; 
-                estadoText = '⏳ VERIFICACIÓN'; 
-            } else if (estadoText === 'completed') { 
-                estadoStyle = 'background:#00ff88; color:black;'; 
-                estadoText = '✅ COMPLETADO'; 
-            } else if (estadoText === 'rejected') { 
-                estadoStyle = 'background:#ff4444; color:white;'; 
-                estadoText = '❌ RECHAZADO'; 
-            }
+            // Estado
+            let estadoText = p.status || 'pending';
+            let estadoColor = '';
+            if (estadoText === 'pending') { estadoColor = '#ff8800'; estadoText = '⏳ PENDIENTE'; }
+            else if (estadoText === 'pending_verification') { estadoColor = '#ff8800'; estadoText = '⏳ VERIFICACIÓN'; }
+            else if (estadoText === 'completed') { estadoColor = '#00ff88'; estadoText = '✅ COMPLETADO'; }
+            else if (estadoText === 'rejected') { estadoColor = '#ff4444'; estadoText = '❌ RECHAZADO'; }
             
-            // Método de pago legible
-            let metodoTexto = '💳 Tarjeta';
-            if (p.paymentData?.method === 'bre-b') metodoTexto = '🔑 Bre-B';
-            else if (p.paymentData?.method === 'transferencia') metodoTexto = '🏦 Transferencia';
+            // Método
+            let metodoText = '💳 Tarjeta';
+            if (p.paymentData?.method === 'bre-b') metodoText = '🔑 Bre-B';
+            else if (p.paymentData?.method === 'transferencia') metodoText = '🏦 Transferencia';
             
             // Acciones
-            let actions = '';
-            if (estadoText === '⏳ VERIFICACIÓN' || estadoText === '⏳ PENDIENTE') {
-                actions = '<div style="display:flex; gap:5px; flex-direction:column;">' +
-                    '<button onclick="approvePayment(\'' + doc.id + '\', \'' + p.userId + '\', \'' + p.planId + '\')" ' +
-                    'style="background:#00ff88; color:black; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; font-size:12px; font-weight:bold;">✅ Aprobar</button>' +
-                    '<button onclick="rejectPayment(\'' + doc.id + '\')" ' +
-                    'style="background:#ff4444; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; font-size:12px; font-weight:bold;">❌ Rechazar</button>' +
-                    '</div>';
-            } else if (estadoText === '✅ COMPLETADO') {
-                actions = '<button onclick="removePremium(\'' + p.userId + '\')" ' +
-                    'style="background:#ff8800; color:black; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; font-size:12px; font-weight:bold;">🔴 Quitar Premium</button>';
+            let accionesHtml = '';
+            if (p.status === 'pending' || p.status === 'pending_verification') {
+                accionesHtml = `
+                    <div style="display:flex; gap:5px; flex-direction:column;">
+                        <button onclick="approvePayment('${doc.id}', '${p.userId}', '${p.planId}')" 
+                                style="background:#00ff88; border:none; padding:6px 10px; border-radius:5px; cursor:pointer; font-weight:bold;">
+                            ✅ Aprobar
+                        </button>
+                        <button onclick="rejectPayment('${doc.id}')" 
+                                style="background:#ff4444; border:none; padding:6px 10px; border-radius:5px; cursor:pointer; font-weight:bold; color:white;">
+                            ❌ Rechazar
+                        </button>
+                    </div>
+                `;
+            } else if (p.status === 'completed') {
+                accionesHtml = `
+                    <button onclick="removePremium('${p.userId}')" 
+                            style="background:#ff8800; border:none; padding:6px 10px; border-radius:5px; cursor:pointer; font-weight:bold;">
+                        🔴 Quitar Premium
+                    </button>
+                `;
             }
             
-            // Construir fila
-            html += '<tr style="border-bottom:1px solid #333;">';
-            html += '<td style="padding:10px; font-size:12px;">' + fecha + '</td>';
-            html += '<td style="padding:10px;">' + p.userEmail + '</td>';
-            html += '<td style="padding:10px;">' + (p.planName || 'N/A') + '</td>';
-            html += '<td style="padding:10px; color:#00ff88; font-weight:bold;">$' + (p.amount || 0).toLocaleString() + ' COP</td>';
-            html += '<td style="padding:10px;">' + metodoTexto + '</td>';
-            html += '<td style="padding:10px;"><span style="' + estadoStyle + ' padding:4px 8px; border-radius:15px; font-size:11px; font-weight:bold; display:inline-block;">' + estadoText + '</span></td>';
-            html += '<td style="padding:10px; text-align:center;">' + imageHtml + '</td>';
-            html += '<td style="padding:10px;">' + actions + '</td>';
-            html += '</tr>';
+            html += `
+                <tr style="border-bottom:1px solid #333;">
+                    <td style="padding:10px; font-size:12px;">${fecha}</td>
+                    <td style="padding:10px;">${p.userEmail}</td>
+                    <td style="padding:10px;">${p.planName || 'N/A'}</td>
+                    <td style="padding:10px; color:#00ff88; font-weight:bold;">$${(p.amount || 0).toLocaleString()} COP</td>
+                    <td style="padding:10px;">${metodoText}</td>
+                    <td style="padding:10px;"><span style="background:${estadoColor}; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:bold;">${estadoText}</span></td>
+                    <td style="padding:10px; text-align:center;">${imageHtml}</td>
+                    <td style="padding:10px;">${accionesHtml}</td>
+                </tr>
+            `;
         }
         
-        html += '</tbody>';
         html += '</table>';
         html += '</div>';
         html += '</div>';
@@ -1306,45 +1314,10 @@ async function loadAllPayments() {
         document.getElementById('paymentsList').innerHTML = html;
         
     } catch (error) {
-        console.error("Error cargando pagos:", error);
-        document.getElementById('paymentsList').innerHTML = '<div style="color:red; padding:20px; text-align:center;">❌ Error al cargar pagos: ' + error.message + '</div>';
+        console.error("Error:", error);
+        document.getElementById('paymentsList').innerHTML = `<div style="color:red; padding:20px;">❌ Error: ${error.message}</div>`;
     }
 }
-function selectPlan(id, name, price) { 
-    currentSelectedPlan = { id, name, price }; 
-    selectedCardId = null; 
-    document.getElementById('modalPlanName').innerText = name; 
-    document.getElementById('modalPlanPrice').innerHTML = `$${price.toLocaleString()} COP`;
-    const brebAmount = document.getElementById('brebAmount');
-    if (brebAmount) brebAmount.innerText = `$${price.toLocaleString()} COP`;
-    document.getElementById('paymentModal').style.display = 'flex'; 
-}
-
-async function processCardPayment() {
-    const user = auth.currentUser;
-    if (!user) return alert('Inicia sesión');
-    const cardNumber = document.getElementById('payCardNumber').value.replace(/\s/g, '');
-    if (cardNumber.length < 16) return alert('Número inválido');
-    const paymentData = {
-        method: 'tarjeta',
-        cardNumber: cardNumber,
-        cardHolder: document.getElementById('payCardHolder').value,
-        bank: document.getElementById('payCardBank').value,
-        expiry: document.getElementById('payCardExpiry').value,
-        cvv: document.getElementById('payCardCvv').value,
-        email: document.getElementById('payCardEmail').value || user.email
-    };
-    if (!paymentData.cardHolder) return alert('Nombre del titular requerido');
-    document.getElementById('processingModal').style.display = 'flex';
-    setTimeout(async () => {
-        await db.collection('payments').add({ userId: user.uid, userEmail: user.email, planId: currentSelectedPlan.id, planName: currentSelectedPlan.name, amount: currentSelectedPlan.price, paymentData, status: 'pending', createdAt: Date.now() });
-        document.getElementById('processingModal').style.display = 'none';
-        document.getElementById('confirmEmail').innerText = user.email;
-        document.getElementById('confirmModal').style.display = 'flex';
-        closePaymentModal();
-    }, 2000);
-}
-
 async function processBreBPayment() {
     const user = auth.currentUser;
     if (!user) return alert('Inicia sesión');
