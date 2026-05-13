@@ -300,6 +300,73 @@ header {
     font-size: 16px;
 }
 
+/* Estilos para selectores de equipos */
+.team-selectors {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.team-selector {
+    background: #0c0c0c;
+    padding: 15px;
+    border-radius: 15px;
+    border: 1px solid #222;
+}
+
+.team-selector label {
+    display: block;
+    margin-bottom: 10px;
+    color: #00ff88;
+    font-weight: bold;
+}
+
+.team-selector select {
+    width: 100%;
+    padding: 15px;
+    background: #050505;
+    border: 1px solid #333;
+    border-radius: 12px;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.team-selector select:hover {
+    border-color: #00ff88;
+}
+
+.team-selector img {
+    width: 100%;
+    height: 120px;
+    object-fit: contain;
+    margin-top: 10px;
+    border-radius: 10px;
+    background: #050505;
+    padding: 10px;
+}
+
+.match-preview {
+    background: #0c0c0c;
+    padding: 20px;
+    border-radius: 15px;
+    margin-top: 20px;
+    text-align: center;
+    border: 1px solid #00ff8840;
+}
+
+.match-preview h3 {
+    color: #00ff88;
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+
+.match-preview p {
+    color: #888;
+    font-size: 14px;
+}
+
 footer {
     padding: 50px;
     text-align: center;
@@ -317,6 +384,9 @@ footer {
     }
     .login-box {
         margin-top: 20px;
+    }
+    .team-selectors {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -389,19 +459,43 @@ footer {
 
 <div class="admin-panel" id="adminPanel">
     <h2>Panel Administrador</h2>
-    <input type="text" id="match" placeholder="Ej: Real Madrid vs Barcelona">
-    <input type="text" id="prediction" placeholder="Pronóstico">
+    
+    <!-- Selectores de equipos -->
+    <div class="team-selectors">
+        <div class="team-selector">
+            <label>🏠 EQUIPO LOCAL</label>
+            <select id="localTeam" onchange="updateMatch()">
+                <option value="">Seleccionar equipo local</option>
+            </select>
+            <img id="localPreview" src="" alt="Logo local">
+        </div>
+        
+        <div class="team-selector">
+            <label>✈️ EQUIPO VISITANTE</label>
+            <select id="awayTeam" onchange="updateMatch()">
+                <option value="">Seleccionar equipo visitante</option>
+            </select>
+            <img id="awayPreview" src="" alt="Logo visitante">
+        </div>
+    </div>
+    
+    <!-- Previsualización del partido -->
+    <div class="match-preview" id="matchPreview">
+        <h3>📋 PREVIEW DEL PARTIDO</h3>
+        <p>Selecciona ambos equipos para ver el partido</p>
+    </div>
+    
+    <input type="text" id="prediction" placeholder="Pronóstico (Ej: Gana el City, Over 2.5, Ambos marcan)">
     <input type="text" id="odds" placeholder="Cuota Ej: 1.85">
-    <input type="text" id="image" placeholder="URL imagen equipos/jugadores">
     <select id="type">
-        <option value="gratis">Gratis</option>
-        <option value="premium">Premium</option>
+        <option value="gratis">🎁 Gratis</option>
+        <option value="premium">💎 Premium</option>
     </select>
-    <button class="btn btn-green" onclick="publishBet()" style="margin-top:20px;">Publicar Apuesta</button>
+    <button class="btn btn-green" onclick="publishBet()" style="margin-top:20px;">📤 Publicar Apuesta</button>
 </div>
 
 <section class="section">
-    <h2 class="section-title">Apuestas en Vivo</h2>
+    <h2 class="section-title">⚽ Apuestas en Vivo</h2>
     <div class="bets" id="bets"></div>
 </section>
 
@@ -424,6 +518,106 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 const ADMIN_EMAIL = "camargosantiago2003@gmail.com";
+
+// Base de datos de equipos (puedes agregar más)
+const teams = [
+    { name: "Manchester City", logo: "https://logo.clearbit.com/mancity.com?size=200", shortName: "MCI" },
+    { name: "Manchester United", logo: "https://logo.clearbit.com/manutd.com?size=200", shortName: "MUN" },
+    { name: "Real Madrid", logo: "https://logo.clearbit.com/realmadrid.com?size=200", shortName: "RMA" },
+    { name: "Barcelona", logo: "https://logo.clearbit.com/fcbarcelona.com?size=200", shortName: "FCB" },
+    { name: "Liverpool", logo: "https://logo.clearbit.com/liverpoolfc.com?size=200", shortName: "LIV" },
+    { name: "Chelsea", logo: "https://logo.clearbit.com/chelseafc.com?size=200", shortName: "CHE" },
+    { name: "Arsenal", logo: "https://logo.clearbit.com/arsenal.com?size=200", shortName: "ARS" },
+    { name: "Bayern Munich", logo: "https://logo.clearbit.com/fcbayern.com?size=200", shortName: "BAY" },
+    { name: "PSG", logo: "https://logo.clearbit.com/psg.fr?size=200", shortName: "PSG" },
+    { name: "Juventus", logo: "https://logo.clearbit.com/juventus.com?size=200", shortName: "JUV" },
+    { name: "AC Milan", logo: "https://logo.clearbit.com/acmilan.com?size=200", shortName: "MIL" },
+    { name: "Inter Milan", logo: "https://logo.clearbit.com/inter.it?size=200", shortName: "INT" },
+    { name: "Atletico Madrid", logo: "https://logo.clearbit.com/atleticodemadrid.com?size=200", shortName: "ATM" },
+    { name: "Tottenham", logo: "https://logo.clearbit.com/tottenhamhotspur.com?size=200", shortName: "TOT" },
+    { name: "Newcastle", logo: "https://logo.clearbit.com/nufc.co.uk?size=200", shortName: "NEW" },
+    { name: "Crystal Palace", logo: "https://logo.clearbit.com/cpfc.co.uk?size=200", shortName: "CRY" }
+];
+
+// Cargar equipos en los selects
+function loadTeams() {
+    const localSelect = document.getElementById('localTeam');
+    const awaySelect = document.getElementById('awayTeam');
+    
+    teams.forEach(team => {
+        const option1 = document.createElement('option');
+        option1.value = JSON.stringify(team);
+        option1.textContent = team.name;
+        localSelect.appendChild(option1);
+        
+        const option2 = document.createElement('option');
+        option2.value = JSON.stringify(team);
+        option2.textContent = team.name;
+        awaySelect.appendChild(option2);
+    });
+}
+
+// Actualizar previsualización del partido
+function updateMatch() {
+    const localSelect = document.getElementById('localTeam');
+    const awaySelect = document.getElementById('awayTeam');
+    const preview = document.getElementById('matchPreview');
+    
+    if (localSelect.value && awaySelect.value) {
+        const localTeam = JSON.parse(localSelect.value);
+        const awayTeam = JSON.parse(awaySelect.value);
+        
+        // Actualizar imágenes de preview
+        document.getElementById('localPreview').src = localTeam.logo;
+        document.getElementById('awayPreview').src = awayTeam.logo;
+        
+        // Mostrar preview del partido
+        preview.innerHTML = `
+            <h3>🏆 ${localTeam.name} vs ${awayTeam.name}</h3>
+            <p style="margin-top:10px;">Cuota sugerida: 1.85 - 3.20 - 4.50</p>
+            <p style="font-size:12px; margin-top:5px;">✅ Listo para publicar</p>
+        `;
+    } else if (localSelect.value) {
+        const localTeam = JSON.parse(localSelect.value);
+        document.getElementById('localPreview').src = localTeam.logo;
+        preview.innerHTML = `<h3>⚠️ Selecciona el equipo visitante</h3>`;
+    } else if (awaySelect.value) {
+        const awayTeam = JSON.parse(awaySelect.value);
+        document.getElementById('awayPreview').src = awayTeam.logo;
+        preview.innerHTML = `<h3>⚠️ Selecciona el equipo local</h3>`;
+    } else {
+        document.getElementById('localPreview').src = '';
+        document.getElementById('awayPreview').src = '';
+        preview.innerHTML = `<h3>📋 PREVIEW DEL PARTIDO</h3><p>Selecciona ambos equipos para ver el partido</p>`;
+    }
+}
+
+// Obtener el texto del partido
+function getMatchText() {
+    const localSelect = document.getElementById('localTeam');
+    const awaySelect = document.getElementById('awayTeam');
+    
+    if (localSelect.value && awaySelect.value) {
+        const localTeam = JSON.parse(localSelect.value);
+        const awayTeam = JSON.parse(awaySelect.value);
+        return `${localTeam.name} vs ${awayTeam.name}`;
+    }
+    return '';
+}
+
+// Obtener la imagen del partido (combinación de logos)
+function getMatchImage() {
+    const localSelect = document.getElementById('localTeam');
+    const awaySelect = document.getElementById('awayTeam');
+    
+    if (localSelect.value && awaySelect.value) {
+        const localTeam = JSON.parse(localSelect.value);
+        const awayTeam = JSON.parse(awaySelect.value);
+        // Usar el logo del equipo local como imagen principal
+        return localTeam.logo;
+    }
+    return '';
+}
 
 // Variable global para edición
 window.editingId = null;
@@ -483,10 +677,26 @@ function logout() {
 
 // Función para editar apuesta
 function editBet(id, match, prediction, odds, image) {
-    document.getElementById('match').value = match;
+    // Buscar equipos por nombre para seleccionarlos en los selects
+    const teams_list = teams;
+    const matchParts = match.split(' vs ');
+    
+    if (matchParts.length === 2) {
+        const localName = matchParts[0];
+        const awayName = matchParts[1];
+        
+        const localTeam = teams_list.find(t => t.name === localName);
+        const awayTeam = teams_list.find(t => t.name === awayName);
+        
+        if (localTeam && awayTeam) {
+            document.getElementById('localTeam').value = JSON.stringify(localTeam);
+            document.getElementById('awayTeam').value = JSON.stringify(awayTeam);
+            updateMatch();
+        }
+    }
+    
     document.getElementById('prediction').value = prediction;
     document.getElementById('odds').value = odds;
-    document.getElementById('image').value = image;
     
     window.editingId = id;
     
@@ -496,21 +706,21 @@ function editBet(id, match, prediction, odds, image) {
 
 // Función para publicar o actualizar apuesta
 function publishBet() {
-    const match = document.getElementById('match').value;
+    const matchText = getMatchText();
     const prediction = document.getElementById('prediction').value;
     const odds = document.getElementById('odds').value;
-    const image = document.getElementById('image').value;
+    const image = getMatchImage();
     const type = document.getElementById('type').value;
     
-    if (!match || !prediction || !odds || !image) {
-        alert('Completa todos los campos');
+    if (!matchText || !prediction || !odds) {
+        alert('Completa todos los campos (equipo local, visitante, pronóstico y cuota)');
         return;
     }
     
     // Si estamos editando
     if (window.editingId) {
         db.collection('bets').doc(window.editingId).update({
-            match: match,
+            match: matchText,
             prediction: prediction,
             odds: odds,
             image: image,
@@ -527,7 +737,7 @@ function publishBet() {
     
     // Si es nueva apuesta
     db.collection('bets').add({
-        match: match,
+        match: matchText,
         prediction: prediction,
         odds: odds,
         image: image,
@@ -543,11 +753,12 @@ function publishBet() {
 
 // Función para limpiar formulario
 function clearForm() {
-    document.getElementById('match').value = '';
+    document.getElementById('localTeam').value = '';
+    document.getElementById('awayTeam').value = '';
     document.getElementById('prediction').value = '';
     document.getElementById('odds').value = '';
-    document.getElementById('image').value = '';
     document.getElementById('type').value = 'gratis';
+    updateMatch();
 }
 
 // Función para eliminar apuesta
@@ -558,6 +769,9 @@ function deleteBet(id) {
             .catch(error => alert('❌ Error: ' + error.message));
     }
 }
+
+// Inicializar equipos
+loadTeams();
 
 // Estado de autenticación unificado
 auth.onAuthStateChanged(user => {
@@ -602,11 +816,11 @@ auth.onAuthStateChanged(user => {
                 
                 betsContainer.innerHTML += `
                     <div class="bet-card">
-                        <img src="${bet.image}" style="width:100%; height:220px; object-fit:cover; border-radius:20px; margin-bottom:20px;" onerror="this.src='https://via.placeholder.com/400x220?text=Sin+imagen'">
-                        <div class="tag ${bet.type === 'premium' ? 'premium' : 'free'}">${bet.type.toUpperCase()}</div>
-                        <h3>${bet.match}</h3>
+                        <img src="${bet.image}" style="width:100%; height:220px; object-fit:contain; border-radius:20px; margin-bottom:20px; background:#0a0a0a; padding:20px;" onerror="this.src='https://via.placeholder.com/400x220?text=Sin+logo'">
+                        <div class="tag ${bet.type === 'premium' ? 'premium' : 'free'}">${bet.type === 'premium' ? '💎 PREMIUM' : '🎁 GRATIS'}</div>
+                        <h3>🏆 ${bet.match}</h3>
                         <p style="margin-top:15px; font-size:18px; line-height:1.6;">
-                            ${bet.type === 'premium' ? (currentUser ? bet.prediction : '🔒 Contenido Premium - Inicia sesión para ver') : bet.prediction}
+                            ${bet.type === 'premium' ? (currentUser ? '🔮 ' + bet.prediction : '🔒 Contenido Premium - Inicia sesión para ver') : '🎯 ' + bet.prediction}
                         </p>
                         <div style="margin-top:25px; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
                             <div style="font-size:24px; font-weight:bold; color:#00ff88;">💰 Cuota ${bet.odds}</div>
