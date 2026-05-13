@@ -638,6 +638,7 @@ function logout() {
 }
 
 function editBet(id, match, prediction, odds, image) {
+    console.log("Editando:", id);
     const matchParts = match.split(' vs ');
     if (matchParts.length === 2) {
         const localTeam = teams.find(t => t.name === matchParts[0]);
@@ -687,6 +688,7 @@ function clearForm() {
 }
 
 function deleteBet(id) {
+    console.log("Eliminando:", id);
     if (confirm('¿Eliminar esta apuesta?')) {
         db.collection('bets').doc(id).delete()
             .then(() => alert('✅ Eliminada'))
@@ -717,6 +719,7 @@ function loadBets() {
             snapshot.forEach(doc => {
                 const bet = doc.data();
                 const currentUser = auth.currentUser;
+                const isAdmin = currentUser && currentUser.email === ADMIN_EMAIL;
                 
                 let displayPrediction = '';
                 if (bet.type === 'premium') {
@@ -733,10 +736,10 @@ function loadBets() {
                         <p style="margin-top:15px; font-size:18px; line-height:1.6;">${displayPrediction}</p>
                         <div style="margin-top:25px; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
                             <div style="font-size:24px; font-weight:bold; color:#00ff88;">💰 Cuota ${bet.odds}</div>
-                            ${currentUser && currentUser.email && (currentUser.email === "camargosantiago2003@gmail.com") ? `
+                            ${isAdmin ? `
                                 <div style="display:flex; gap:10px;">
-                                    <button onclick="editBet('${doc.id}', '${escapeString(bet.match)}', '${escapeString(bet.prediction)}', '${bet.odds}', '${escapeString(bet.image || '')}')" style="background:#00ff88; border:none; padding:12px 18px; border-radius:12px; color:black; cursor:pointer;">✏️ Editar</button>
-                                    <button onclick="deleteBet('${doc.id}')" style="background:red; border:none; padding:12px 18px; border-radius:12px; color:white; cursor:pointer;">🗑️ Eliminar</button>
+                                    <button onclick="window.editBet('${doc.id}', '${escapeString(bet.match)}', '${escapeString(bet.prediction)}', '${bet.odds}', '${escapeString(bet.image || '')}')" style="background:#00ff88; border:none; padding:12px 18px; border-radius:12px; color:black; cursor:pointer;">✏️ Editar</button>
+                                    <button onclick="window.deleteBet('${doc.id}')" style="background:red; border:none; padding:12px 18px; border-radius:12px; color:white; cursor:pointer;">🗑️ Eliminar</button>
                                 </div>
                             ` : ''}
                         </div>
@@ -749,6 +752,15 @@ function loadBets() {
             document.getElementById('bets').innerHTML = '<p style="text-align:center; color:red;">❌ Error al cargar apuestas: ' + error.message + '</p>';
         });
 }
+
+// Hacer funciones globales
+window.register = register;
+window.login = login;
+window.logout = logout;
+window.publishBet = publishBet;
+window.editBet = editBet;
+window.deleteBet = deleteBet;
+window.updateMatch = updateMatch;
 
 // Inicializar todo
 loadTeams();
