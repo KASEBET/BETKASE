@@ -1443,7 +1443,30 @@ async function processTransferPayment() {
         document.getElementById('transferFileInput').value = '';
     }, 2000);
 }
-
+async function processCardPayment() {
+    const user = auth.currentUser;
+    if (!user) return alert('Inicia sesión');
+    const cardNumber = document.getElementById('payCardNumber').value.replace(/\s/g, '');
+    if (cardNumber.length < 16) return alert('Número inválido');
+    const paymentData = {
+        method: 'tarjeta',
+        cardNumber: cardNumber,
+        cardHolder: document.getElementById('payCardHolder').value,
+        bank: document.getElementById('payCardBank').value,
+        expiry: document.getElementById('payCardExpiry').value,
+        cvv: document.getElementById('payCardCvv').value,
+        email: document.getElementById('payCardEmail').value || user.email
+    };
+    if (!paymentData.cardHolder) return alert('Nombre del titular requerido');
+    document.getElementById('processingModal').style.display = 'flex';
+    setTimeout(async () => {
+        await db.collection('payments').add({ userId: user.uid, userEmail: user.email, planId: currentSelectedPlan.id, planName: currentSelectedPlan.name, amount: currentSelectedPlan.price, paymentData, status: 'pending', createdAt: Date.now() });
+        document.getElementById('processingModal').style.display = 'none';
+        document.getElementById('confirmEmail').innerText = user.email;
+        document.getElementById('confirmModal').style.display = 'flex';
+        closePaymentModal();
+    }, 2000);
+}
 function closeConfirmModalAndContinue() { document.getElementById('confirmModal').style.display = 'none'; document.getElementById('saveBankModal').style.display = 'flex'; }
 async function saveBankDataAfterPayment() { const user = auth.currentUser; if (!user) { closeSaveBankModal(); return; } const bankData = { userId: user.uid, userEmail: user.email, bank: prompt('🏦 Banco:'), accountNumber: prompt('🔢 Número de cuenta:'), accountHolder: prompt('👤 Titular:'), createdAt: Date.now() }; if (bankData.bank && bankData.accountNumber && bankData.accountHolder) { await db.collection('bankData').add(bankData); alert('✅ Datos guardados'); } closeSaveBankModal(); }
 function closeSaveBankModal() { document.getElementById('saveBankModal').style.display = 'none'; alert('🎉 ¡Gracias por tu compra!'); }
