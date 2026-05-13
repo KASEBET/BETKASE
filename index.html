@@ -236,6 +236,13 @@ header {
 
 .bet-card img {
     transition: .4s;
+    width: 100%;
+    height: 200px;
+    object-fit: contain;
+    border-radius: 20px;
+    margin-bottom: 20px;
+    background: #0a0a0a;
+    padding: 20px;
 }
 
 .bet-card:hover img {
@@ -300,7 +307,6 @@ header {
     font-size: 16px;
 }
 
-/* Estilos para selectores de equipos */
 .team-selectors {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -460,7 +466,6 @@ footer {
 <div class="admin-panel" id="adminPanel">
     <h2>🎮 Panel Administrador</h2>
     
-    <!-- Selectores de equipos -->
     <div class="team-selectors">
         <div class="team-selector">
             <label>🏠 EQUIPO LOCAL</label>
@@ -479,7 +484,6 @@ footer {
         </div>
     </div>
     
-    <!-- Previsualización del partido -->
     <div class="match-preview" id="matchPreview">
         <h3>📋 PREVIEW DEL PARTIDO</h3>
         <p>Selecciona ambos equipos para ver el partido</p>
@@ -496,7 +500,9 @@ footer {
 
 <section class="section">
     <h2 class="section-title">⚽ Apuestas en Vivo</h2>
-    <div class="bets" id="bets"></div>
+    <div class="bets" id="bets">
+        <p style="text-align:center; color:#888;">Cargando apuestas...</p>
+    </div>
 </section>
 
 <footer>
@@ -519,27 +525,25 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const ADMIN_EMAIL = "camargosantiago2003@gmail.com";
 
-// Base de datos de equipos con imágenes REALES que funcionan
 const teams = [
-    { name: "Manchester City", logo: "https://i.postimg.cc/j5w9hyxR/2026-05-13-73f43f96-4ece-4239-aa63-b065cf33697e.png", color: "#6CABDD" },
-    { name: "Manchester United", logo: "https://i.postimg.cc/yYx0KgrL/manutd.png", color: "#DA291C" },
-    { name: "Real Madrid", logo: "https://i.postimg.cc/vT8q0c2V/realmadrid.png", color: "#FEBE10" },
-    { name: "Barcelona", logo: "https://i.postimg.cc/x8V0XVgP/barcelona.png", color: "#A50044" },
-    { name: "Liverpool", logo: "https://i.postimg.cc/pL4J7q7R/liverpool.png", color: "#C8102E" },
-    { name: "Chelsea", logo: "https://i.postimg.cc/7hJkmXwQ/chelsea.png", color: "#034694" },
-    { name: "Arsenal", logo: "https://i.postimg.cc/FzMqSPkY/arsenal.png", color: "#EF0107" },
-    { name: "Bayern Munich", logo: "https://i.postimg.cc/7YgJw0Mf/bayern.png", color: "#DC052D" },
-    { name: "PSG", logo: "https://i.postimg.cc/B6DzMqX4/psg.png", color: "#004170" },
-    { name: "Juventus", logo: "https://i.postimg.cc/L5JSzLBj/juventus.png", color: "#000000" },
-    { name: "AC Milan", logo: "https://i.postimg.cc/NFHW6N1c/acmilan.png", color: "#FB090B" },
-    { name: "Inter Milan", logo: "https://i.postimg.cc/GtPyhNJ1/inter.png", color: "#0C0E5C" },
-    { name: "Atletico Madrid", logo: "https://i.postimg.cc/d1HdRbPv/atletico.png", color: "#C49E2D" },
-    { name: "Tottenham", logo: "https://i.postimg.cc/5N7z1nRN/tottenham.png", color: "#132257" },
-    { name: "Newcastle", logo: "https://i.postimg.cc/8cCRnTGJ/newcastle.png", color: "#241F20" },
-    { name: "Crystal Palace", logo: "https://i.postimg.cc/5N3PLsB6/Crystal-Palace-FC-logo-(2022)-svg.png", color: "#1B458F" }
+    { name: "Manchester City", logo: "https://i.postimg.cc/j5w9hyxR/2026-05-13-73f43f96-4ece-4239-aa63-b065cf33697e.png" },
+    { name: "Manchester United", logo: "https://i.postimg.cc/yYx0KgrL/manutd.png" },
+    { name: "Real Madrid", logo: "https://i.postimg.cc/vT8q0c2V/realmadrid.png" },
+    { name: "Barcelona", logo: "https://i.postimg.cc/x8V0XVgP/barcelona.png" },
+    { name: "Liverpool", logo: "https://i.postimg.cc/pL4J7q7R/liverpool.png" },
+    { name: "Chelsea", logo: "https://i.postimg.cc/7hJkmXwQ/chelsea.png" },
+    { name: "Arsenal", logo: "https://i.postimg.cc/FzMqSPkY/arsenal.png" },
+    { name: "Bayern Munich", logo: "https://i.postimg.cc/7YgJw0Mf/bayern.png" },
+    { name: "PSG", logo: "https://i.postimg.cc/B6DzMqX4/psg.png" },
+    { name: "Juventus", logo: "https://i.postimg.cc/L5JSzLBj/juventus.png" },
+    { name: "AC Milan", logo: "https://i.postimg.cc/NFHW6N1c/acmilan.png" },
+    { name: "Inter Milan", logo: "https://i.postimg.cc/GtPyhNJ1/inter.png" },
+    { name: "Atletico Madrid", logo: "https://i.postimg.cc/d1HdRbPv/atletico.png" },
+    { name: "Tottenham", logo: "https://i.postimg.cc/5N7z1nRN/tottenham.png" },
+    { name: "Newcastle", logo: "https://i.postimg.cc/8cCRnTGJ/newcastle.png" },
+    { name: "Crystal Palace", logo: "https://i.postimg.cc/5N3PLsB6/Crystal-Palace-FC-logo-(2022)-svg.png" }
 ];
 
-// Cargar equipos en los selects
 function loadTeams() {
     const localSelect = document.getElementById('localTeam');
     const awaySelect = document.getElementById('awayTeam');
@@ -557,7 +561,6 @@ function loadTeams() {
     });
 }
 
-// Actualizar previsualización del partido
 function updateMatch() {
     const localSelect = document.getElementById('localTeam');
     const awaySelect = document.getElementById('awayTeam');
@@ -569,49 +572,26 @@ function updateMatch() {
         const localTeam = JSON.parse(localSelect.value);
         const awayTeam = JSON.parse(awaySelect.value);
         
-        // Actualizar imágenes
         localImg.src = localTeam.logo;
         localImg.style.display = 'block';
         awayImg.src = awayTeam.logo;
         awayImg.style.display = 'block';
         
-        // Mostrar preview del partido
-        preview.innerHTML = `
-            <h3>🏆 ${localTeam.name} vs ${awayTeam.name}</h3>
-            <p style="margin-top:10px;">⚡ Partido listo para publicar</p>
-            <p style="font-size:12px; margin-top:5px; color:#00ff88;">✅ Selección completada</p>
-        `;
-    } else if (localSelect.value && awaySelect.value && localSelect.value === awaySelect.value) {
-        preview.innerHTML = `
-            <h3>⚠️ ERROR</h3>
-            <p>No puedes seleccionar el mismo equipo dos veces</p>
-        `;
-        localImg.style.display = 'none';
-        awayImg.style.display = 'none';
-    } else if (localSelect.value) {
-        const localTeam = JSON.parse(localSelect.value);
-        localImg.src = localTeam.logo;
-        localImg.style.display = 'block';
-        awayImg.style.display = 'none';
-        preview.innerHTML = `<h3>⚠️ Selecciona el equipo visitante</h3>`;
-    } else if (awaySelect.value) {
-        const awayTeam = JSON.parse(awaySelect.value);
-        awayImg.src = awayTeam.logo;
-        awayImg.style.display = 'block';
-        localImg.style.display = 'none';
-        preview.innerHTML = `<h3>⚠️ Selecciona el equipo local</h3>`;
+        preview.innerHTML = `<h3>🏆 ${localTeam.name} vs ${awayTeam.name}</h3><p style="color:#00ff88;">✅ Listo para publicar</p>`;
     } else {
         localImg.style.display = 'none';
         awayImg.style.display = 'none';
-        preview.innerHTML = `<h3>📋 PREVIEW DEL PARTIDO</h3><p>Selecciona ambos equipos para crear tu apuesta</p>`;
+        if (localSelect.value && awaySelect.value && localSelect.value === awaySelect.value) {
+            preview.innerHTML = `<h3>⚠️ ERROR</h3><p>No puedes seleccionar el mismo equipo</p>`;
+        } else {
+            preview.innerHTML = `<h3>📋 PREVIEW</h3><p>Selecciona ambos equipos</p>`;
+        }
     }
 }
 
-// Obtener el texto del partido
 function getMatchText() {
     const localSelect = document.getElementById('localTeam');
     const awaySelect = document.getElementById('awayTeam');
-    
     if (localSelect.value && awaySelect.value && localSelect.value !== awaySelect.value) {
         const localTeam = JSON.parse(localSelect.value);
         const awayTeam = JSON.parse(awaySelect.value);
@@ -620,102 +600,60 @@ function getMatchText() {
     return '';
 }
 
-// Obtener la imagen del partido
 function getMatchImage() {
     const localSelect = document.getElementById('localTeam');
-    
     if (localSelect.value) {
         const localTeam = JSON.parse(localSelect.value);
         return localTeam.logo;
     }
-    return 'https://via.placeholder.com/400x220?text=Selecciona+equipo';
+    return '';
 }
 
-// Variable global para edición
 window.editingId = null;
 
-// Función de registro
 function register() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    
-    if (!email || !password) {
-        alert('Completa todos los campos');
-        return;
-    }
-    
-    if (password.length < 6) {
-        alert('La contraseña debe tener al menos 6 caracteres');
-        return;
-    }
+    if (!email || !password) return alert('Completa todos los campos');
+    if (password.length < 6) return alert('La contraseña debe tener al menos 6 caracteres');
     
     auth.createUserWithEmailAndPassword(email, password)
-        .then(() => {
-            alert('✅ Cuenta creada correctamente');
-            document.getElementById('email').value = '';
-            document.getElementById('password').value = '';
-        })
-        .catch(error => {
-            alert('❌ Error: ' + error.message);
-        });
+        .then(() => alert('✅ Cuenta creada correctamente'))
+        .catch(error => alert('❌ Error: ' + error.message));
 }
 
-// Función de login
 function login() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    
-    if (!email || !password) {
-        alert('Completa todos los campos');
-        return;
-    }
+    if (!email || !password) return alert('Completa todos los campos');
     
     auth.signInWithEmailAndPassword(email, password)
-        .then(() => {
-            alert('✅ Sesión iniciada correctamente');
-            document.getElementById('email').value = '';
-            document.getElementById('password').value = '';
-        })
-        .catch(error => {
-            alert('❌ Error: ' + error.message);
-        });
+        .then(() => alert('✅ Sesión iniciada correctamente'))
+        .catch(error => alert('❌ Error: ' + error.message));
 }
 
-// Función de logout
 function logout() {
     auth.signOut();
     alert('Sesión cerrada');
 }
 
-// Función para editar apuesta
 function editBet(id, match, prediction, odds, image) {
-    const teamsList = teams;
     const matchParts = match.split(' vs ');
-    
     if (matchParts.length === 2) {
-        const localName = matchParts[0];
-        const awayName = matchParts[1];
-        
-        const localTeam = teamsList.find(t => t.name === localName);
-        const awayTeam = teamsList.find(t => t.name === awayName);
-        
+        const localTeam = teams.find(t => t.name === matchParts[0]);
+        const awayTeam = teams.find(t => t.name === matchParts[1]);
         if (localTeam && awayTeam) {
             document.getElementById('localTeam').value = JSON.stringify(localTeam);
             document.getElementById('awayTeam').value = JSON.stringify(awayTeam);
             updateMatch();
         }
     }
-    
     document.getElementById('prediction').value = prediction;
     document.getElementById('odds').value = odds;
-    
     window.editingId = id;
-    
-    // Scroll suave al panel admin
     document.getElementById('adminPanel').scrollIntoView({ behavior: 'smooth' });
 }
 
-// Función para publicar o actualizar apuesta
 function publishBet() {
     const matchText = getMatchText();
     const prediction = document.getElementById('prediction').value;
@@ -723,56 +661,22 @@ function publishBet() {
     const image = getMatchImage();
     const type = document.getElementById('type').value;
     
-    if (!matchText) {
-        alert('❌ Selecciona ambos equipos (local y visitante)');
-        return;
-    }
+    if (!matchText) return alert('❌ Selecciona ambos equipos');
+    if (!prediction) return alert('❌ Escribe un pronóstico');
+    if (!odds) return alert('❌ Escribe la cuota');
     
-    if (!prediction) {
-        alert('❌ Escribe un pronóstico');
-        return;
-    }
-    
-    if (!odds) {
-        alert('❌ Escribe la cuota');
-        return;
-    }
-    
-    // Si estamos editando
     if (window.editingId) {
-        db.collection('bets').doc(window.editingId).update({
-            match: matchText,
-            prediction: prediction,
-            odds: odds,
-            image: image,
-            type: type
-        }).then(() => {
-            alert('✅ Apuesta actualizada correctamente');
-            window.editingId = null;
-            clearForm();
-        }).catch(error => {
-            alert('❌ Error al actualizar: ' + error.message);
-        });
+        db.collection('bets').doc(window.editingId).update({ match: matchText, prediction, odds, image, type })
+            .then(() => { alert('✅ Actualizada'); clearForm(); window.editingId = null; })
+            .catch(error => alert('❌ Error: ' + error.message));
         return;
     }
     
-    // Si es nueva apuesta
-    db.collection('bets').add({
-        match: matchText,
-        prediction: prediction,
-        odds: odds,
-        image: image,
-        type: type,
-        createdAt: Date.now()
-    }).then(() => {
-        alert('✅ Apuesta publicada correctamente');
-        clearForm();
-    }).catch(error => {
-        alert('❌ Error al publicar: ' + error.message);
-    });
+    db.collection('bets').add({ match: matchText, prediction, odds, image, type, createdAt: Date.now() })
+        .then(() => { alert('✅ Publicada'); clearForm(); })
+        .catch(error => alert('❌ Error: ' + error.message));
 }
 
-// Función para limpiar formulario
 function clearForm() {
     document.getElementById('localTeam').value = '';
     document.getElementById('awayTeam').value = '';
@@ -782,18 +686,23 @@ function clearForm() {
     updateMatch();
 }
 
-// Función para eliminar apuesta
 function deleteBet(id) {
-    if (confirm('⚠️ ¿Eliminar esta apuesta permanentemente?')) {
+    if (confirm('¿Eliminar esta apuesta?')) {
         db.collection('bets').doc(id).delete()
-            .then(() => alert('✅ Apuesta eliminada'))
+            .then(() => alert('✅ Eliminada'))
             .catch(error => alert('❌ Error: ' + error.message));
     }
 }
 
-// 🔥 FUNCIÓN PARA CARGAR APUESTAS - AHORA FUERA DEL onAuthStateChanged
-// Esto asegura que las apuestas se carguen para TODOS los usuarios
+function escapeString(str) {
+    if (!str) return '';
+    return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+// 🔥 FUNCIÓN PRINCIPAL PARA CARGAR APUESTAS
 function loadBets() {
+    console.log("Cargando apuestas...");
+    
     db.collection('bets')
         .orderBy('createdAt', 'desc')
         .onSnapshot(snapshot => {
@@ -801,7 +710,7 @@ function loadBets() {
             betsContainer.innerHTML = '';
             
             if (snapshot.empty) {
-                betsContainer.innerHTML = '<p style="text-align:center; color:#666;">📭 No hay apuestas disponibles. Vuelve pronto.</p>';
+                betsContainer.innerHTML = '<p style="text-align:center; color:#666;">📭 No hay apuestas disponibles. Publica la primera!</p>';
                 return;
             }
             
@@ -809,21 +718,16 @@ function loadBets() {
                 const bet = doc.data();
                 const currentUser = auth.currentUser;
                 
-                // Determinar si el usuario puede ver el pronóstico completo
                 let displayPrediction = '';
                 if (bet.type === 'premium') {
-                    if (currentUser) {
-                        displayPrediction = '🔮 ' + bet.prediction;
-                    } else {
-                        displayPrediction = '🔒 Contenido Premium - Inicia sesión para ver';
-                    }
+                    displayPrediction = currentUser ? '🔮 ' + bet.prediction : '🔒 Contenido Premium - Inicia sesión para ver';
                 } else {
                     displayPrediction = '🎯 ' + bet.prediction;
                 }
                 
-                betsContainer.innerHTML += `
+                const betHTML = `
                     <div class="bet-card">
-                        <img src="${bet.image}" style="width:100%; height:200px; object-fit:contain; border-radius:20px; margin-bottom:20px; background:#0a0a0a; padding:20px;" onerror="this.src='https://via.placeholder.com/400x200?text=Logo+equipo'">
+                        <img src="${bet.image || 'https://via.placeholder.com/400x200?text=Sin+logo'}" onerror="this.src='https://via.placeholder.com/400x200?text=Logo+no+disponible'">
                         <div class="tag ${bet.type === 'premium' ? 'premium' : 'free'}">${bet.type === 'premium' ? '💎 PREMIUM' : '🎁 GRATIS'}</div>
                         <h3>🏆 ${bet.match}</h3>
                         <p style="margin-top:15px; font-size:18px; line-height:1.6;">${displayPrediction}</p>
@@ -831,31 +735,26 @@ function loadBets() {
                             <div style="font-size:24px; font-weight:bold; color:#00ff88;">💰 Cuota ${bet.odds}</div>
                             ${currentUser && currentUser.email === ADMIN_EMAIL ? `
                                 <div style="display:flex; gap:10px;">
-                                    <button onclick="editBet('${doc.id}', '${escapeString(bet.match)}', '${escapeString(bet.prediction)}', '${bet.odds}', '${escapeString(bet.image)}')" style="background:#00ff88; border:none; padding:12px 18px; border-radius:12px; color:black; cursor:pointer; font-weight:bold;">
-                                        ✏️ Editar
-                                    </button>
-                                    <button onclick="deleteBet('${doc.id}')" style="background:red; border:none; padding:12px 18px; border-radius:12px; color:white; cursor:pointer; font-weight:bold;">
-                                        🗑️ Eliminar
-                                    </button>
+                                    <button onclick="editBet('${doc.id}', '${escapeString(bet.match)}', '${escapeString(bet.prediction)}', '${bet.odds}', '${escapeString(bet.image || '')}')" style="background:#00ff88; border:none; padding:12px 18px; border-radius:12px; color:black; cursor:pointer;">✏️ Editar</button>
+                                    <button onclick="deleteBet('${doc.id}')" style="background:red; border:none; padding:12px 18px; border-radius:12px; color:white; cursor:pointer;">🗑️ Eliminar</button>
                                 </div>
                             ` : ''}
                         </div>
                     </div>
                 `;
+                betsContainer.innerHTML += betHTML;
             });
         }, error => {
-            console.error('Error al cargar apuestas:', error);
-            document.getElementById('bets').innerHTML = '<p style="text-align:center; color:red;">❌ Error al cargar las apuestas</p>';
+            console.error("Error:", error);
+            document.getElementById('bets').innerHTML = '<p style="text-align:center; color:red;">❌ Error al cargar apuestas: ' + error.message + '</p>';
         });
 }
 
-// Inicializar equipos
+// Inicializar todo
 loadTeams();
-
-// 🔥 INICIAR CARGA DE APUESTAS INMEDIATAMENTE (fuera del onAuthStateChanged)
 loadBets();
 
-// Estado de autenticación (solo para UI, NO afecta la carga de apuestas)
+// UI de autenticación
 auth.onAuthStateChanged(user => {
     const logoutBtn = document.getElementById('logoutBtn');
     const adminPanel = document.getElementById('adminPanel');
@@ -864,24 +763,13 @@ auth.onAuthStateChanged(user => {
     if (user) {
         logoutBtn.style.display = 'block';
         loginBox.style.display = 'none';
-        
-        if (user.email === ADMIN_EMAIL) {
-            adminPanel.style.display = 'block';
-        } else {
-            adminPanel.style.display = 'none';
-        }
+        adminPanel.style.display = user.email === ADMIN_EMAIL ? 'block' : 'none';
     } else {
         logoutBtn.style.display = 'none';
         adminPanel.style.display = 'none';
         loginBox.style.display = 'block';
     }
 });
-
-// Función auxiliar para escapar strings en HTML
-function escapeString(str) {
-    if (!str) return '';
-    return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-}
 </script>
 </body>
 </html>
