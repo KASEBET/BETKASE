@@ -912,15 +912,6 @@ async function loadPlans() {
     const snapshot = await plansRef.get();
     
     if (snapshot.empty) {
-        // Si no hay planes, crear los default
-        for (const plan of defaultPlans) {
-            await plansRef.doc(plan.id).set(plan);
-        }
-    }async function loadPlans() {
-    const plansRef = db.collection('plans');
-    const snapshot = await plansRef.get();
-    
-    if (snapshot.empty) {
         for (const plan of defaultPlans) {
             await plansRef.doc(plan.id).set(plan);
         }
@@ -993,6 +984,7 @@ async function loadPlans() {
         }
     });
 }
+
 function updatePlan(planId) {
     const name = document.getElementById(`plan_name_${planId}`).value;
     const price = parseInt(document.getElementById(`plan_price_${planId}`).value);
