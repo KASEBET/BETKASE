@@ -791,10 +791,71 @@ function deleteBet(id) {
     }
 }
 
+// 🔥 FUNCIÓN PARA CARGAR APUESTAS - AHORA FUERA DEL onAuthStateChanged
+// Esto asegura que las apuestas se carguen para TODOS los usuarios
+function loadBets() {
+    db.collection('bets')
+        .orderBy('createdAt', 'desc')
+        .onSnapshot(snapshot => {
+            const betsContainer = document.getElementById('bets');
+            betsContainer.innerHTML = '';
+            
+            if (snapshot.empty) {
+                betsContainer.innerHTML = '<p style="text-align:center; color:#666;">📭 No hay apuestas disponibles. Vuelve pronto.</p>';
+                return;
+            }
+            
+            snapshot.forEach(doc => {
+                const bet = doc.data();
+                const currentUser = auth.currentUser;
+                
+                // Determinar si el usuario puede ver el pronóstico completo
+                let displayPrediction = '';
+                if (bet.type === 'premium') {
+                    if (currentUser) {
+                        displayPrediction = '🔮 ' + bet.prediction;
+                    } else {
+                        displayPrediction = '🔒 Contenido Premium - Inicia sesión para ver';
+                    }
+                } else {
+                    displayPrediction = '🎯 ' + bet.prediction;
+                }
+                
+                betsContainer.innerHTML += `
+                    <div class="bet-card">
+                        <img src="${bet.image}" style="width:100%; height:200px; object-fit:contain; border-radius:20px; margin-bottom:20px; background:#0a0a0a; padding:20px;" onerror="this.src='https://via.placeholder.com/400x200?text=Logo+equipo'">
+                        <div class="tag ${bet.type === 'premium' ? 'premium' : 'free'}">${bet.type === 'premium' ? '💎 PREMIUM' : '🎁 GRATIS'}</div>
+                        <h3>🏆 ${bet.match}</h3>
+                        <p style="margin-top:15px; font-size:18px; line-height:1.6;">${displayPrediction}</p>
+                        <div style="margin-top:25px; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+                            <div style="font-size:24px; font-weight:bold; color:#00ff88;">💰 Cuota ${bet.odds}</div>
+                            ${currentUser && currentUser.email === ADMIN_EMAIL ? `
+                                <div style="display:flex; gap:10px;">
+                                    <button onclick="editBet('${doc.id}', '${escapeString(bet.match)}', '${escapeString(bet.prediction)}', '${bet.odds}', '${escapeString(bet.image)}')" style="background:#00ff88; border:none; padding:12px 18px; border-radius:12px; color:black; cursor:pointer; font-weight:bold;">
+                                        ✏️ Editar
+                                    </button>
+                                    <button onclick="deleteBet('${doc.id}')" style="background:red; border:none; padding:12px 18px; border-radius:12px; color:white; cursor:pointer; font-weight:bold;">
+                                        🗑️ Eliminar
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+        }, error => {
+            console.error('Error al cargar apuestas:', error);
+            document.getElementById('bets').innerHTML = '<p style="text-align:center; color:red;">❌ Error al cargar las apuestas</p>';
+        });
+}
+
 // Inicializar equipos
 loadTeams();
 
-// Estado de autenticación unificado
+// 🔥 INICIAR CARGA DE APUESTAS INMEDIATAMENTE (fuera del onAuthStateChanged)
+loadBets();
+
+// Estado de autenticación (solo para UI, NO afecta la carga de apuestas)
 auth.onAuthStateChanged(user => {
     const logoutBtn = document.getElementById('logoutBtn');
     const adminPanel = document.getElementById('adminPanel');
@@ -814,54 +875,6 @@ auth.onAuthStateChanged(user => {
         adminPanel.style.display = 'none';
         loginBox.style.display = 'block';
     }
-    
-    // 🔥 EVITAR DUPLICACIÓN DE LISTENER DE FIRESTORE
-    if (window.betListener) return;
-    window.betListener = true;
-    
-    // Cargar apuestas
-    db.collection('bets')
-        .orderBy('createdAt', 'desc')
-        .onSnapshot(snapshot => {
-            const betsContainer = document.getElementById('bets');
-            betsContainer.innerHTML = '';
-            
-            if (snapshot.empty) {
-                betsContainer.innerHTML = '<p style="text-align:center; color:#666;">📭 No hay apuestas disponibles. Vuelve pronto.</p>';
-                return;
-            }
-            
-            snapshot.forEach(doc => {
-                const bet = doc.data();
-                const currentUser = auth.currentUser;
-                
-                betsContainer.innerHTML += `
-                    <div class="bet-card">
-                        <img src="${bet.image}" style="width:100%; height:200px; object-fit:contain; border-radius:20px; margin-bottom:20px; background:#0a0a0a; padding:20px;" onerror="this.src='https://via.placeholder.com/400x200?text=Logo+equipo'">
-                        <div class="tag ${bet.type === 'premium' ? 'premium' : 'free'}">${bet.type === 'premium' ? '💎 PREMIUM' : '🎁 GRATIS'}</div>
-                        <h3>🏆 ${bet.match}</h3>
-                        <p style="margin-top:15px; font-size:18px; line-height:1.6;">
-                            ${bet.type === 'premium' ? (currentUser ? '🔮 ' + bet.prediction : '🔒 Contenido Premium - Inicia sesión para ver') : '🎯 ' + bet.prediction}
-                        </p>
-                        <div style="margin-top:25px; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
-                            <div style="font-size:24px; font-weight:bold; color:#00ff88;">💰 Cuota ${bet.odds}</div>
-                            ${currentUser && currentUser.email === ADMIN_EMAIL ? `
-                                <div style="display:flex; gap:10px;">
-                                    <button onclick="editBet('${doc.id}', '${escapeString(bet.match)}', '${escapeString(bet.prediction)}', '${bet.odds}', '${escapeString(bet.image)}')" style="background:#00ff88; border:none; padding:12px 18px; border-radius:12px; color:black; cursor:pointer; font-weight:bold;">
-                                        ✏️ Editar
-                                    </button>
-                                    <button onclick="deleteBet('${doc.id}')" style="background:red; border:none; padding:12px 18px; border-radius:12px; color:white; cursor:pointer; font-weight:bold;">
-                                        🗑️ Eliminar
-                                    </button>
-                                </div>
-                            ` : ''}
-                        </div>
-                    </div>
-                `;
-            });
-        }, error => {
-            console.error('Error al cargar apuestas:', error);
-        });
 });
 
 // Función auxiliar para escapar strings en HTML
