@@ -1222,105 +1222,8 @@ async function loadAllPayments() {
             return; 
         }
         
-        // Usar estilos inline y una clase única para evitar conflictos
-        let html = `
-            <style>
-                .pagos-table-wrapper {
-                    background: #0a0a0a;
-                    padding: 20px;
-                    border-radius: 15px;
-                    margin-top: 20px;
-                }
-                .pagos-table-wrapper h3 {
-                    color: #00ff88;
-                    margin-bottom: 20px;
-                    font-size: 24px;
-                }
-                .pagos-table {
-                    width: 100%;
-                    border-collapse: collapse;
-                    font-size: 13px;
-                    font-family: Arial, sans-serif;
-                }
-                .pagos-table th {
-                    background: #00ff88;
-                    color: black;
-                    padding: 12px;
-                    text-align: left;
-                    font-weight: bold;
-                }
-                .pagos-table td {
-                    padding: 10px;
-                    border-bottom: 1px solid #333;
-                    color: white;
-                }
-                .pagos-table tr:hover {
-                    background: #1a1a1a;
-                }
-                .estado-badge {
-                    display: inline-block;
-                    padding: 4px 12px;
-                    border-radius: 20px;
-                    font-size: 11px;
-                    font-weight: bold;
-                }
-                .btn-aprobar {
-                    background: #00ff88;
-                    border: none;
-                    padding: 6px 12px;
-                    border-radius: 6px;
-                    cursor: pointer;
-                    font-weight: bold;
-                    margin: 2px;
-                }
-                .btn-rechazar {
-                    background: #ff4444;
-                    border: none;
-                    padding: 6px 12px;
-                    border-radius: 6px;
-                    cursor: pointer;
-                    font-weight: bold;
-                    color: white;
-                    margin: 2px;
-                }
-                .btn-quitar {
-                    background: #ff8800;
-                    border: none;
-                    padding: 6px 12px;
-                    border-radius: 6px;
-                    cursor: pointer;
-                    font-weight: bold;
-                }
-                .comprobante-img {
-                    width: 45px;
-                    height: 35px;
-                    object-fit: cover;
-                    cursor: pointer;
-                    border-radius: 5px;
-                    border: 1px solid #00ff88;
-                }
-                .comprobante-img:hover {
-                    transform: scale(1.1);
-                }
-            </style>
-            <div class="pagos-table-wrapper">
-                <h3>💰 Historial de Pagos</h3>
-                <div style="overflow-x: auto;">
-                    <table class="pagos-table">
-                        <thead>
-                            <tr>
-                                <th>📅 Fecha</th>
-                                <th>👤 Usuario</th>
-                                <th>📋 Plan</th>
-                                <th>💰 Monto</th>
-                                <th>🏦 Método</th>
-                                <th>📊 Estado</th>
-                                <th>🖼️ Comprobante</th>
-                                <th>⚡ Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-        `;
+        // Limpiar el contenedor
+        let html = '';
         
         for (const doc of snapshot.docs) {
             const p = doc.data();
@@ -1332,11 +1235,11 @@ async function loadAllPayments() {
                 imageHtml = `
                     <div style="text-align:center;">
                         <img src="${p.paymentData.proofImage}" 
-                             class="comprobante-img"
+                             style="width:40px; height:35px; object-fit:cover; cursor:pointer; border-radius:4px; border:1px solid #00ff88;"
                              onclick="window.open('${p.paymentData.proofImage}', '_blank')"
                              onerror="this.style.display='none'">
                         <br>
-                        <a href="${p.paymentData.proofImage}" download style="color:#00ff88; font-size:10px;">Descargar</a>
+                        <a href="${p.paymentData.proofImage}" download style="color:#00ff88; font-size:9px;">Descargar</a>
                     </div>
                 `;
             }
@@ -1344,10 +1247,11 @@ async function loadAllPayments() {
             // Estado y colores
             let estadoText = p.status || 'pending';
             let estadoBg = '';
-            if (estadoText === 'pending') { estadoBg = '#ff8800'; estadoText = '⏳ PENDIENTE'; }
-            else if (estadoText === 'pending_verification') { estadoBg = '#ff8800'; estadoText = '⏳ VERIFICACIÓN'; }
-            else if (estadoText === 'completed') { estadoBg = '#00ff88'; estadoText = '✅ COMPLETADO'; }
-            else if (estadoText === 'rejected') { estadoBg = '#ff4444'; estadoText = '❌ RECHAZADO'; }
+            let estadoColor = '';
+            if (estadoText === 'pending') { estadoBg = '#ff8800'; estadoColor = 'black'; estadoText = '⏳ PENDIENTE'; }
+            else if (estadoText === 'pending_verification') { estadoBg = '#ff8800'; estadoColor = 'black'; estadoText = '⏳ VERIFICACIÓN'; }
+            else if (estadoText === 'completed') { estadoBg = '#00ff88'; estadoColor = 'black'; estadoText = '✅ COMPLETADO'; }
+            else if (estadoText === 'rejected') { estadoBg = '#ff4444'; estadoColor = 'white'; estadoText = '❌ RECHAZADO'; }
             
             // Método de pago
             let metodoText = '💳 Tarjeta';
@@ -1358,35 +1262,42 @@ async function loadAllPayments() {
             let accionesHtml = '';
             if (p.status === 'pending' || p.status === 'pending_verification') {
                 accionesHtml = `
-                    <button class="btn-aprobar" onclick="approvePayment('${doc.id}', '${p.userId}', '${p.planId}')">✅ Aprobar</button>
-                    <button class="btn-rechazar" onclick="rejectPayment('${doc.id}')">❌ Rechazar</button>
+                    <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                        <button onclick="approvePayment('${doc.id}', '${p.userId}', '${p.planId}')" 
+                                style="background:#00ff88; border:none; padding:4px 8px; border-radius:5px; cursor:pointer; font-size:11px; font-weight:bold;">✅ Aprobar</button>
+                        <button onclick="rejectPayment('${doc.id}')" 
+                                style="background:#ff4444; border:none; padding:4px 8px; border-radius:5px; cursor:pointer; font-size:11px; font-weight:bold; color:white;">❌ Rechazar</button>
+                    </div>
                 `;
             } else if (p.status === 'completed') {
-                accionesHtml = `<button class="btn-quitar" onclick="removePremium('${p.userId}')">🔴 Quitar Premium</button>`;
+                accionesHtml = `<button onclick="removePremium('${p.userId}')" 
+                                style="background:#ff8800; border:none; padding:4px 8px; border-radius:5px; cursor:pointer; font-size:11px; font-weight:bold;">🔴 Quitar Premium</button>`;
             }
             
+            // Construir cada fila como un DIV (para evitar conflictos con tablas)
             html += `
-                <tr>
-                    <td style="font-size:11px;">${fecha}</td>
-                    <td>${p.userEmail}</td>
-                    <td>${p.planName || 'N/A'}</td>
-                    <td style="color:#00ff88; font-weight:bold;">$${(p.amount || 0).toLocaleString()} COP</td>
-                    <td>${metodoText}</td>
-                    <td><span class="estado-badge" style="background:${estadoBg};">${estadoText}</span></td>
-                    <td style="text-align:center;">${imageHtml}</td>
-                    <td>${accionesHtml}</td>
-                </tr>
+                <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; background:#0f0f0f; margin-bottom:8px; padding:12px; border-radius:10px; border-left:3px solid ${estadoBg};">
+                    <div style="min-width:120px;"><span style="color:#888;">📅</span><br><span style="font-size:11px;">${fecha}</span></div>
+                    <div style="min-width:150px;"><span style="color:#888;">👤</span><br><span style="font-size:13px;">${p.userEmail}</span></div>
+                    <div style="min-width:80px;"><span style="color:#888;">📋</span><br><span>${p.planName || 'N/A'}</span></div>
+                    <div style="min-width:100px;"><span style="color:#888;">💰</span><br><span style="color:#00ff88; font-weight:bold;">$${(p.amount || 0).toLocaleString()}</span></div>
+                    <div style="min-width:80px;"><span style="color:#888;">🏦</span><br><span>${metodoText}</span></div>
+                    <div style="min-width:100px;"><span style="color:#888;">📊</span><br><span style="background:${estadoBg}; color:${estadoColor}; padding:4px 10px; border-radius:20px; font-size:11px; font-weight:bold; display:inline-block;">${estadoText}</span></div>
+                    <div style="min-width:80px; text-align:center;"><span style="color:#888;">🖼️</span><br>${imageHtml}</div>
+                    <div style="min-width:120px;"><span style="color:#888;">⚡</span><br>${accionesHtml}</div>
+                </div>
             `;
         }
         
-        html += `
-                        </tbody>
-                    </table>
+        // Envolver todo en un contenedor
+        document.getElementById('paymentsList').innerHTML = `
+            <div style="background:#0a0a0a; padding:20px; border-radius:15px; margin-top:20px;">
+                <h3 style="color:#00ff88; margin-bottom:20px; font-size:22px;">💰 Historial de Pagos</h3>
+                <div style="overflow-x:auto;">
+                    ${html}
                 </div>
             </div>
         `;
-        
-        document.getElementById('paymentsList').innerHTML = html;
         
     } catch (error) {
         console.error("Error:", error);
