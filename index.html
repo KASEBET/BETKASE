@@ -1,4 +1,73 @@
 <!DOCTYPE html>
+  </button>
+</header>
+
+<div class="container">
+
+  <div class="hero">
+    <h1>
+      Publica tus <span>apuestas deportivas</span>
+    </h1>
+  </div>
+
+  <div class="form">
+    <h2>Registro / Login</h2>
+
+    <input type="email" id="email" placeholder="Correo">
+    <input type="password" id="password" placeholder="Contraseña">
+
+    <br><br>
+
+    <button class="btn" onclick="register()">
+      Registrarse
+    </button>
+
+    <button class="btn" onclick="login()">
+      Iniciar Sesión
+    </button>
+  </div>
+
+  <div class="form">
+    <h2>Publicar Apuesta</h2>
+
+    <input type="text" id="match" placeholder="Partido">
+
+    <input type="text" id="prediction" placeholder="Pronóstico">
+
+    <select id="type">
+      <option value="gratis">Gratis</option>
+      <option value="premium">Premium</option>
+    </select>
+
+    <br><br>
+
+    <button class="btn" onclick="publishBet()">
+      Publicar Pick
+    </button>
+  </div>
+
+  <h2 style="margin-bottom:20px;">Apuestas en Vivo</h2>
+
+  <div class="bets" id="bets"></div>
+
+</div>
+
+<script>
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCmop2QaWiyti5kI778fyoVkKqIjUdqSDQ",
+  authDomain: "betkase.firebaseapp.com",
+  projectId: "betkase",
+  storageBucket: "betkase.firebasestorage.app",
+  messagingSenderId: "315588136077",
+  appId: "1:315588136077:web:4b075235cb83853740e6c4"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+
 function register() {
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
@@ -16,57 +85,4 @@ function login() {
     .then(() => alert('Sesión iniciada'))
     .catch(error => alert(error.message));
 }
-
-function logout() {
-  auth.signOut();
-}
-
-function publishBet() {
-  const match = document.getElementById('match').value;
-  const prediction = document.getElementById('prediction').value;
-  const type = document.getElementById('type').value;
-
-  db.collection('bets').add({
-    match,
-    prediction,
-    type,
-    createdAt: Date.now()
-  });
-}
-
-db.collection('bets')
-.orderBy('createdAt', 'desc')
-.onSnapshot(snapshot => {
-
-  const bets = document.getElementById('bets');
-
-  bets.innerHTML = '';
-
-  snapshot.forEach(doc => {
-
-    const bet = doc.data();
-
-    bets.innerHTML += `
-      <div class="bet ${bet.type === 'premium' ? 'premium' : ''}">
-
-        <div class="tag ${bet.type === 'premium' ? 'premium-tag' : 'free-tag'}">
-          ${bet.type.toUpperCase()}
-        </div>
-
-        <h3>${bet.match}</h3>
-
-        <p style="margin-top:10px; color:#aaa;">
-          ${bet.prediction}
-        </p>
-
-      </div>
-    `;
-
-  });
-
-});
-
-</script>
-
-</body>
 </html>
