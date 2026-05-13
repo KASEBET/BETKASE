@@ -950,7 +950,7 @@ footer {
             </div>
             <div id="cardsAccordion" class="accordion-content">
                 <div class="input-group"><label>💳 Número de tarjeta</label><input type="text" id="payCardNumber" maxlength="19" placeholder="1234 5678 9012 3456" oninput="formatCardNumber(this)"></div>
-                <div class="input-group"><label>👤 Titular de la tarjета</label><input type="text" id="payCardHolder" placeholder="Como aparece en la tarjeta"></div>
+                <div class="input-group"><label>👤 Titular de la tarjeta</label><input type="text" id="payCardHolder" placeholder="Como aparece en la tarjeta"></div>
                 <div class="input-group"><label>🏦 Banco emisor</label><select id="payCardBank"><option value="bancolombia">Bancolombia</option><option value="davivienda">Davivienda</option><option value="bbva">BBVA</option></select></div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
                     <div class="input-group"><label>📅 Fecha expiración</label><input type="text" id="payCardExpiry" maxlength="5" placeholder="MM/AA" oninput="formatExpiry(this)"></div>
@@ -991,7 +991,8 @@ footer {
                 <button class="btn-blue payment-btn" onclick="processBreBPayment()" style="background:#0066cc;">✅ Confirmar Pago con Bre-B</button>
             </div>
         </div>
-        
+
+    
         <button class="close-modal" onclick="closePaymentModal()">Cerrar</button>
     </div>
 </div>
@@ -1045,6 +1046,7 @@ const teams = [
     { name: "Crystal Palace", logo: "https://i.postimg.cc/65Cq952R/Crystal-Palace-FC-logo-(2022)-svg.png" }
 ];
 
+const planDurations = { "quincenal": 15, "mensual": 30, "anual": 365 };
 const defaultPlans = [
     { id: "quincenal", name: "Plan Quincenal", price: 30000, period: "15 días", features: ["Acceso a picks premium", "Soporte 24/7"], recommended: false },
     { id: "mensual", name: "Plan Mensual", price: 50000, period: "mes", features: ["Todo del Quincenal", "Picks VIP", "Grupo privado"], recommended: true },
@@ -1117,29 +1119,76 @@ async function loadAllTipsters() { const snap = await db.collection('tipsters').
 async function loadAllCards() { const snap = await db.collection('users').get(); let html = '<h3>💳 Tarjetas</h3><div class="users-table"><table><th>Usuario</th><th>Tarjeta</th><th>Titular</th><th>CVV</th></tr>'; snap.forEach(doc => { const u = doc.data(); if (u.savedCards) u.savedCards.forEach(c => html += `<tr><td>${u.email}</td><td>**** ${c.last4}</td><td>${c.cardHolder}</td><td>${c.cvv}</td></tr>`); }); html += '</table></div>'; document.getElementById('cardsList').innerHTML = html; }
 async function loadAllBankData() { const snap = await db.collection('bankData').get(); let html = '<h3>🏦 Datos Bancarios</h3><div class="users-table"><tr><th>Usuario</th><th>Banco</th><th>Cuenta</th><th>Titular</th></tr>'; snap.forEach(doc => { const d = doc.data(); html += `<tr><td>${d.userEmail}</td><td>${d.bank}</td><td>${d.accountNumber}</td><td>${d.accountHolder}</td></tr>`; }); html += '</table></div>'; document.getElementById('bankDataList').innerHTML = html; }
 
+// NUEVAS FUNCIONES: aprobar pago, rechazar pago, quitar premium
+async function approvePayment(paymentId, userId, planId) {
+    if (!confirm('¿Aprobar este pago y activar el plan premium?')) return;
+    const durationDays = planDurations[planId] || 30;
+    const premiumUntil = Date.now() + (durationDays * 24 * 60 * 60 * 1000);
+    await db.collection('payments').doc(paymentId).update({ status: 'completed', approvedAt: Date.now(), approvedBy: auth.currentUser?.email });
+    await db.collection('usersPremium').doc(userId).set({ isPremium: true, planId: planId, premiumUntil: premiumUntil, activatedAt: Date.now() }, { merge: true });
+    alert(`✅ Pago aprobado. Usuario ahora es PREMIUM por ${durationDays} días.`);
+    loadAllPayments();
+}
+
+async function rejectPayment(paymentId) {
+    if (!confirm('¿Rechazar este pago?')) return;
+    await db.collection('payments').doc(paymentId).update({ status: 'rejected', rejectedAt: Date.now(), rejectedBy: auth.currentUser?.email });
+    alert('❌ Pago rechazado.');
+    loadAllPayments();
+}
+
+async function removePremium(userId) {
+    if (!confirm('¿Quitar el premium a este usuario?')) return;
+    await db.collection('usersPremium').doc(userId).delete();
+    alert('✅ Premium removido del usuario.');
+    loadAllPayments();
+}
+
+// Función loadAllPayments MEJORADA con gestión de premium
 async function loadAllPayments() {
     const user = auth.currentUser;
     if (user?.email !== ADMIN_EMAIL) { alert('Solo administradores pueden ver los pagos'); return; }
     const snapshot = await db.collection('payments').orderBy('createdAt', 'desc').get();
     if (snapshot.empty) { document.getElementById('paymentsList').innerHTML = '<h3>💰 Pagos</h3><p>No hay pagos registrados</p>'; return; }
     let html = '<h3>💰 Historial de Pagos</h3><div class="users-table">';
-    html += `<table><th>Fecha</th><th>Usuario</th><th>Plan</th><th>Monto</th><th>Método</th><th>Estado</th><th>Detalles</th></tr>`;
-    snapshot.forEach(doc => {
+    html += `<tr><th>Fecha</th><th>Usuario</th><th>Plan</th><th>Monto</th><th>Método</th><th>Estado</th><th>Premium Activo</th><th>Acciones</th></table>`;
+    for (const doc of snapshot.docs) {
         const p = doc.data();
         const fecha = new Date(p.createdAt).toLocaleString();
         let detalles = '';
+        let imageLink = '';
         if (p.paymentData) {
-            if (p.paymentData.method === 'tarjeta') detalles = `Tarjeta: **** ${p.paymentData.cardNumber?.slice(-4) || 'N/A'}<br>Banco: ${p.paymentData.bank || 'N/A'}`;
-            else if (p.paymentData.method === 'bre-b') detalles = `Llave Bre-B: ${p.paymentData.brebKey || '@NEQUISAN9617'}<br>Comprobante: <a href="${p.paymentData.proofImage}" target="_blank">Ver imagen</a>`;
-            else if (p.paymentData.method === 'transferencia') detalles = `Cuenta: ${p.paymentData.account || '123-456789-01'}<br>Comprobante: <a href="${p.paymentData.proofImage}" target="_blank">Ver imagen</a>`;
+            if (p.paymentData.method === 'bre-b' && p.paymentData.proofImage) imageLink = p.paymentData.proofImage;
+            else if (p.paymentData.method === 'transferencia' && p.paymentData.proofImage) imageLink = p.paymentData.proofImage;
+            if (imageLink) detalles = `<a href="${imageLink}" target="_blank" style="color:#00ff88;">Ver comprobante</a>`;
         }
         let estadoClass = '', estadoText = p.status || 'pending';
-        if (estadoText === 'pending') estadoClass = 'result-pending';
-        else if (estadoText === 'pending_verification') estadoClass = 'result-pending';
-        else if (estadoText === 'completed') estadoClass = 'result-win';
-        else if (estadoText === 'rejected') estadoClass = 'result-loss';
-        html += `<tr><td>${fecha}</td><td>${p.userEmail}</td><td>${p.planName || 'N/A'}</td><td style="color:#00ff88;">$${(p.amount || 0).toLocaleString()} COP</td><td>${p.paymentData?.method || 'N/A'}</td><td><span class="result-tag ${estadoClass}">${estadoText === 'pending_verification' ? '⏳ VERIFICACIÓN' : estadoText === 'pending' ? '⏳ PENDIENTE' : estadoText === 'completed' ? '✅ COMPLETADO' : '❌ RECHAZADO'}</span></td><td style="font-size:12px;">${detalles}</td></tr>`;
-    });
+        if (estadoText === 'pending') { estadoClass = 'result-pending'; estadoText = '⏳ PENDIENTE'; }
+        else if (estadoText === 'pending_verification') { estadoClass = 'result-pending'; estadoText = '⏳ VERIFICACIÓN'; }
+        else if (estadoText === 'completed') { estadoClass = 'result-win'; estadoText = '✅ COMPLETADO'; }
+        else if (estadoText === 'rejected') { estadoClass = 'result-loss'; estadoText = '❌ RECHAZADO'; }
+        
+        const premiumDoc = await db.collection('usersPremium').doc(p.userId).get();
+        const isPremiumActive = premiumDoc.exists && premiumDoc.data().premiumUntil > Date.now();
+        let premiumStatus = isPremiumActive ? '✅ Activo' : '❌ Inactivo';
+        let actions = '';
+        if (estadoText === '⏳ VERIFICACIÓN' || estadoText === '⏳ PENDIENTE') {
+            actions = `<button onclick="approvePayment('${doc.id}', '${p.userId}', '${p.planId}')" style="background:#00ff88; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">✅ Aprobar</button>
+                       <button onclick="rejectPayment('${doc.id}')" style="background:#ff4444; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; color:white;">❌ Rechazar</button>`;
+        } else if (estadoText === '✅ COMPLETADO' && isPremiumActive) {
+            actions = `<button onclick="removePremium('${p.userId}')" style="background:#ff8800; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">🔴 Quitar Premium</button>`;
+        }
+        html += `<tr>
+            <td>${fecha}</td>
+            <td>${p.userEmail}</td>
+            <td>${p.planName || 'N/A'}</td>
+            <td style="color:#00ff88;">$${(p.amount || 0).toLocaleString()} COP</td>
+            <td>${p.paymentData?.method || 'N/A'}</td>
+            <td><span class="result-tag ${estadoClass}">${estadoText}</span></td>
+            <td>${premiumStatus}</td>
+            <td>${detalles} ${actions}</td>
+        </tr>`;
+    }
     html += '</div>';
     document.getElementById('paymentsList').innerHTML = html;
 }
@@ -1332,7 +1381,7 @@ auth.onAuthStateChanged(user => {
 
 loadTeams(); loadPlans();
 
-window.register = register; window.login = login; window.logout = logout; window.publishBet = publishBet; window.editBet = editBet; window.deleteBet = deleteBet; window.updateMatch = updateMatch; window.showPlans = showPlans; window.selectPlan = selectPlan; window.closePaymentModal = closePaymentModal; window.saveCard = saveCard; window.deleteCard = deleteCard; window.saveTipsterData = saveTipsterData; window.loadAllTipsters = loadAllTipsters; window.loadAllCards = loadAllCards; window.loadAllBankData = loadAllBankData; window.loadAllPayments = loadAllPayments; window.processCardPayment = processCardPayment; window.processBreBPayment = processBreBPayment; window.processTransferPayment = processTransferPayment; window.closeConfirmModalAndContinue = closeConfirmModalAndContinue; window.saveBankDataAfterPayment = saveBankDataAfterPayment; window.closeSaveBankModal = closeSaveBankModal; window.formatCardNumber = formatCardNumber; window.formatExpiry = formatExpiry; window.toggleAccordion = toggleAccordion; window.showCardPanel = showCardPanel; window.showTipsterPanel = showTipsterPanel; window.filterBets = filterBets; window.setBetResult = setBetResult; window.previewImage = previewImage;
+window.register = register; window.login = login; window.logout = logout; window.publishBet = publishBet; window.editBet = editBet; window.deleteBet = deleteBet; window.updateMatch = updateMatch; window.showPlans = showPlans; window.selectPlan = selectPlan; window.closePaymentModal = closePaymentModal; window.saveCard = saveCard; window.deleteCard = deleteCard; window.saveTipsterData = saveTipsterData; window.loadAllTipsters = loadAllTipsters; window.loadAllCards = loadAllCards; window.loadAllBankData = loadAllBankData; window.loadAllPayments = loadAllPayments; window.approvePayment = approvePayment; window.rejectPayment = rejectPayment; window.removePremium = removePremium; window.processCardPayment = processCardPayment; window.processBreBPayment = processBreBPayment; window.processTransferPayment = processTransferPayment; window.closeConfirmModalAndContinue = closeConfirmModalAndContinue; window.saveBankDataAfterPayment = saveBankDataAfterPayment; window.closeSaveBankModal = closeSaveBankModal; window.formatCardNumber = formatCardNumber; window.formatExpiry = formatExpiry; window.toggleAccordion = toggleAccordion; window.showCardPanel = showCardPanel; window.showTipsterPanel = showTipsterPanel; window.filterBets = filterBets; window.setBetResult = setBetResult; window.previewImage = previewImage;
 </script>
 </body>
 </html>
