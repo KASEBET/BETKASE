@@ -996,16 +996,23 @@ async function loadPlans() {
 function updatePlan(planId) {
     const name = document.getElementById(`plan_name_${planId}`).value;
     const price = parseInt(document.getElementById(`plan_price_${planId}`).value);
+    const period = document.getElementById(`plan_period_${planId}`).value;
     const features = document.getElementById(`plan_features_${planId}`).value.split(',').map(f => f.trim());
+    const recommended = document.getElementById(`plan_recommended_${planId}`).checked;
     
-    db.collection('plans').doc(planId).update({ name, price, features })
-        .then(() => {
-            alert('✅ Plan actualizado');
-            loadPlans();
-        })
-        .catch(error => alert('❌ Error: ' + error.message));
+    db.collection('plans').doc(planId).update({ 
+        name, 
+        price, 
+        period,
+        features, 
+        recommended 
+    })
+    .then(() => {
+        alert('✅ Plan actualizado correctamente');
+        loadPlans();
+    })
+    .catch(error => alert('❌ Error: ' + error.message));
 }
-
 function showPlans() {
     const user = auth.currentUser;
     if (!user) {
