@@ -1057,7 +1057,7 @@ function processPayment(method) {
         status: 'pending',
         createdAt: Date.now()
     }).then(() => {
-        alert(`✅ Solicitud de pago enviada\n\nPlan: ${currentSelectedPlan.name}\nMonto: $${currentSelectedPlan.price.toLocaleString()} COP\nMétodo: ${methodName}\n\n📌 Por favor realiza la transferencia a:\n\n🏦 llave: @nequisan9617\n📱 Nequi: 3137845052\n\n📧 Envía el comprobante a: soportebetkase@gmail.com\n\nActivaremos tu cuenta en 24 horas.`);
+        alert(`✅ Solicitud de pago enviada\n\nPlan: ${currentSelectedPlan.name}\nMonto: $${currentSelectedPlan.price.toLocaleString()} COP\nMétodo: ${methodName}\n\n📌 Por favor realiza la transferencia a:\n\n🏦 llave: @nequisan9617\n📱 Nequi: 3137845052\n\n📧 Envía el comprobante a: soportebetkase@gmail.com\n\nActivaremos tu cuenta brevemente.`);
         closePaymentModal();
     }).catch(error => {
         alert('❌ Error al procesar: ' + error.message);
