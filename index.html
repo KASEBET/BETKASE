@@ -2194,10 +2194,49 @@ function showPlans() { if (!auth.currentUser) { alert('Inicia sesión primero');
 function selectPlan(id, name, price) { currentSelectedPlan = { id, name, price }; document.getElementById('modalPlanName').innerText = name; document.getElementById('modalPlanPrice').innerHTML = `$${price.toLocaleString()} COP`; document.getElementById('brebAmount').innerHTML = `$${price.toLocaleString()} COP`; document.getElementById('paymentModal').style.display = 'flex'; }
 
 /* ── AUTH ── */
-function register() { const e = document.getElementById('email').value, p = document.getElementById('password').value; if (!e || !p) return alert('Completa campos'); if (p.length < 6) return alert('Mínimo 6 caracteres'); auth.createUserWithEmailAndPassword(e, p).then(() => alert('Cuenta creada')).catch(e => alert(e.message)); }
-function login() { const e = document.getElementById('email').value, p = document.getElementById('password').value; auth.signInWithEmailAndPassword(e, p).then(() => alert('Sesión iniciada')).catch(e => alert(e.message)); }
-function logout() { auth.signOut(); alert('Sesión cerrada'); }
+function register() { 
+    const e = document.getElementById('email').value; 
+    const p = document.getElementById('password').value; 
+    if (!e || !p) return alert('Completa campos'); 
+    if (p.length < 6) return alert('Mínimo 6 caracteres'); 
+    
+    auth.createUserWithEmailAndPassword(e, p)
+        .then((userCredential) => {
+            // Crear documento de usuario en Firestore
+            db.collection('users').doc(userCredential.user.uid).set({
+                email: e,
+                createdAt: Date.now()
+            }).then(() => {
+                alert('✅ Cuenta creada exitosamente');
+                // Forzar actualización de UI
+                location.reload();
+            }).catch(err => console.error("Error guardando usuario:", err));
+        })
+        .catch(e => alert('❌ Error: ' + e.message)); 
+}
 
+function login() { 
+    const e = document.getElementById('email').value; 
+    const p = document.getElementById('password').value; 
+    if (!e || !p) return alert('Completa campos'); 
+    
+    auth.signInWithEmailAndPassword(e, p)
+        .then(() => {
+            alert('✅ Sesión iniciada correctamente');
+            // Forzar actualización de UI
+            location.reload();
+        })
+        .catch(e => alert('❌ Error: ' + e.message)); 
+}
+
+function logout() { 
+    auth.signOut()
+        .then(() => {
+            alert('✅ Sesión cerrada');
+            location.reload();
+        })
+        .catch(e => alert('Error: ' + e.message));
+}
 auth.onAuthStateChanged(async user => {
     const isSuperAdmin = user?.email === ADMIN_EMAIL;
     let isAdmin = isSuperAdmin;
