@@ -1847,7 +1847,11 @@ function loadBets() {
                 && !(currentFilter === 'pending' && !showResult)) continue;
 
             const matchStats = await loadMatchStats(b.id);
-            const statsIndicator = matchStats ? '📊 Ver estadísticas' : '➕ Añadir estadísticas';
+            const isAdminForStats = auth.currentUser?.email === ADMIN_EMAIL;
+            let statsIndicator = '📊 Ver estadísticas';
+            if (isAdminForStats && !matchStats) {
+                statsIndicator = '➕ Añadir estadísticas';
+            }
             const statsJsonStr = escapeAttr(JSON.stringify(matchStats || {}));
 
             let adminActions = '';
