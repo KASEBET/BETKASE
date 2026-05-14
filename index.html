@@ -1209,8 +1209,8 @@ footer {
     <hr style="margin: 30px 0;">
     <h3>⚽ Gestión de Apuestas</h3>
     <div class="team-selectors">
-        <div class="team-selector"><label>🏠 EQUIPO/JUGADOR LOCAL</label><select id="localTeam" onchange="updateMatch()"><option value="">-- Seleccionar --</option></select><img id="localPreview" src="" style="display:none;"></div>
-        <div class="team-selector"><label>✈️ EQUIPO/JUGADOR VISITANTE</label><select id="awayTeam" onchange="updateMatch()"><option value="">-- Seleccionar --</option></select><img id="awayPreview" src="" style="display:none;"></div>
+        <div class="team-selector"><label>🏠 EQUIPO/JUGADOR LOCAL</label><select id="localTeam" onchange="updateMatch()"><option value="">-- Seleccionar --</option></select><img id="localPreview" src="" style="display:none; width:48px; height:48px; object-fit:contain; border-radius:8px; margin-top:6px; border:1px solid #333;"></div>
+        <div class="team-selector"><label>✈️ EQUIPO/JUGADOR VISITANTE</label><select id="awayTeam" onchange="updateMatch()"><option value="">-- Seleccionar --</option></select><img id="awayPreview" src="" style="display:none; width:48px; height:48px; object-fit:contain; border-radius:8px; margin-top:6px; border:1px solid #333;"></div>
     </div>
     <div class="match-preview" id="matchPreview"></div>
     <input type="text" id="prediction" placeholder="🔮 Pronóstico">
@@ -1575,6 +1575,7 @@ function setSportFilter(sport, ev) {
 
 function setAdminSport(sport) {
     currentAdminSport = sport;
+    currentSportFilter = sport;
 
     document.getElementById('adminSportFutbol').style.background = '#0c0c0c';
     document.getElementById('adminSportFutbol').style.color = 'white';
