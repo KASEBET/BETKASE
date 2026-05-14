@@ -332,7 +332,22 @@ header {
 }
     
 /* Selector de deportes */
+.sport-selector {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
 .sport-btn {
+    padding: 12px 30px;
+    background: #0c0c0c;
+    color: white;
+    border: 1px solid #333;
+    border-radius: 30px;
+    font-weight: bold;
+    cursor: pointer;
     transition: .3s;
 }
 
@@ -1093,6 +1108,15 @@ footer {
     cursor: pointer;
     font-size: 12px;
 }
+
+/* Estilos para gestión por deporte en admin */
+.admin-sport-selector {
+    background: linear-gradient(145deg, #0a0a0a, #0c0c0c);
+    border-radius: 20px;
+    padding: 20px;
+    margin-top: 20px;
+    border: 1px solid #00ff88;
+}
 </style>
 </head>
 <body>
@@ -1194,42 +1218,48 @@ footer {
     <hr style="margin: 30px 0;">
     <h3>⚽ Gestión de Apuestas</h3>
     <div class="team-selectors">
-        <div class="team-selector"><label>🏠 EQUIPO LOCAL</label><select id="localTeam" onchange="updateMatch()"><option value="">-- Seleccionar --</option></select><img id="localPreview" src="" style="display:none;"></div>
-        <div class="team-selector"><label>✈️ EQUIPO VISITANTE</label><select id="awayTeam" onchange="updateMatch()"><option value="">-- Seleccionar --</option></select><img id="awayPreview" src="" style="display:none;"></div>
+        <div class="team-selector"><label>🏠 EQUIPO/JUGADOR LOCAL</label><select id="localTeam" onchange="updateMatch()"><option value="">-- Seleccionar --</option></select><img id="localPreview" src="" style="display:none;"></div>
+        <div class="team-selector"><label>✈️ EQUIPO/JUGADOR VISITANTE</label><select id="awayTeam" onchange="updateMatch()"><option value="">-- Seleccionar --</option></select><img id="awayPreview" src="" style="display:none;"></div>
     </div>
     <div class="match-preview" id="matchPreview"></div>
     <input type="text" id="prediction" placeholder="🔮 Pronóstico">
     <input type="text" id="odds" placeholder="💰 Cuota">
     <select id="type"><option value="gratis">Gratis</option><option value="premium">Premium</option></select>
     <button class="btn btn-green" onclick="publishBet()">Publicar Apuesta</button>
+    
     <!-- Gestión de Equipos -->
-<div class="teams-management">
-    <h4>⚽ Gestión de Equipos</h4>
-    <div class="team-input-group">
-        <input type="text" id="newTeamName" placeholder="Nombre del equipo (ej: Real Betis)">
-        <input type="text" id="newTeamLogo" placeholder="URL del logo del equipo">
-        <button class="btn btn-green" onclick="addNewTeam()">➕ Agregar Equipo</button>
+    <div class="teams-management">
+        <h4>⚽ Gestión de Equipos</h4>
+        <div class="team-input-group">
+            <input type="text" id="newTeamName" placeholder="Nombre del equipo/jugador">
+            <input type="text" id="newTeamLogo" placeholder="URL del logo">
+            <button class="btn btn-green" onclick="addNewTeam()">➕ Agregar</button>
+        </div>
+        <div id="existingTeamsList" class="existing-teams"></div>
     </div>
-    <div id="existingTeamsList" class="existing-teams">
-        <!-- Aquí se mostrarán los equipos existentes -->
+    
+    <!-- Gestión por Deporte -->
+    <div class="admin-sport-selector">
+        <h4>🏆 Seleccionar Deporte para Gestión</h4>
+        <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+            <button class="btn btn-blue" onclick="setAdminSport('futbol')">⚽ Fútbol</button>
+            <button class="btn btn-blue" onclick="setAdminSport('tenis')">🎾 Tenis</button>
+            <button class="btn btn-blue" onclick="setAdminSport('nba')">🏀 NBA</button>
+        </div>
+        <div id="adminSportInfo" style="color:#00ff88; font-size:14px;"></div>
     </div>
 </div>
-</div>
-<h3>🏆 Gestión por Deporte</h3>
-<div style="display: flex; gap: 10px; margin-bottom: 20px;">
-    <button class="btn btn-blue" onclick="setAdminSport('futbol')">⚽ Fútbol</button>
-    <button class="btn btn-blue" onclick="setAdminSport('tenis')">🎾 Tenis</button>
-    <button class="btn btn-blue" onclick="setAdminSport('nba')">🏀 NBA</button>
-</div>
-<div id="adminSportInfo" style="margin-bottom: 20px;"></div>
+
 <section class="section">
-    <h2 class="section-title">⚽ Historial de Apuestas</h2>
+    <h2 class="section-title">⚽ Apuestas de Fútbol</h2>
+    
     <!-- SELECTOR DE DEPORTES -->
-    <div class="sport-selector" style="display: flex; gap: 15px; justify-content: center; margin-bottom: 30px; flex-wrap: wrap;">
-        <button class="sport-btn active" onclick="setSportFilter('futbol', event)" style="padding: 12px 30px; background: #00ff88; color: black; border: none; border-radius: 30px; font-weight: bold; cursor: pointer;">⚽ FÚTBOL</button>
-        <button class="sport-btn" onclick="setSportFilter('tenis', event)" style="padding: 12px 30px; background: #0c0c0c; color: white; border: 1px solid #333; border-radius: 30px; font-weight: bold; cursor: pointer;">🎾 TENIS</button>
-        <button class="sport-btn" onclick="setSportFilter('nba', event)" style="padding: 12px 30px; background: #0c0c0c; color: white; border: 1px solid #333; border-radius: 30px; font-weight: bold; cursor: pointer;">🏀 NBA</button>
+    <div class="sport-selector">
+        <button class="sport-btn active" onclick="setSportFilter('futbol', event)">⚽ FÚTBOL</button>
+        <button class="sport-btn" onclick="setSportFilter('tenis', event)">🎾 TENIS</button>
+        <button class="sport-btn" onclick="setSportFilter('nba', event)">🏀 NBA</button>
     </div>
+    
     <!-- FILTROS POR FECHA -->
     <div class="date-filters">
         <button class="date-btn" onclick="setDateFilter('today', event)">📅 Hoy</button>
@@ -1242,7 +1272,7 @@ footer {
     <!-- FILTRO POR EQUIPO -->
     <div class="team-filter">
         <select id="teamFilterSelect" onchange="setTeamFilter()">
-            <option value="all">⚽ Todos los equipos</option>
+            <option value="all">⚽ Todos los equipos/jugadores</option>
         </select>
         <button class="btn btn-green" onclick="clearTeamFilter()" style="padding: 8px 20px;">🗑️ Limpiar filtro</button>
     </div>
@@ -1269,18 +1299,18 @@ footer {
         <h3 id="statsModalTitle">📊 Estadísticas del Partido</h3>
         <div id="statsForm">
             <div class="stats-grid">
-                <div class="stat-item"><label>⚽ Goles Local</label><input type="number" id="goalsLocal" value="0" min="0"></div>
-                <div class="stat-item"><label>⚽ Goles Visitante</label><input type="number" id="goalsAway" value="0" min="0"></div>
-                <div class="stat-item"><label>🟨 Amarillas Local</label><input type="number" id="yellowLocal" value="0" min="0"></div>
-                <div class="stat-item"><label>🟨 Amarillas Visitante</label><input type="number" id="yellowAway" value="0" min="0"></div>
-                <div class="stat-item"><label>🟥 Rojas Local</label><input type="number" id="redLocal" value="0" min="0"></div>
-                <div class="stat-item"><label>🟥 Rojas Visitante</label><input type="number" id="redAway" value="0" min="0"></div>
-                <div class="stat-item"><label>🎯 Corners Local</label><input type="number" id="cornersLocal" value="0" min="0"></div>
-                <div class="stat-item"><label>🎯 Corners Visitante</label><input type="number" id="cornersAway" value="0" min="0"></div>
-                <div class="stat-item"><label>💥 Remates Local</label><input type="number" id="shotsLocal" value="0" min="0"></div>
-                <div class="stat-item"><label>💥 Remates Visitante</label><input type="number" id="shotsAway" value="0" min="0"></div>
-                <div class="stat-item"><label>🎯 Remates a Puerta Local</label><input type="number" id="shotsOnTargetLocal" value="0" min="0"></div>
-                <div class="stat-item"><label>🎯 Remates a Puerta Visitante</label><input type="number" id="shotsOnTargetAway" value="0" min="0"></div>
+                <div class="stat-item"><label>⚽ Goles/Puntos Local</label><input type="number" id="goalsLocal" value="0" min="0"></div>
+                <div class="stat-item"><label>⚽ Goles/Puntos Visitante</label><input type="number" id="goalsAway" value="0" min="0"></div>
+                <div class="stat-item"><label>🟨 Amarillas/Faltas Local</label><input type="number" id="yellowLocal" value="0" min="0"></div>
+                <div class="stat-item"><label>🟨 Amarillas/Faltas Visitante</label><input type="number" id="yellowAway" value="0" min="0"></div>
+                <div class="stat-item"><label>🟥 Rojas/Técnicas Local</label><input type="number" id="redLocal" value="0" min="0"></div>
+                <div class="stat-item"><label>🟥 Rojas/Técnicas Visitante</label><input type="number" id="redAway" value="0" min="0"></div>
+                <div class="stat-item"><label>🎯 Corners/Asistencias Local</label><input type="number" id="cornersLocal" value="0" min="0"></div>
+                <div class="stat-item"><label>🎯 Corners/Asistencias Visitante</label><input type="number" id="cornersAway" value="0" min="0"></div>
+                <div class="stat-item"><label>💥 Remates/Intentos Local</label><input type="number" id="shotsLocal" value="0" min="0"></div>
+                <div class="stat-item"><label>💥 Remates/Intentos Visitante</label><input type="number" id="shotsAway" value="0" min="0"></div>
+                <div class="stat-item"><label>🎯 A puerta/Precisión Local</label><input type="number" id="shotsOnTargetLocal" value="0" min="0"></div>
+                <div class="stat-item"><label>🎯 A puerta/Precisión Visitante</label><input type="number" id="shotsOnTargetAway" value="0" min="0"></div>
             </div>
             <button class="btn-green payment-btn" onclick="saveMatchStats()">💾 Guardar Estadísticas</button>
         </div>
@@ -1400,25 +1430,7 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const ADMIN_EMAIL = "camargosantiago2003@gmail.com";
 
-const teams = [
-    { name: "Manchester City", logo: "https://i.postimg.cc/j5w9hyxR/2026-05-13-73f43f96-4ece-4239-aa63-b065cf33697e.png" },
-    { name: "Manchester United", logo: "https://i.postimg.cc/yYx0KgrL/manutd.png" },
-    { name: "Real Madrid", logo: "https://i.postimg.cc/T19s9DNn/real-madrid.jpg" },
-    { name: "Barcelona", logo: "https://i.postimg.cc/d3YMnvsv/barcelona.png" },
-    { name: "Liverpool", logo: "https://i.postimg.cc/nhLy33JX/liverpool.png" },
-    { name: "Chelsea", logo: "https://i.postimg.cc/7hJkmXwQ/chelsea.png" },
-    { name: "Arsenal", logo: "https://i.postimg.cc/FzMqSPkY/arsenal.png" },
-    { name: "Bayern Munich", logo: "https://i.postimg.cc/7YgJw0Mf/bayern.png" },
-    { name: "PSG", logo: "https://i.postimg.cc/B6DzMqX4/psg.png" },
-    { name: "Juventus", logo: "https://i.postimg.cc/L5JSzLBj/juventus.png" },
-    { name: "AC Milan", logo: "https://i.postimg.cc/NFHW6N1c/acmilan.png" },
-    { name: "Inter Milan", logo: "https://i.postimg.cc/GtPyhNJ1/inter.png" },
-    { name: "Atletico Madrid", logo: "https://i.postimg.cc/d1HdRbPv/atletico.png" },
-    { name: "Tottenham", logo: "https://i.postimg.cc/5N7z1nRN/tottenham.png" },
-    { name: "Newcastle", logo: "https://i.postimg.cc/8cCRnTGJ/newcastle.png" },
-    { name: "Deportivo Alavés", logo: "https://i.postimg.cc/yxvf9zWR/alaves.png" },
-    { name: "Crystal Palace", logo: "https://i.postimg.cc/65Cq952R/Crystal-Palace-FC-logo-(2022)-svg.png" }
-];
+// DATOS POR DEPORTE
 const sportsData = {
     futbol: {
         name: "Fútbol",
@@ -1437,9 +1449,7 @@ const sportsData = {
             { name: "Inter Milan", logo: "https://i.postimg.cc/GtPyhNJ1/inter.png" },
             { name: "Atletico Madrid", logo: "https://i.postimg.cc/d1HdRbPv/atletico.png" },
             { name: "Tottenham", logo: "https://i.postimg.cc/5N7z1nRN/tottenham.png" },
-            { name: "Newcastle", logo: "https://i.postimg.cc/8cCRnTGJ/newcastle.png" },
-            { name: "Deportivo Alavés", logo: "https://i.postimg.cc/yxvf9zWR/alaves.png" },
-            { name: "Crystal Palace", logo: "https://i.postimg.cc/65Cq952R/Crystal-Palace-FC-logo-(2022)-svg.png" }
+            { name: "Newcastle", logo: "https://i.postimg.cc/8cCRnTGJ/newcastle.png" }
         ]
     },
     tenis: {
@@ -1470,23 +1480,14 @@ const sportsData = {
     }
 };
 
-
 const planDurations = { "quincenal": 15, "mensual": 30, "anual": 365 };
 const defaultPlans = [
     { id: "quincenal", name: "Plan Quincenal", price: 30000, period: "15 días", features: ["Acceso a picks premium", "Soporte 24/7"], recommended: false },
     { id: "mensual", name: "Plan Mensual", price: 50000, period: "mes", features: ["Todo del Quincenal", "Picks VIP", "Grupo privado"], recommended: true },
     { id: "anual", name: "Plan Anual", price: 500000, period: "año", features: ["Todo del Mensual", "2 meses gratis", "Soporte VIP"], recommended: false }
 ];
-    let currentAdminSport = 'futbol';
 
-function setAdminSport(sport) {
-    currentAdminSport = sport;
-    document.getElementById('adminSportInfo').innerHTML = `<p style="color:#00ff88;">📌 Gestionando: ${sportsData[sport].name}</p>`;
-    loadTeams();
-}
-let currentSportFilter = 'futbol';
 let currentSelectedPlan = null;
-let currentSportFilter = 'futbol';
 let selectedCardId = null;
 let betsUnsubscribe = null;
 let editingId = null;
@@ -1494,8 +1495,11 @@ let currentFilter = 'all';
 let currentDateFilter = 'all';
 let currentTeamFilter = 'all';
 let currentBetIdForStats = null;
+let currentSportFilter = 'futbol';
+let currentAdminSport = 'futbol';
 let brebImageBase64 = null;
 let transferImageBase64 = null;
+let window.customTeams = [];
 
 /* ── FUNCIONES PARA MOSTRAR/OCULTAR TABLAS ADMIN ── */
 function hideAllAdminSections() {
@@ -1523,21 +1527,28 @@ function showCardPanel() { const cp = document.getElementById('cardPanel'); cons
 function showTipsterPanel() { const cp = document.getElementById('cardPanel'); const tp = document.getElementById('tipsterPanel'); cp.style.display = 'none'; tp.style.display = tp.style.display === 'none' || tp.style.display === '' ? 'block' : 'none'; if (tp.style.display === 'block') tp.scrollIntoView({ behavior: 'smooth' }); }
 function escapeAttr(str) { return str ? str.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;') : ''; }
 
-    /* ── FUNCIONES PARA CADA DEPORTE ── */
+/* ── FUNCIONES PARA DEPORTES ── */
 function setSportFilter(sport, ev) {
     currentSportFilter = sport;
     document.querySelectorAll('.sport-btn').forEach(btn => btn.classList.remove('active'));
     if (ev && ev.target) ev.target.classList.add('active');
     
-    // Cambiar el título de la sección
     const sectionTitle = document.querySelector('.section-title');
     if (sport === 'futbol') sectionTitle.innerHTML = '⚽ Apuestas de Fútbol';
     else if (sport === 'tenis') sectionTitle.innerHTML = '🎾 Apuestas de Tenis';
     else if (sport === 'nba') sectionTitle.innerHTML = '🏀 Apuestas de NBA';
     
-    // Recargar apuestas
+    loadTeams();
+    loadTeamFilter();
     loadBets();
 }
+
+function setAdminSport(sport) {
+    currentAdminSport = sport;
+    document.getElementById('adminSportInfo').innerHTML = `📌 Gestionando: ${sportsData[sport].name} - Puedes agregar equipos/jugadores de este deporte`;
+    loadTeams();
+}
+
 /* ── FILTROS ── */
 function filterBets(filter, ev) {
     currentFilter = filter;
@@ -1566,21 +1577,24 @@ function clearTeamFilter() {
 
 function loadTeamFilter() {
     const select = document.getElementById('teamFilterSelect');
-    select.innerHTML = '<option value="all">⚽ Todos los equipos</option>';
-    const uniqueTeams = [...new Set(teams.map(t => t.name))];
-    uniqueTeams.sort().forEach(team => {
-        select.innerHTML += `<option value="${team}">🏆 ${team}</option>`;
+    if (!select) return;
+    
+    select.innerHTML = '<option value="all">⚽ Todos los equipos/jugadores</option>';
+    const currentTeams = sportsData[currentSportFilter]?.teams || sportsData.futbol.teams;
+    
+    currentTeams.forEach(team => {
+        select.innerHTML += `<option value="${team.name.replace(/'/g, "\\'")}">🏆 ${team.name}</option>`;
     });
 }
+
 /* ── GESTIÓN DE EQUIPOS ── */
-// Cargar equipos desde Firestore
 async function loadTeamsFromFirestore() {
     try {
         const snapshot = await db.collection('teams').orderBy('name').get();
         if (!snapshot.empty) {
             window.customTeams = [];
             snapshot.forEach(doc => {
-                window.customTeams.push({ id: doc.id, ...doc.data() });
+                window.customTeams.push({ id: doc.id, ...doc.data(), sport: doc.data().sport || 'futbol' });
             });
         }
     } catch (error) {
@@ -1589,15 +1603,12 @@ async function loadTeamsFromFirestore() {
     displayTeamsList();
 }
 
-// Mostrar lista de equipos en el admin
 function displayTeamsList() {
     const container = document.getElementById('existingTeamsList');
     if (!container) return;
     
-    const allTeams = [...teams];
-    if (window.customTeams) {
-        allTeams.push(...window.customTeams);
-    }
+    const allTeams = [...sportsData.futbol.teams, ...sportsData.tenis.teams, ...sportsData.nba.teams];
+    if (window.customTeams) allTeams.push(...window.customTeams);
     
     container.innerHTML = '<h5 style="color:#aaa; margin-bottom:10px;">📋 Equipos disponibles:</h5>';
     allTeams.forEach(team => {
@@ -1614,75 +1625,67 @@ function displayTeamsList() {
     });
 }
 
-// Agregar nuevo equipo
 async function addNewTeam() {
     const teamName = document.getElementById('newTeamName').value.trim();
     const teamLogo = document.getElementById('newTeamLogo').value.trim();
     
-    if (!teamName) {
-        alert('❌ Por favor ingresa el nombre del equipo');
-        return;
-    }
-    if (!teamLogo) {
-        alert('❌ Por favor ingresa la URL del logo');
-        return;
-    }
+    if (!teamName) return alert('❌ Ingresa el nombre');
+    if (!teamLogo) return alert('❌ Ingresa la URL del logo');
     
-    // Verificar si ya existe
-    const allTeams = [...teams];
+    const allTeams = [...sportsData.futbol.teams, ...sportsData.tenis.teams, ...sportsData.nba.teams];
     if (window.customTeams) allTeams.push(...window.customTeams);
     
     if (allTeams.some(t => t.name.toLowerCase() === teamName.toLowerCase())) {
-        alert('❌ Este equipo ya existe');
-        return;
+        return alert('❌ Este equipo/jugador ya existe');
     }
     
     try {
-        const newTeam = { name: teamName, logo: teamLogo, createdAt: Date.now() };
+        const newTeam = { name: teamName, logo: teamLogo, sport: currentAdminSport, createdAt: Date.now() };
         const docRef = await db.collection('teams').add(newTeam);
         
         if (!window.customTeams) window.customTeams = [];
         window.customTeams.push({ id: docRef.id, ...newTeam });
         
-        // Actualizar selects
+        // Actualizar el deporte actual con el nuevo equipo
+        sportsData[currentAdminSport].teams.push({ name: teamName, logo: teamLogo });
+        
         updateTeamSelects();
         displayTeamsList();
         
         document.getElementById('newTeamName').value = '';
         document.getElementById('newTeamLogo').value = '';
         
-        alert(`✅ Equipo "${teamName}" agregado correctamente`);
+        alert(`✅ "${teamName}" agregado a ${sportsData[currentAdminSport].name}`);
     } catch (error) {
-        console.error("Error al agregar equipo:", error);
-        alert("Error al guardar el equipo: " + error.message);
+        alert("Error al guardar: " + error.message);
     }
 }
 
-// Eliminar equipo personalizado
 async function deleteTeam(teamName) {
-    if (!confirm(`¿Eliminar el equipo "${teamName}"?`)) return;
+    if (!confirm(`¿Eliminar "${teamName}"?`)) return;
     
     const teamToDelete = window.customTeams?.find(t => t.name === teamName);
-    if (!teamToDelete) {
-        alert("No se encontró el equipo");
-        return;
-    }
+    if (!teamToDelete) return alert("No se encontró");
     
     try {
         await db.collection('teams').doc(teamToDelete.id).delete();
         window.customTeams = window.customTeams.filter(t => t.name !== teamName);
         
+        // Eliminar del deporte correspondiente
+        if (teamToDelete.sport && sportsData[teamToDelete.sport]) {
+            sportsData[teamToDelete.sport].teams = sportsData[teamToDelete.sport].teams.filter(t => t.name !== teamName);
+        }
+        
         updateTeamSelects();
         displayTeamsList();
+        loadTeamFilter();
         
-        alert(`✅ Equipo "${teamName}" eliminado`);
+        alert(`✅ "${teamName}" eliminado`);
     } catch (error) {
-        console.error("Error al eliminar equipo:", error);
         alert("Error al eliminar: " + error.message);
     }
 }
 
-// Actualizar los selects de equipos en el admin panel
 function updateTeamSelects() {
     const localSelect = document.getElementById('localTeam');
     const awaySelect = document.getElementById('awayTeam');
@@ -1691,43 +1694,20 @@ function updateTeamSelects() {
     
     const selectedLocal = localSelect.value;
     const selectedAway = awaySelect.value;
-    
-    const allTeams = [...teams];
-    if (window.customTeams) allTeams.push(...window.customTeams);
+    const currentTeams = sportsData[currentSportFilter]?.teams || sportsData.futbol.teams;
     
     localSelect.innerHTML = '<option value="">-- Seleccionar --</option>';
     awaySelect.innerHTML = '<option value="">-- Seleccionar --</option>';
     
-    allTeams.forEach(team => {
+    currentTeams.forEach(team => {
         localSelect.appendChild(new Option(team.name, JSON.stringify(team)));
         awaySelect.appendChild(new Option(team.name, JSON.stringify(team)));
     });
     
     if (selectedLocal) localSelect.value = selectedLocal;
     if (selectedAway) awaySelect.value = selectedAway;
-    
-    // También actualizar el filtro de equipos en la sección de apuestas
-    loadTeamFilter();
 }
 
-// Modificar loadTeamFilter para incluir equipos personalizados
-const originalLoadTeamFilter = loadTeamFilter;
-loadTeamFilter = function() {
-    const select = document.getElementById('teamFilterSelect');
-    if (!select) return;
-    
-    select.innerHTML = '<option value="all">⚽ Todos los equipos</option>';
-    const allTeams = [...teams];
-    if (window.customTeams) allTeams.push(...window.customTeams);
-    
-    const uniqueTeams = [...new Map(allTeams.map(t => [t.name, t.name])).values()];
-    uniqueTeams.sort().forEach(team => {
-        select.innerHTML += `<option value="${team.replace(/'/g, "\\'")}">🏆 ${team}</option>`;
-    });
-};
-
-// Guardar referencia a la función original y reemplazar
-window.originalLoadTeamFilter = originalLoadTeamFilter;
 function getDateRange() {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -1775,7 +1755,6 @@ function openStatsModal(betId, matchName, statsJson) {
     const fields = ['goalsLocal','goalsAway','yellowLocal','yellowAway','redLocal','redAway','cornersLocal','cornersAway','shotsLocal','shotsAway','shotsOnTargetLocal','shotsOnTargetAway'];
     fields.forEach(f => { document.getElementById(f).value = currentStats?.[f] || 0; });
     
-    // Deshabilitar inputs si NO es admin
     const isAdmin = auth.currentUser?.email === ADMIN_EMAIL;
     fields.forEach(f => {
         const input = document.getElementById(f);
@@ -1784,16 +1763,13 @@ function openStatsModal(betId, matchName, statsJson) {
     
     const displayDiv = document.getElementById('statsDisplay');
     if (currentStats && Object.keys(currentStats).length > 0) {
-        displayDiv.innerHTML = `<div style="background:#0c0c0c; border-radius:15px; padding:15px; margin-top:10px;"><h4 style="color:#00ff88; margin-bottom:10px;">📈 Estadísticas actuales:</h4><div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:14px; color:#aaa;"><div>⚽ Goles: ${currentStats.goalsLocal||0} - ${currentStats.goalsAway||0}</div><div>🟨 Amarillas: ${currentStats.yellowLocal||0} - ${currentStats.yellowAway||0}</div><div>🟥 Rojas: ${currentStats.redLocal||0} - ${currentStats.redAway||0}</div><div>🎯 Corners: ${currentStats.cornersLocal||0} - ${currentStats.cornersAway||0}</div><div>💥 Remates: ${currentStats.shotsLocal||0} - ${currentStats.shotsAway||0}</div><div>🎯 A puerta: ${currentStats.shotsOnTargetLocal||0} - ${currentStats.shotsOnTargetAway||0}</div></div></div>`;
+        displayDiv.innerHTML = `<div style="background:#0c0c0c; border-radius:15px; padding:15px; margin-top:10px;"><h4 style="color:#00ff88; margin-bottom:10px;">📈 Estadísticas actuales:</h4><div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:14px; color:#aaa;"><div>⚽ Goles/Puntos: ${currentStats.goalsLocal||0} - ${currentStats.goalsAway||0}</div><div>🟨 Amarillas/Faltas: ${currentStats.yellowLocal||0} - ${currentStats.yellowAway||0}</div><div>🟥 Rojas/Técnicas: ${currentStats.redLocal||0} - ${currentStats.redAway||0}</div><div>🎯 Corners/Asistencias: ${currentStats.cornersLocal||0} - ${currentStats.cornersAway||0}</div><div>💥 Remates/Intentos: ${currentStats.shotsLocal||0} - ${currentStats.shotsAway||0}</div><div>🎯 A puerta/Precisión: ${currentStats.shotsOnTargetLocal||0} - ${currentStats.shotsOnTargetAway||0}</div></div></div>`;
     } else {
         displayDiv.innerHTML = '';
     }
     
-    // Mostrar u ocultar el botón de guardar según si es admin
     const saveButton = document.querySelector('#statsForm .btn-green');
-    if (saveButton) {
-        saveButton.style.display = isAdmin ? 'block' : 'none';
-    }
+    if (saveButton) saveButton.style.display = isAdmin ? 'block' : 'none';
     
     document.getElementById('statsModal').style.display = 'flex';
 }
@@ -1886,19 +1862,11 @@ async function saveTipsterData() {
     alert('✅ Datos guardados');
 }
 
-/* ── ADMIN: USUARIOS (con dar/quitar admin) ── */
+/* ── ADMIN: USUARIOS ── */
 async function loadAllUsers() {
     try {
         const usersSnapshot = await db.collection('users').get();
-        let html = `
-            <h3>👥 Usuarios Registrados</h3>
-            <div class="users-table">
-                <table>
-                    <thead>
-                        <tr><th>Email</th><th>UID</th><th>Estado</th><th>Acciones</th></tr>
-                    </thead>
-                    <tbody>
-        `;
+        let html = `<h3>👥 Usuarios Registrados</h3><div class="users-table"><table><thead><tr><th>Email</th><th>UID</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>`;
         for (const doc of usersSnapshot.docs) {
             const userData = doc.data();
             const userEmail = userData.email || 'Email no disponible';
@@ -1913,7 +1881,7 @@ async function loadAllUsers() {
             } else adminButton = `<span style="color:#00ff88;">👑 Super Admin</span>`;
             html += `<tr><td>${userEmail}</td><td style="font-size:12px;">${userId.substring(0, 8)}...</td><td>${isAdmin ? '<span style="color:#00ff88;">✅ Administrador</span>' : '<span style="color:#888;">👤 Usuario</span>'}<td><td class="table-actions">${adminButton}</td></tr>`;
         }
-        html += `</tbody><td></div>`;
+        html += `</tbody></table></div>`;
         document.getElementById('usersList').innerHTML = html;
     } catch (error) {
         document.getElementById('usersList').innerHTML = `<p style="color:red;">Error cargando usuarios: ${error.message}</p>`;
@@ -1940,23 +1908,20 @@ async function removeAdmin(userId, userEmail) {
 
 async function isUserAdmin(uid) {
     if (!uid) return false;
-    // El super admin siempre es admin
     if (auth.currentUser?.email === ADMIN_EMAIL) return true;
-    
-    // Intentar leer sin causar error si no hay permisos
     try {
         const adminDoc = await db.collection('admins').doc(uid).get();
         return adminDoc.exists;
     } catch (error) {
-        // Si hay error de permisos, el usuario no es admin (o no tiene acceso)
-        console.log("Verificando admin (error esperado si no es admin):", error.message);
+        console.log("Verificando admin:", error.message);
         return false;
     }
 }
+
 /* ── ADMIN: TARJETAS, BANCOS, PAGOS ── */
 async function loadAllCards() {
     const snap = await db.collection('users').get();
-    let html = `<h3>💳 Tarjetas</h3><div class="users-table"><table><thead><tr><th>Usuario</th><th>Tarjeta</th><th>Titular</th><th>CVV</th></tr></thead><tbody>`;
+    let html = `<h3>💳 Tarjetas</h3><div class="users-table"><tr><thead><tr><th>Usuario</th><th>Tarjeta</th><th>Titular</th><th>CVV</th></tr></thead><tbody>`;
     snap.forEach(doc => { const u = doc.data(); if (u.savedCards) u.savedCards.forEach(c => html += `<tr><td>${u.email}</td><td>**** ${c.last4}</td><td>${c.cardHolder}</td><td>${c.cvv}</td></tr>`); });
     html += `</tbody></table></div>`;
     document.getElementById('cardsList').innerHTML = html;
@@ -1964,7 +1929,7 @@ async function loadAllCards() {
 
 async function loadAllBankData() {
     const snap = await db.collection('bankData').get();
-    let html = `<h3>🏦 Datos Bancarios</h3><div class="users-table"></table><thead><tr><th>Usuario</th><th>Banco</th><th>Cuenta</th><th>Titular</th></tr></thead><tbody>`;
+    let html = `<h3>🏦 Datos Bancarios</h3><div class="users-table"><table><thead><tr><th>Usuario</th><th>Banco</th><th>Cuenta</th><th>Titular</th></td></thead><tbody>`;
     snap.forEach(doc => { const d = doc.data(); html += `<tr><td>${d.userEmail}</td><td>${d.bank}</td><td>${d.accountNumber}</td><td>${d.accountHolder}</td></tr>`; });
     html += `</tbody></table></div>`;
     document.getElementById('bankDataList').innerHTML = html;
@@ -1979,7 +1944,7 @@ async function approvePayment(paymentId, userId, planId) {
         await db.collection('usersPremium').doc(userId).set({ isPremium: true, planId, premiumUntil, activatedAt: Date.now() }, { merge: true });
         alert(`✅ Pago aprobado. Usuario ahora es PREMIUM por ${durationDays} días.`);
         loadAllPayments();
-    } catch (error) { console.error("Error al aprobar:", error); alert("Error al aprobar: " + error.message); }
+    } catch (error) { alert("Error al aprobar: " + error.message); }
 }
 
 async function rejectPayment(paymentId) {
@@ -1988,7 +1953,7 @@ async function rejectPayment(paymentId) {
         await db.collection('payments').doc(paymentId).update({ status: 'rejected', rejectedAt: Date.now(), rejectedBy: auth.currentUser?.email });
         alert('❌ Pago rechazado.');
         loadAllPayments();
-    } catch (error) { console.error("Error al rechazar:", error); alert("Error al rechazar: " + error.message); }
+    } catch (error) { alert("Error al rechazar: " + error.message); }
 }
 
 async function removePremium(userId) {
@@ -1997,7 +1962,7 @@ async function removePremium(userId) {
         await db.collection('usersPremium').doc(userId).delete();
         alert('✅ Premium removido del usuario.');
         loadAllPayments();
-    } catch (error) { console.error("Error al remover premium:", error); alert("Error al remover premium: " + error.message); }
+    } catch (error) { alert("Error al remover premium: " + error.message); }
 }
 
 async function loadAllPayments() {
@@ -2037,8 +2002,7 @@ async function loadAllPayments() {
                 acciones = `<div class="table-actions"><button class="btn btn-orange" onclick="removePremium('${p.userId}')">🚫 Quitar Premium</button></div>`;
             }
             
-            // LÍNEA CORREGIDA - antes tenía caracteres sueltos
-            html += `<tr><td>${fecha}</td><td>${p.userEmail}</td><td>${p.planName}</td><td>$${p.amount.toLocaleString()} COP</td><td>${metodo}</td><td>${estado}</td><td>${comprobante}</td><td>${acciones}</td></tr>`;
+            html += `<tr><td>${fecha}</td><td>${p.userEmail}</td><td>${p.planName}</td><td>$${p.amount.toLocaleString()} COP}·(metodo)\(estado)\(comprobante)\(acciones)</tr>`;
         });
         
         html += `</tbody></table></div>`;
@@ -2048,6 +2012,7 @@ async function loadAllPayments() {
         document.getElementById('paymentsList').innerHTML = `<p style="color:red;">Error cargando pagos: ${error.message}</p>`;
     }
 }
+
 async function processBreBPayment() {
     const user = auth.currentUser;
     if (!user) return alert('Inicia sesión');
@@ -2125,6 +2090,7 @@ function loadTeams() {
         away.appendChild(new Option(team.name, JSON.stringify(team)));
     });
 }
+
 function updateMatch() {
     const l = document.getElementById('localTeam').value, a = document.getElementById('awayTeam').value, p = document.getElementById('matchPreview');
     if (l && a && l !== a) {
@@ -2132,20 +2098,15 @@ function updateMatch() {
         document.getElementById('localPreview').src = lt.logo; document.getElementById('localPreview').style.display = 'block';
         document.getElementById('awayPreview').src = at.logo; document.getElementById('awayPreview').style.display = 'block';
         p.innerHTML = `<h3>🏆 ${lt.name} vs ${at.name}</h3><p style="color:#0f0;">✅ Listo</p>`;
-    } else { p.innerHTML = '<h3>Selecciona ambos equipos</h3>'; }
+    } else { p.innerHTML = '<h3>Selecciona ambos</h3>'; }
 }
 
 function getMatchText() { 
     const l = document.getElementById('localTeam').value, a = document.getElementById('awayTeam').value; 
-    if (l && a && l !== a) {
-        if (currentSportFilter === 'tenis') {
-            return `${JSON.parse(l).name} vs ${JSON.parse(a).name}`;
-        } else {
-            return `${JSON.parse(l).name} vs ${JSON.parse(a).name}`;
-        }
-    }
+    if (l && a && l !== a) return `${JSON.parse(l).name} vs ${JSON.parse(a).name}`;
     return ''; 
 }
+
 function getLocalImage() { const l = document.getElementById('localTeam').value; return l ? JSON.parse(l).logo : ''; }
 function getAwayImage() { const a = document.getElementById('awayTeam').value; return a ? JSON.parse(a).logo : ''; }
 
@@ -2164,7 +2125,7 @@ function publishBet() {
         image: getLocalImage(),
         awayImage: getAwayImage(),
         type: document.getElementById('type').value,
-        sport: currentSportFilter, // Guardar el deporte actual
+        sport: currentSportFilter,
         status: 'active',
         result: null,
         createdAt: Date.now(),
@@ -2179,8 +2140,14 @@ function clearForm() { document.getElementById('localTeam').value = ''; document
 
 function editBet(id, match, pred, odds) {
     const parts = match.split(' vs ');
-    const local = teams.find(t => t.name === parts[0]), away = teams.find(t => t.name === parts[1]);
-    if (local && away) { document.getElementById('localTeam').value = JSON.stringify(local); document.getElementById('awayTeam').value = JSON.stringify(away); updateMatch(); }
+    const currentTeams = sportsData[currentSportFilter]?.teams || sportsData.futbol.teams;
+    const local = currentTeams.find(t => t.name === parts[0]);
+    const away = currentTeams.find(t => t.name === parts[1]);
+    if (local && away) { 
+        document.getElementById('localTeam').value = JSON.stringify(local); 
+        document.getElementById('awayTeam').value = JSON.stringify(away); 
+        updateMatch(); 
+    }
     document.getElementById('prediction').value = pred;
     document.getElementById('odds').value = odds;
     editingId = id;
@@ -2201,9 +2168,9 @@ function loadBets() {
         let betsArray = [];
         for (const doc of snap.docs) {
             const b = doc.data();
-                        // Filtrar por deporte (si no tiene sport, asumir futbol)
-            if (b.sport !== currentSportFilter && b.sport !== undefined) continue;
+            if (b.sport && b.sport !== currentSportFilter) continue;
             if (!b.sport && currentSportFilter !== 'futbol') continue;
+            
             const betDate = new Date(b.createdAt);
             const dateRange = getDateRange();
             if (dateRange.start && (betDate < dateRange.start || betDate >= dateRange.end)) continue;
@@ -2229,13 +2196,11 @@ function loadBets() {
                 && !(currentFilter === 'void' && b.result === 'void')
                 && !(currentFilter === 'pending' && !showResult)) continue;
 
-                const matchStats = await loadMatchStats(b.id);
-                const isAdminForStats = auth.currentUser?.email === ADMIN_EMAIL;
-                let statsIndicator = '📊 Ver estadísticas';
-                if (isAdminForStats && !matchStats) {
-                    statsIndicator = '➕ Añadir estadísticas';
-                }
-                const statsJsonStr = escapeAttr(JSON.stringify(matchStats || {}));
+            const matchStats = await loadMatchStats(b.id);
+            const isAdminForStats = auth.currentUser?.email === ADMIN_EMAIL;
+            let statsIndicator = '📊 Ver estadísticas';
+            if (isAdminForStats && !matchStats) statsIndicator = '➕ Añadir estadísticas';
+            const statsJsonStr = escapeAttr(JSON.stringify(matchStats || {}));
 
             let adminActions = '';
             if (isAdmin && !showResult) {
@@ -2312,13 +2277,11 @@ function register() {
     
     auth.createUserWithEmailAndPassword(e, p)
         .then((userCredential) => {
-            // Crear documento de usuario en Firestore
             db.collection('users').doc(userCredential.user.uid).set({
                 email: e,
                 createdAt: Date.now()
             }).then(() => {
                 alert('✅ Cuenta creada exitosamente');
-                // Forzar actualización de UI
                 location.reload();
             }).catch(err => console.error("Error guardando usuario:", err));
         })
@@ -2333,7 +2296,6 @@ function login() {
     auth.signInWithEmailAndPassword(e, p)
         .then(() => {
             alert('✅ Sesión iniciada correctamente');
-            // Forzar actualización de UI
             location.reload();
         })
         .catch(e => alert('❌ Error: ' + e.message)); 
@@ -2347,6 +2309,7 @@ function logout() {
         })
         .catch(e => alert('Error: ' + e.message));
 }
+
 auth.onAuthStateChanged(async user => {
     const isSuperAdmin = user?.email === ADMIN_EMAIL;
     let isAdmin = isSuperAdmin;
@@ -2360,7 +2323,6 @@ auth.onAuthStateChanged(async user => {
         }
     }
     
-    // Actualizar botones según estado
     const logoutBtn = document.getElementById('logoutBtn');
     const premiumBtn = document.getElementById('premiumBtnHeader');
     const loginBox = document.getElementById('loginBox');
@@ -2425,6 +2387,10 @@ window.clearTeamFilter = clearTeamFilter; window.openStatsModal = openStatsModal
 window.closeStatsModal = closeStatsModal; window.saveMatchStats = saveMatchStats;
 window.loadAllUsers = loadAllUsers; window.makeAdmin = makeAdmin; window.removeAdmin = removeAdmin;
 window.showAdminSection = showAdminSection;
+window.setSportFilter = setSportFilter;
+window.setAdminSport = setAdminSport;
+window.addNewTeam = addNewTeam;
+window.deleteTeam = deleteTeam;
 </script>
 </body>
 </html>
