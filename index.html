@@ -1228,28 +1228,29 @@ footer {
     <button class="btn btn-green" onclick="publishBet()">Publicar Apuesta</button>
     
     <!-- Gestión de Equipos -->
-    <div class="teams-management">
-        <h4>⚽ Gestión de Equipos</h4>
-        <div class="team-input-group">
-            <input type="text" id="newTeamName" placeholder="Nombre del equipo/jugador">
-            <input type="text" id="newTeamLogo" placeholder="URL del logo">
-            <button class="btn btn-green" onclick="addNewTeam()">➕ Agregar</button>
-        </div>
-        <div id="existingTeamsList" class="existing-teams"></div>
+    <!-- Gestión por Deporte (AHORA PRIMERO) -->
+<div class="admin-sport-selector">
+    <h4>🏆 1. SELECCIONAR DEPORTE PARA GESTIONAR</h4>
+    <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+        <button class="btn btn-blue" id="adminSportFutbol" onclick="setAdminSport('futbol')" style="background:#00ff88; color:black;">⚽ FÚTBOL (Activo)</button>
+        <button class="btn btn-blue" id="adminSportTenis" onclick="setAdminSport('tenis')">🎾 TENIS</button>
+        <button class="btn btn-blue" id="adminSportNBA" onclick="setAdminSport('nba')">🏀 NBA</button>
     </div>
-    
-    <!-- Gestión por Deporte -->
-    <div class="admin-sport-selector">
-        <h4>🏆 Seleccionar Deporte para Gestión</h4>
-        <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
-            <button class="btn btn-blue" onclick="setAdminSport('futbol')">⚽ Fútbol</button>
-            <button class="btn btn-blue" onclick="setAdminSport('tenis')">🎾 Tenis</button>
-            <button class="btn btn-blue" onclick="setAdminSport('nba')">🏀 NBA</button>
-        </div>
-        <div id="adminSportInfo" style="color:#00ff88; font-size:14px;"></div>
-    </div>
+    <div id="adminSportInfo" style="color:#00ff88; font-size:14px; background:#0a0a0a; padding:10px; border-radius:10px; margin-bottom:15px;"></div>
 </div>
 
+<!-- Gestión de Equipos (AHORA DESPUÉS) -->
+<div class="teams-management">
+    <h4 id="teamsManagementTitle">⚽ AGREGAR NUEVO EQUIPO/JUGADOR A FÚTBOL</h4>
+    <div class="team-input-group">
+        <input type="text" id="newTeamName" placeholder="Nombre del equipo/jugador (ej: Real Betis / Carlos Alcaraz)">
+        <input type="text" id="newTeamLogo" placeholder="URL del logo/imagen (ej: https://...png)">
+        <button class="btn btn-green" onclick="addNewTeam()">➕ AGREGAR</button>
+    </div>
+    <div id="existingTeamsList" class="existing-teams">
+        <h5 style="color:#aaa; margin-bottom:10px;">📋 Equipos/Jugadores del deporte seleccionado:</h5>
+    </div>
+</div>
 <section class="section">
     <h2 class="section-title">⚽ Apuestas de Fútbol</h2>
     
@@ -1545,8 +1546,66 @@ function setSportFilter(sport, ev) {
 
 function setAdminSport(sport) {
     currentAdminSport = sport;
-    document.getElementById('adminSportInfo').innerHTML = `📌 Gestionando: ${sportsData[sport].name} - Puedes agregar equipos/jugadores de este deporte`;
+    
+    // Actualizar estilos de botones
+    document.getElementById('adminSportFutbol').style.background = '#0c0c0c';
+    document.getElementById('adminSportFutbol').style.color = 'white';
+    document.getElementById('adminSportTenis').style.background = '#0c0c0c';
+    document.getElementById('adminSportTenis').style.color = 'white';
+    document.getElementById('adminSportNBA').style.background = '#0c0c0c';
+    document.getElementById('adminSportNBA').style.color = 'white';
+    
+    if (sport === 'futbol') {
+        document.getElementById('adminSportFutbol').style.background = '#00ff88';
+        document.getElementById('adminSportFutbol').style.color = 'black';
+        document.getElementById('teamsManagementTitle').innerHTML = '⚽ AGREGAR NUEVO EQUIPO DE FÚTBOL';
+        document.getElementById('adminSportInfo').innerHTML = '📌 ACTUALMENTE GESTIONANDO: <strong style="color:#00ff88;">FÚTBOL</strong> - Los equipos que agregues se guardarán en esta categoría';
+    } else if (sport === 'tenis') {
+        document.getElementById('adminSportTenis').style.background = '#00ff88';
+        document.getElementById('adminSportTenis').style.color = 'black';
+        document.getElementById('teamsManagementTitle').innerHTML = '🎾 AGREGAR NUEVO JUGADOR DE TENIS';
+        document.getElementById('adminSportInfo').innerHTML = '📌 ACTUALMENTE GESTIONANDO: <strong style="color:#00ff88;">TENIS</strong> - Los jugadores que agregues se guardarán en esta categoría';
+    } else if (sport === 'nba') {
+        document.getElementById('adminSportNBA').style.background = '#00ff88';
+        document.getElementById('adminSportNBA').style.color = 'black';
+        document.getElementById('teamsManagementTitle').innerHTML = '🏀 AGREGAR NUEVO EQUIPO DE NBA';
+        document.getElementById('adminSportInfo').innerHTML = '📌 ACTUALMENTE GESTIONANDO: <strong style="color:#00ff88;">NBA</strong> - Los equipos que agregues se guardarán en esta categoría';
+    }
+    
+    // Mostrar solo los equipos del deporte seleccionado
+    displayTeamsListBySport();
+    
+    // Actualizar selects
     loadTeams();
+    loadTeamFilter();
+}
+function displayTeamsListBySport() {
+    const container = document.getElementById('existingTeamsList');
+    if (!container) return;
+    
+    // Obtener equipos del deporte seleccionado
+    const currentSportTeams = sportsData[currentAdminSport]?.teams || sportsData.futbol.teams;
+    
+    let html = `<h5 style="color:#aaa; margin-bottom:10px;">📋 Equipos/Jugadores de ${sportsData[currentAdminSport].name}:</h5>`;
+    
+    if (currentSportTeams.length === 0) {
+        html += '<p style="color:#888;">No hay equipos/jugadores en esta categoría. ¡Agrega uno!</p>';
+    } else {
+        currentSportTeams.forEach(team => {
+            const isCustom = customTeams?.some(ct => ct.name === team.name);
+            html += `
+                <div class="team-item">
+                    <div class="team-info">
+                        <span class="team-name">🏆 ${team.name}</span>
+                        <span class="team-logo-url">${team.logo.substring(0, 50)}...</span>
+                    </div>
+                    ${isCustom ? `<button class="delete-team" onclick="deleteTeam('${team.name.replace(/'/g, "\\'")}')">🗑️ Eliminar</button>` : '<span style="color:#666; font-size:11px;">🔒 Predefinido</span>'}
+                </div>
+            `;
+        });
+    }
+    
+    container.innerHTML = html;
 }
 
 /* ── FILTROS ── */
@@ -1600,10 +1659,10 @@ async function loadTeamsFromFirestore() {
     } catch (error) {
         console.error("Error cargando equipos:", error);
     }
-    displayTeamsList();
+    displayTeamsListBySport();
 }
 
-function displayTeamsList() {
+function displayTeamsListBySport() {
     const container = document.getElementById('existingTeamsList');
     if (!container) return;
     
