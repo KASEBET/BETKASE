@@ -228,6 +228,50 @@ header {
     text-align: center;
 }
 
+/* Filtros de fecha y equipo */
+.date-filters {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.date-btn {
+    padding: 10px 25px;
+    background: #0c0c0c;
+    border: 1px solid #333;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: .3s;
+    color: white;
+    font-weight: bold;
+}
+
+.date-btn.active {
+    background: #00ff88;
+    color: black;
+    border-color: #00ff88;
+}
+
+.team-filter {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.team-filter select {
+    padding: 12px 25px;
+    background: #0c0c0c;
+    border: 1px solid #333;
+    border-radius: 30px;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+}
+
 .tabs {
     display: flex;
     gap: 10px;
@@ -271,6 +315,7 @@ header {
     transition: .3s;
     position: relative;
     overflow: hidden;
+    cursor: pointer;
 }
 
 .bet-card:hover {
@@ -639,7 +684,7 @@ header {
     color: #00ff88;
 }
 
-.modal {
+.modal, .stats-modal {
     display: none;
     position: fixed;
     top: 0;
@@ -652,7 +697,7 @@ header {
     align-items: center;
 }
 
-.modal-content {
+.modal-content, .stats-content {
     background: linear-gradient(145deg, #111, #191919);
     padding: 40px;
     border-radius: 30px;
@@ -663,7 +708,7 @@ header {
     border: 1px solid #00ff88;
 }
 
-.modal-content h3 {
+.modal-content h3, .stats-content h3 {
     font-size: 28px;
     margin-bottom: 20px;
     text-align: center;
@@ -721,6 +766,63 @@ header {
     border-radius: 15px;
     margin-top: 20px;
     text-align: center;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.stat-item {
+    background: #0c0c0c;
+    padding: 15px;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.stat-item label {
+    display: block;
+    color: #00ff88;
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
+.stat-item input {
+    width: 100%;
+    padding: 10px;
+    background: #050505;
+    border: 1px solid #333;
+    border-radius: 10px;
+    color: white;
+    text-align: center;
+}
+
+.stats-summary {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    padding: 20px;
+    border-radius: 20px;
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.summary-item {
+    text-align: center;
+}
+
+.summary-item .value {
+    font-size: 28px;
+    font-weight: bold;
+    color: #00ff88;
+}
+
+.summary-item .label {
+    font-size: 12px;
+    color: #888;
 }
 
 footer {
@@ -961,6 +1063,30 @@ footer {
 
 <section class="section">
     <h2 class="section-title">⚽ Historial de Apuestas</h2>
+    
+    <!-- Filtros por fecha -->
+    <div class="date-filters">
+        <button class="date-btn active" onclick="setDateFilter('today')">📅 Hoy</button>
+        <button class="date-btn" onclick="setDateFilter('yesterday')">📆 Ayer</button>
+        <button class="date-btn" onclick="setDateFilter('week')">📊 Esta Semana</button>
+        <button class="date-btn" onclick="setDateFilter('month')">📈 Este Mes</button>
+        <button class="date-btn" onclick="setDateFilter('all')">🎯 Todas</button>
+    </div>
+    
+    <!-- Filtro por equipo -->
+    <div class="team-filter">
+        <select id="teamFilterSelect" onchange="setTeamFilter()">
+            <option value="all">⚽ Todos los equipos</option>
+        </select>
+        <button class="btn btn-green" onclick="clearTeamFilter()" style="padding: 8px 20px;">🗑️ Limpiar filtro</button>
+    </div>
+    
+    <!-- Panel de estadísticas -->
+    <div id="statsPanel" style="background: linear-gradient(145deg, #0a0a0a, #0c0c0c); border-radius: 25px; padding: 20px; margin-bottom: 30px; border: 1px solid #00ff88;">
+        <h3 style="text-align: center; margin-bottom: 20px;">📊 Estadísticas de Apuestas</h3>
+        <div id="statsSummary" class="stats-summary"></div>
+    </div>
+    
     <div class="tabs">
         <button class="tab-btn active" onclick="filterBets('all')">📋 Todas</button>
         <button class="tab-btn" onclick="filterBets('win')">🏆 Ganadas</button>
@@ -970,6 +1096,32 @@ footer {
     </div>
     <div class="bets" id="bets">Cargando...</div>
 </section>
+
+<!-- Modal de estadísticas del partido -->
+<div id="statsModal" class="stats-modal">
+    <div class="stats-content">
+        <h3 id="statsModalTitle">📊 Estadísticas del Partido</h3>
+        <div id="statsForm">
+            <div class="stats-grid">
+                <div class="stat-item"><label>⚽ Goles Local</label><input type="number" id="goalsLocal" value="0" min="0"></div>
+                <div class="stat-item"><label>⚽ Goles Visitante</label><input type="number" id="goalsAway" value="0" min="0"></div>
+                <div class="stat-item"><label>🟨 Amarillas Local</label><input type="number" id="yellowLocal" value="0" min="0"></div>
+                <div class="stat-item"><label>🟨 Amarillas Visitante</label><input type="number" id="yellowAway" value="0" min="0"></div>
+                <div class="stat-item"><label>🟥 Rojas Local</label><input type="number" id="redLocal" value="0" min="0"></div>
+                <div class="stat-item"><label>🟥 Rojas Visitante</label><input type="number" id="redAway" value="0" min="0"></div>
+                <div class="stat-item"><label>🎯 Corners Local</label><input type="number" id="cornersLocal" value="0" min="0"></div>
+                <div class="stat-item"><label>🎯 Corners Visitante</label><input type="number" id="cornersAway" value="0" min="0"></div>
+                <div class="stat-item"><label>💥 Remates Local</label><input type="number" id="shotsLocal" value="0" min="0"></div>
+                <div class="stat-item"><label>💥 Remates Visitante</label><input type="number" id="shotsAway" value="0" min="0"></div>
+                <div class="stat-item"><label>🎯 Remates a Puerta Local</label><input type="number" id="shotsOnTargetLocal" value="0" min="0"></div>
+                <div class="stat-item"><label>🎯 Remates a Puerta Visitante</label><input type="number" id="shotsOnTargetAway" value="0" min="0"></div>
+            </div>
+            <button class="btn-green payment-btn" onclick="saveMatchStats()">💾 Guardar Estadísticas</button>
+        </div>
+        <div id="statsDisplay" style="margin-top: 20px;"></div>
+        <button class="close-modal" onclick="closeStatsModal()">Cerrar</button>
+    </div>
+</div>
 
 <div id="paymentModal" class="modal">
     <div class="modal-content">
@@ -1119,29 +1271,176 @@ let selectedCardId = null;
 let betsUnsubscribe = null;
 let editingId = null;
 let currentFilter = 'all';
+let currentDateFilter = 'today';
+let currentTeamFilter = 'all';
+let currentBetIdForStats = null;
 let brebImageBase64 = null;
 let transferImageBase64 = null;
-
-// Variable para controlar qué tabla está visible
 let currentOpenTable = null;
+
+// Función para obtener el rango de fechas según el filtro
+function getDateRange() {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    switch(currentDateFilter) {
+        case 'today':
+            return { start: today, end: new Date(today.getTime() + 86400000) };
+        case 'yesterday':
+            const yesterday = new Date(today.getTime() - 86400000);
+            return { start: yesterday, end: today };
+        case 'week':
+            const weekStart = new Date(today);
+            weekStart.setDate(today.getDate() - today.getDay());
+            return { start: weekStart, end: new Date(today.getTime() + 86400000) };
+        case 'month':
+            const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+            return { start: monthStart, end: new Date(today.getTime() + 86400000) };
+        default:
+            return { start: null, end: null };
+    }
+}
+
+function setDateFilter(filter) {
+    currentDateFilter = filter;
+    document.querySelectorAll('.date-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    loadBets();
+}
+
+function setTeamFilter() {
+    currentTeamFilter = document.getElementById('teamFilterSelect').value;
+    loadBets();
+}
+
+function clearTeamFilter() {
+    currentTeamFilter = 'all';
+    document.getElementById('teamFilterSelect').value = 'all';
+    loadBets();
+}
+
+// Cargar equipos en el filtro
+function loadTeamFilter() {
+    const select = document.getElementById('teamFilterSelect');
+    select.innerHTML = '<option value="all">⚽ Todos los equipos</option>';
+    const uniqueTeams = [...new Set(teams.map(t => t.name))];
+    uniqueTeams.sort().forEach(team => {
+        select.innerHTML += `<option value="${team}">🏆 ${team}</option>`;
+    });
+}
+
+// Abrir modal de estadísticas
+function openStatsModal(betId, matchName, currentStats) {
+    currentBetIdForStats = betId;
+    document.getElementById('statsModalTitle').innerHTML = `📊 ${matchName}`;
+    
+    // Limpiar formulario
+    const fields = ['goalsLocal', 'goalsAway', 'yellowLocal', 'yellowAway', 'redLocal', 'redAway', 'cornersLocal', 'cornersAway', 'shotsLocal', 'shotsAway', 'shotsOnTargetLocal', 'shotsOnTargetAway'];
+    fields.forEach(field => {
+        document.getElementById(field).value = currentStats?.[field] || 0;
+    });
+    
+    // Mostrar estadísticas guardadas si existen
+    if (currentStats) {
+        const displayDiv = document.getElementById('statsDisplay');
+        displayDiv.innerHTML = `
+            <div style="background: #0c0c0c; border-radius: 15px; padding: 15px; margin-top: 10px;">
+                <h4 style="color: #00ff88; margin-bottom: 10px;">📈 Estadísticas del Partido:</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>⚽ Goles: ${currentStats.goalsLocal || 0} - ${currentStats.goalsAway || 0}</div>
+                    <div>🟨 Amarillas: ${currentStats.yellowLocal || 0} - ${currentStats.yellowAway || 0}</div>
+                    <div>🟥 Rojas: ${currentStats.redLocal || 0} - ${currentStats.redAway || 0}</div>
+                    <div>🎯 Corners: ${currentStats.cornersLocal || 0} - ${currentStats.cornersAway || 0}</div>
+                    <div>💥 Remates: ${currentStats.shotsLocal || 0} - ${currentStats.shotsAway || 0}</div>
+                    <div>🎯 Remates a Puerta: ${currentStats.shotsOnTargetLocal || 0} - ${currentStats.shotsOnTargetAway || 0}</div>
+                </div>
+            </div>
+        `;
+    } else {
+        document.getElementById('statsDisplay').innerHTML = '';
+    }
+    
+    document.getElementById('statsModal').style.display = 'flex';
+}
+
+function closeStatsModal() {
+    document.getElementById('statsModal').style.display = 'none';
+    currentBetIdForStats = null;
+}
+
+async function saveMatchStats() {
+    if (!currentBetIdForStats) return;
+    
+    const stats = {
+        goalsLocal: parseInt(document.getElementById('goalsLocal').value) || 0,
+        goalsAway: parseInt(document.getElementById('goalsAway').value) || 0,
+        yellowLocal: parseInt(document.getElementById('yellowLocal').value) || 0,
+        yellowAway: parseInt(document.getElementById('yellowAway').value) || 0,
+        redLocal: parseInt(document.getElementById('redLocal').value) || 0,
+        redAway: parseInt(document.getElementById('redAway').value) || 0,
+        cornersLocal: parseInt(document.getElementById('cornersLocal').value) || 0,
+        cornersAway: parseInt(document.getElementById('cornersAway').value) || 0,
+        shotsLocal: parseInt(document.getElementById('shotsLocal').value) || 0,
+        shotsAway: parseInt(document.getElementById('shotsAway').value) || 0,
+        shotsOnTargetLocal: parseInt(document.getElementById('shotsOnTargetLocal').value) || 0,
+        shotsOnTargetAway: parseInt(document.getElementById('shotsOnTargetAway').value) || 0,
+        updatedAt: Date.now()
+    };
+    
+    await db.collection('matchStats').doc(currentBetIdForStats).set(stats, { merge: true });
+    alert('✅ Estadísticas guardadas correctamente');
+    closeStatsModal();
+    loadBets();
+}
+
+async function loadMatchStats(betId) {
+    const doc = await db.collection('matchStats').doc(betId).get();
+    return doc.exists ? doc.data() : null;
+}
+
+// Calcular estadísticas generales
+function calculateGeneralStats(bets) {
+    let total = 0, won = 0, lost = 0, voided = 0, pending = 0;
+    let totalOdds = 0;
+    
+    bets.forEach(bet => {
+        total++;
+        if (bet.result === 'win') { won++; totalOdds += parseFloat(bet.odds) || 0; }
+        else if (bet.result === 'loss') lost++;
+        else if (bet.result === 'void') voided++;
+        else pending++;
+    });
+    
+    const winRate = total > 0 ? ((won / (won + lost)) * 100).toFixed(1) : 0;
+    const avgOdds = won > 0 ? (totalOdds / won).toFixed(2) : 0;
+    
+    return { total, won, lost, voided, pending, winRate, avgOdds };
+}
+
+function updateStatsPanel(bets) {
+    const stats = calculateGeneralStats(bets);
+    const panel = document.getElementById('statsSummary');
+    panel.innerHTML = `
+        <div class="summary-item"><div class="value">${stats.total}</div><div class="label">Total Apuestas</div></div>
+        <div class="summary-item"><div class="value" style="color:#00ff88;">${stats.won}</div><div class="label">🏆 Ganadas</div></div>
+        <div class="summary-item"><div class="value" style="color:#ff4444;">${stats.lost}</div><div class="label">❌ Perdidas</div></div>
+        <div class="summary-item"><div class="value" style="color:#ff8800;">${stats.voided}</div><div class="label">⚠️ Anuladas</div></div>
+        <div class="summary-item"><div class="value">${stats.winRate}%</div><div class="label">📈 Win Rate</div></div>
+        <div class="summary-item"><div class="value">${stats.avgOdds}</div><div class="label">💰 Avg Odds</div></div>
+    `;
+}
 
 function toggleTable(tableId) {
     const tables = ['usersTable', 'cardsTable', 'bankDataTable', 'paymentsTable'];
     
     if (currentOpenTable === tableId) {
-        // Si la misma tabla, la ocultamos
         document.getElementById(tableId).style.display = 'none';
         currentOpenTable = null;
     } else {
-        // Ocultamos todas
-        tables.forEach(id => {
-            document.getElementById(id).style.display = 'none';
-        });
-        // Mostramos la seleccionada y cargamos datos
+        tables.forEach(id => { document.getElementById(id).style.display = 'none'; });
         document.getElementById(tableId).style.display = 'block';
         currentOpenTable = tableId;
         
-        // Cargar datos según la tabla
         if (tableId === 'usersTable') loadAllUsers();
         if (tableId === 'cardsTable') loadAllCards();
         if (tableId === 'bankDataTable') loadAllBankData();
@@ -1160,27 +1459,19 @@ function previewImage(input, previewId) {
     const preview = document.getElementById(previewId);
     if (input.files && input.files[0]) {
         const file = input.files[0];
-        
         if (file.size > 1048576) {
-            alert('La imagen es demasiado grande (máx 1MB). Por favor, comprime la imagen.');
+            alert('La imagen es demasiado grande (máx 1MB).');
             input.value = '';
             preview.innerHTML = '';
             return;
         }
-        
         const reader = new FileReader();
         reader.onload = function(e) {
             preview.innerHTML = '<img src="' + e.target.result + '" style="max-width:150px; max-height:80px; border-radius:10px; border:2px solid #00ff88; margin-top:10px;">';
-            if (previewId === 'brebPreview') {
-                brebImageBase64 = e.target.result;
-            } else if (previewId === 'transferPreview') {
-                transferImageBase64 = e.target.result;
-            }
+            if (previewId === 'brebPreview') brebImageBase64 = e.target.result;
+            else if (previewId === 'transferPreview') transferImageBase64 = e.target.result;
         };
-        reader.onerror = function() {
-            alert('Error al leer el archivo. Intenta con otra imagen.');
-            input.value = '';
-        };
+        reader.onerror = function() { alert('Error al leer el archivo.'); input.value = ''; };
         reader.readAsDataURL(file);
     }
 }
@@ -1198,6 +1489,7 @@ async function saveCard() {
     alert('✅ Tarjeta guardada');
     loadSavedCards();
 }
+
 async function loadSavedCards() {
     const user = auth.currentUser;
     if (!user) return;
@@ -1208,6 +1500,7 @@ async function loadSavedCards() {
     if (cards.length === 0) container.innerHTML = '<p>No hay tarjetas guardadas</p>';
     else container.innerHTML = cards.map(c => `<div class="saved-card"><div class="card-info"><span>${c.brand}</span><span>**** ${c.last4}</span><span>${c.cardHolder}</span><span>Exp: ${c.expiry}</span></div><button class="delete-card" onclick="deleteCard('${c.id}')">Eliminar</button></div>`).join('');
 }
+
 async function deleteCard(cardId) { if (!confirm('¿Eliminar?')) return; const user = auth.currentUser; const doc = await db.collection('users').doc(user.uid).get(); let cards = doc.data().savedCards || []; cards = cards.filter(c => c.id !== cardId); await db.collection('users').doc(user.uid).update({ savedCards: cards }); loadSavedCards(); }
 
 async function saveTipsterData() {
@@ -1219,105 +1512,52 @@ async function saveTipsterData() {
     alert('✅ Datos guardados');
 }
 
-// NUEVA FUNCIÓN: Cargar todos los usuarios con opción de dar/quitar admin
 async function loadAllUsers() {
     try {
         const usersSnapshot = await db.collection('users').get();
-        let html = `
-            <h3>👥 Usuarios Registrados</h3>
-            <div class="users-table" style="display:block;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Email</th>
-                            <th>UID</th>
-                            <th>Fecha Registro</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-        `;
-        
+        let html = `<h3>👥 Usuarios Registrados</h3><div class="users-table" style="display:block;"><table><thead><tr><th>Email</th><th>UID</th><th>Fecha Registro</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>`;
         for (const doc of usersSnapshot.docs) {
             const userData = doc.data();
             const userEmail = userData.email || 'Email no disponible';
             const userId = doc.id;
-            
-            // Verificar si el usuario es admin en la colección admins
             const adminDoc = await db.collection('admins').doc(userId).get();
             const isAdmin = adminDoc.exists;
-            
-            // No mostrar el botón para el propio admin principal
             const showAdminButton = userEmail !== ADMIN_EMAIL;
-            
             let adminButton = '';
             if (showAdminButton) {
-                if (isAdmin) {
-                    adminButton = `<button class="btn btn-orange" onclick="removeAdmin('${userId}', '${userEmail.replace(/'/g, "\\'")}')">🔽 Quitar Admin</button>`;
-                } else {
-                    adminButton = `<button class="btn btn-purple" onclick="makeAdmin('${userId}', '${userEmail.replace(/'/g, "\\'")}')">👑 Dar Admin</button>`;
-                }
-            } else {
-                adminButton = `<span style="color:#00ff88;">👑 Super Admin</span>`;
-            }
-            
-            html += `
-                <tr>
-                    <td>${userEmail}</td>
-                    <td style="font-size:12px;">${userId.substring(0, 8)}...</td>
-                    <td>${userData.createdAt ? new Date(userData.createdAt).toLocaleDateString() : 'No disponible'}</td>
-                    <td>${isAdmin ? '<span style="color:#00ff88;">✅ Administrador</span>' : '<span style="color:#888;">👤 Usuario</span>'}</td>
-                    <td><div class="table-actions">${adminButton}</div></td>
-                </tr>
-            `;
+                if (isAdmin) adminButton = `<button class="btn btn-orange" onclick="removeAdmin('${userId}', '${userEmail.replace(/'/g, "\\'")}')">🔽 Quitar Admin</button>`;
+                else adminButton = `<button class="btn btn-purple" onclick="makeAdmin('${userId}', '${userEmail.replace(/'/g, "\\'")}')">👑 Dar Admin</button>`;
+            } else adminButton = `<span style="color:#00ff88;">👑 Super Admin</span>`;
+            html += `<tr><td>${userEmail}</td><td style="font-size:12px;">${userId.substring(0, 8)}...</td><td>${userData.createdAt ? new Date(userData.createdAt).toLocaleDateString() : 'No disponible'}</td><td>${isAdmin ? '<span style="color:#00ff88;">✅ Administrador</span>' : '<span style="color:#888;">👤 Usuario</span>'}</td><td><div class="table-actions">${adminButton}</div></td></tr>`;
         }
-        
         html += `</tbody></table></div>`;
         document.getElementById('usersTable').innerHTML = html;
         document.getElementById('usersTable').style.display = 'block';
     } catch (error) {
-        console.error("Error cargando usuarios:", error);
         document.getElementById('usersTable').innerHTML = `<p style="color:red;">Error cargando usuarios: ${error.message}</p>`;
     }
 }
 
-// Función para dar permisos de admin
 async function makeAdmin(userId, userEmail) {
     if (!confirm(`¿Dar permisos de administrador a ${userEmail}?`)) return;
     try {
-        await db.collection('admins').doc(userId).set({
-            email: userEmail,
-            grantedBy: auth.currentUser?.email,
-            grantedAt: Date.now(),
-            isAdmin: true
-        });
+        await db.collection('admins').doc(userId).set({ email: userEmail, grantedBy: auth.currentUser?.email, grantedAt: Date.now(), isAdmin: true });
         alert(`✅ ${userEmail} ahora es administrador.`);
-        loadAllUsers(); // Recargar la tabla
-        // Si la tabla de pagos está abierta, recargarla también
+        loadAllUsers();
         if (currentOpenTable === 'paymentsTable') loadAllPayments();
-    } catch (error) {
-        console.error("Error al dar admin:", error);
-        alert("Error: " + error.message);
-    }
+    } catch (error) { alert("Error: " + error.message); }
 }
 
-// Función para quitar permisos de admin
 async function removeAdmin(userId, userEmail) {
     if (!confirm(`¿Quitar permisos de administrador a ${userEmail}?`)) return;
     try {
         await db.collection('admins').doc(userId).delete();
         alert(`✅ ${userEmail} ya no es administrador.`);
-        loadAllUsers(); // Recargar la tabla
-        // Si la tabla de pagos está abierta, recargarla también
+        loadAllUsers();
         if (currentOpenTable === 'paymentsTable') loadAllPayments();
-    } catch (error) {
-        console.error("Error al quitar admin:", error);
-        alert("Error: " + error.message);
-    }
+    } catch (error) { alert("Error: " + error.message); }
 }
 
-// Función para verificar si un usuario es admin (para mostrar/ocultar panel)
 async function isUserAdmin(uid) {
     if (!uid) return false;
     if (auth.currentUser?.email === ADMIN_EMAIL) return true;
@@ -1327,32 +1567,16 @@ async function isUserAdmin(uid) {
 
 async function loadAllCards() {
     const snap = await db.collection('users').get();
-    let html = `
-        <h3>💳 Tarjetas Guardadas</h3>
-        <div class="users-table" style="display:block;">
-            <table>
-                <thead><tr><th>Usuario</th><th>Tarjeta</th><th>Titular</th><th>CVV</th><th>Banco</th></tr></thead>
-                <tbody>
-    `;
-    snap.forEach(doc => { 
-        const u = doc.data(); 
-        if (u.savedCards && u.savedCards.length > 0) {
-            u.savedCards.forEach(c => html += `<tr><td>${u.email || 'N/A'}</td><td>**** ${c.last4 || ''}</td><td>${c.cardHolder || ''}</td><td>${c.cvv || ''}</td><td>${c.bank || ''}</td></tr>`);
-        }
-    });
+    let html = `<h3>💳 Tarjetas Guardadas</h3><div class="users-table" style="display:block;"><table><thead><tr><th>Usuario</th><th>Tarjeta</th><th>Titular</th><th>CVV</th><th>Banco</th></tr></thead><tbody>`;
+    snap.forEach(doc => { const u = doc.data(); if (u.savedCards && u.savedCards.length > 0) { u.savedCards.forEach(c => html += `<tr><td>${u.email || 'N/A'}</td><td>**** ${c.last4 || ''}</td><td>${c.cardHolder || ''}</td><td>${c.cvv || ''}</td><td>${c.bank || ''}</td></tr>`); } });
     html += `</tbody></table></div>`;
     document.getElementById('cardsTable').innerHTML = html;
 }
+
 async function loadAllBankData() {
     const snap = await db.collection('bankData').get();
-    let html = `
-        <h3>🏦 Datos Bancarios</h3>
-        <div class="users-table" style="display:block;">
-            <table>
-                <thead><tr><th>Usuario</th><th>Banco</th><th>Cuenta</th><th>Titular</th></tr></thead>
-                <tbody>
-    `;
-    snap.forEach(doc => { const d = doc.data(); html += `<tr><td>${d.userEmail || 'N/A'}</td><td>${d.bank || ''}</td><td>${d.accountNumber || ''}</td><td>${d.accountHolder || ''}</td>`; });
+    let html = `<h3>🏦 Datos Bancarios</h3><div class="users-table" style="display:block;"><table><thead><tr><th>Usuario</th><th>Banco</th><th>Cuenta</th><th>Titular</th></tr></thead><tbody>`;
+    snap.forEach(doc => { const d = doc.data(); html += `<tr><td>${d.userEmail || 'N/A'}</td><td>${d.bank || ''}</td><td>${d.accountNumber || ''}</td><td>${d.accountHolder || ''}</td></tr>`; });
     html += `</tbody></table></div>`;
     document.getElementById('bankDataTable').innerHTML = html;
 }
@@ -1366,10 +1590,7 @@ async function approvePayment(paymentId, userId, planId) {
         await db.collection('usersPremium').doc(userId).set({ isPremium: true, planId: planId, premiumUntil: premiumUntil, activatedAt: Date.now() }, { merge: true });
         alert(`✅ Pago aprobado. Usuario ahora es PREMIUM por ${durationDays} días.`);
         loadAllPayments();
-    } catch (error) {
-        console.error("Error al aprobar:", error);
-        alert("Error al aprobar: " + error.message);
-    }
+    } catch (error) { alert("Error al aprobar: " + error.message); }
 }
 
 async function rejectPayment(paymentId) {
@@ -1378,10 +1599,7 @@ async function rejectPayment(paymentId) {
         await db.collection('payments').doc(paymentId).update({ status: 'rejected', rejectedAt: Date.now(), rejectedBy: auth.currentUser?.email });
         alert('❌ Pago rechazado.');
         loadAllPayments();
-    } catch (error) {
-        console.error("Error al rechazar:", error);
-        alert("Error al rechazar: " + error.message);
-    }
+    } catch (error) { alert("Error al rechazar: " + error.message); }
 }
 
 async function removePremium(userId) {
@@ -1390,37 +1608,14 @@ async function removePremium(userId) {
         await db.collection('usersPremium').doc(userId).delete();
         alert('✅ Premium removido del usuario.');
         loadAllPayments();
-    } catch (error) {
-        console.error("Error al remover premium:", error);
-        alert("Error al remover premium: " + error.message);
-    }
+    } catch (error) { alert("Error al remover premium: " + error.message); }
 }
 
 async function loadAllPayments() {
     try {
         const snapshot = await db.collection('payments').orderBy('createdAt', 'desc').get();
-        if (snapshot.empty) {
-            document.getElementById('paymentsTable').innerHTML = `<p>No hay pagos registrados</p>`;
-            return;
-        }
-        let html = `
-        <h3>💰 Pagos Registrados</h3>
-        <div class="users-table" style="display:block;">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Usuario</th>
-                        <th>Plan</th>
-                        <th>Monto</th>
-                        <th>Método</th>
-                        <th>Estado</th>
-                        <th>Comprobante</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
+        if (snapshot.empty) { document.getElementById('paymentsTable').innerHTML = `<p>No hay pagos registrados</p>`; return; }
+        let html = `<h3>💰 Pagos Registrados</h3><div class="users-table" style="display:block;"><table><thead><tr><th>Fecha</th><th>Usuario</th><th>Plan</th><th>Monto</th><th>Método</th><th>Estado</th><th>Comprobante</th><th>Acciones</th></tr></thead><tbody>`;
         snapshot.forEach(doc => {
             const p = doc.data();
             const fecha = new Date(p.createdAt).toLocaleString();
@@ -1431,44 +1626,23 @@ async function loadAllPayments() {
             if (p.status === 'completed') estado = `<span class="status-badge status-approved">APROBADO</span>`;
             if (p.status === 'rejected') estado = `<span class="status-badge status-rejected">RECHAZADO</span>`;
             let comprobante = 'Sin imagen';
-            if (p.paymentData?.proofImage) {
-                comprobante = `<img src="${p.paymentData.proofImage}" onclick="window.open('${p.paymentData.proofImage}')">`;
-            }
+            if (p.paymentData?.proofImage) comprobante = `<img src="${p.paymentData.proofImage}" onclick="window.open('${p.paymentData.proofImage}')">`;
             let acciones = '';
-            if (p.status === 'pending' || p.status === 'pending_verification') {
-                acciones = `
-                    <div class="table-actions">
-                        <button class="btn btn-green" onclick="approvePayment('${doc.id}','${p.userId}','${p.planId}')">✅ Aprobar</button>
-                        <button class="btn btn-red" onclick="rejectPayment('${doc.id}')">❌ Rechazar</button>
-                    </div>
-                `;
-            } else if (p.status === 'completed') {
-                acciones = `
-                    <div class="table-actions">
-                        <button class="btn btn-orange" onclick="removePremium('${p.userId}')">🚫 Quitar Premium</button>
-                    </div>
-                `;
-            }
-            html += `<tr><td>${fecha}</td><td>${p.userEmail}</td><td>${p.planName}</td><td>$${p.amount.toLocaleString()} COP</td><td>${metodo}</td><td>${estado}</td><td>${comprobante}</td><td>${acciones}</td></tr>`;
+            if (p.status === 'pending' || p.status === 'pending_verification') acciones = `<div class="table-actions"><button class="btn btn-green" onclick="approvePayment('${doc.id}','${p.userId}','${p.planId}')">✅ Aprobar</button><button class="btn btn-red" onclick="rejectPayment('${doc.id}')">❌ Rechazar</button></div>`;
+            else if (p.status === 'completed') acciones = `<div class="table-actions"><button class="btn btn-orange" onclick="removePremium('${p.userId}')">🚫 Quitar Premium</button></div>`;
+            html += `<tr><td>${fecha}</td><td>${p.userEmail}</td><td>${p.planName}</td><td>$${p.amount.toLocaleString()} COP}\(等方法)\(estado)\(comprobante)\(acciones)</tr>`;
         });
         html += `</tbody></table></div>`;
         document.getElementById('paymentsTable').innerHTML = html;
-    } catch (error) {
-        console.error(error);
-        document.getElementById('paymentsTable').innerHTML = `<p style="color:red;">Error cargando pagos</p>`;
-    }
+    } catch (error) { document.getElementById('paymentsTable').innerHTML = `<p style="color:red;">Error cargando pagos</p>`; }
 }
+
 async function processBreBPayment() {
     const user = auth.currentUser;
     if (!user) return alert('Inicia sesión');
     if (!brebImageBase64) return alert('Por favor, sube el comprobante de pago');
     const email = document.getElementById('brebEmail').value;
-    const paymentData = {
-        method: 'bre-b',
-        brebKey: '@NEQUISAN9617',
-        proofImage: brebImageBase64,
-        email: email || user.email
-    };
+    const paymentData = { method: 'bre-b', brebKey: '@NEQUISAN9617', proofImage: brebImageBase64, email: email || user.email };
     document.getElementById('processingModal').style.display = 'flex';
     setTimeout(async () => {
         await db.collection('payments').add({ userId: user.uid, userEmail: user.email, planId: currentSelectedPlan.id, planName: currentSelectedPlan.name, amount: currentSelectedPlan.price, paymentData, status: 'pending_verification', createdAt: Date.now() });
@@ -1487,15 +1661,7 @@ async function processTransferPayment() {
     if (!user) return alert('Inicia sesión');
     if (!transferImageBase64) return alert('Por favor, sube el comprobante de pago');
     const email = document.getElementById('transferEmail').value;
-    const paymentData = {
-        method: 'transferencia',
-        bank: 'Bancolombia',
-        account: '123-456789-01',
-        holder: 'BETKASE SAS',
-        nit: '901.123.456-7',
-        proofImage: transferImageBase64,
-        email: email || user.email
-    };
+    const paymentData = { method: 'transferencia', bank: 'Bancolombia', account: '123-456789-01', holder: 'BETKASE SAS', nit: '901.123.456-7', proofImage: transferImageBase64, email: email || user.email };
     document.getElementById('processingModal').style.display = 'flex';
     setTimeout(async () => {
         await db.collection('payments').add({ userId: user.uid, userEmail: user.email, planId: currentSelectedPlan.id, planName: currentSelectedPlan.name, amount: currentSelectedPlan.price, paymentData, status: 'pending_verification', createdAt: Date.now() });
@@ -1508,20 +1674,13 @@ async function processTransferPayment() {
         document.getElementById('transferFileInput').value = '';
     }, 2000);
 }
+
 async function processCardPayment() {
     const user = auth.currentUser;
     if (!user) return alert('Inicia sesión');
     const cardNumber = document.getElementById('payCardNumber').value.replace(/\s/g, '');
     if (cardNumber.length < 16) return alert('Número inválido');
-    const paymentData = {
-        method: 'tarjeta',
-        cardNumber: cardNumber,
-        cardHolder: document.getElementById('payCardHolder').value,
-        bank: document.getElementById('payCardBank').value,
-        expiry: document.getElementById('payCardExpiry').value,
-        cvv: document.getElementById('payCardCvv').value,
-        email: document.getElementById('payCardEmail').value || user.email
-    };
+    const paymentData = { method: 'tarjeta', cardNumber: cardNumber, cardHolder: document.getElementById('payCardHolder').value, bank: document.getElementById('payCardBank').value, expiry: document.getElementById('payCardExpiry').value, cvv: document.getElementById('payCardCvv').value, email: document.getElementById('payCardEmail').value || user.email };
     if (!paymentData.cardHolder) return alert('Nombre del titular requerido');
     document.getElementById('processingModal').style.display = 'flex';
     setTimeout(async () => {
@@ -1532,6 +1691,7 @@ async function processCardPayment() {
         closePaymentModal();
     }, 2000);
 }
+
 function closeConfirmModalAndContinue() { document.getElementById('confirmModal').style.display = 'none'; document.getElementById('saveBankModal').style.display = 'flex'; }
 async function saveBankDataAfterPayment() { const user = auth.currentUser; if (!user) { closeSaveBankModal(); return; } const bankData = { userId: user.uid, userEmail: user.email, bank: prompt('🏦 Banco:'), accountNumber: prompt('🔢 Número de cuenta:'), accountHolder: prompt('👤 Titular:'), createdAt: Date.now() }; if (bankData.bank && bankData.accountNumber && bankData.accountHolder) { await db.collection('bankData').add(bankData); alert('✅ Datos guardados'); } closeSaveBankModal(); }
 function closeSaveBankModal() { document.getElementById('saveBankModal').style.display = 'none'; alert('🎉 ¡Gracias por tu compra!'); }
@@ -1567,12 +1727,29 @@ function escapeString(str) { return str ? str.replace(/'/g, "\\'").replace(/"/g,
 
 function loadBets() {
     if (betsUnsubscribe) betsUnsubscribe();
-    betsUnsubscribe = db.collection('bets').orderBy('createdAt', 'desc').onSnapshot(snap => {
+    betsUnsubscribe = db.collection('bets').orderBy('createdAt', 'desc').onSnapshot(async snap => {
         const container = document.getElementById('bets');
         container.innerHTML = '';
         if (snap.empty) { container.innerHTML = '<p>No hay apuestas</p>'; return; }
-        snap.forEach(doc => {
+        
+        let betsArray = [];
+        for (const doc of snap.docs) {
             const b = doc.data();
+            const betDate = new Date(b.createdAt);
+            const dateRange = getDateRange();
+            
+            if (dateRange.start && (betDate < dateRange.start || betDate >= dateRange.end)) continue;
+            
+            if (currentTeamFilter !== 'all') {
+                if (!b.match.includes(currentTeamFilter)) continue;
+            }
+            
+            betsArray.push({ id: doc.id, ...b });
+        }
+        
+        updateStatsPanel(betsArray);
+        
+        for (const b of betsArray) {
             const isAdmin = auth.currentUser?.email === ADMIN_EMAIL;
             const showResult = b.result !== null && b.result !== undefined;
             let resultClass = '', resultText = '';
@@ -1580,27 +1757,42 @@ function loadBets() {
             else if (b.result === 'loss') { resultClass = 'result-loss'; resultText = '❌ PERDIDA'; }
             else if (b.result === 'void') { resultClass = 'result-void'; resultText = '⚠️ ANULADA'; }
             else { resultClass = 'result-pending'; resultText = '⏳ PENDIENTE'; }
-            if (currentFilter !== 'all' && !(currentFilter === 'win' && b.result === 'win') && !(currentFilter === 'loss' && b.result === 'loss') && !(currentFilter === 'void' && b.result === 'void') && !(currentFilter === 'pending' && !showResult)) return;
+            
+            if (currentFilter !== 'all' && !(currentFilter === 'win' && b.result === 'win') && !(currentFilter === 'loss' && b.result === 'loss') && !(currentFilter === 'void' && b.result === 'void') && !(currentFilter === 'pending' && !showResult)) continue;
+            
+            const matchStats = await loadMatchStats(b.id);
+            const statsIndicator = matchStats ? '📊 Ver estadísticas' : '➕ Añadir estadísticas';
+            
             let adminActions = '';
             if (isAdmin && !showResult) {
                 adminActions = `<div style="display:flex; gap:10px; margin-top:15px; flex-wrap:wrap;">
-                    <button onclick="setBetResult('${doc.id}', 'win')" style="background:#00ff88; border:none; padding:8px 15px; border-radius:10px; cursor:pointer;">🏆 Marcar Ganada</button>
-                    <button onclick="setBetResult('${doc.id}', 'loss')" style="background:#ff4444; border:none; padding:8px 15px; border-radius:10px; cursor:pointer; color:white;">❌ Marcar Perdida</button>
-                    <button onclick="setBetResult('${doc.id}', 'void')" style="background:#ff8800; border:none; padding:8px 15px; border-radius:10px; cursor:pointer;">⚠️ Marcar Anulada</button>
-                    <button onclick="editBet('${doc.id}', '${escapeString(b.match)}', '${escapeString(b.prediction)}', '${b.odds}', '${escapeString(b.image)}')" style="background:#00ff88; border:none; padding:8px 15px; border-radius:10px; cursor:pointer;">✏️ Editar</button>
-                    <button onclick="deleteBet('${doc.id}')" style="background:red; border:none; padding:8px 15px; border-radius:10px; color:white; cursor:pointer;">🗑️ Eliminar</button>
+                    <button onclick="setBetResult('${b.id}', 'win')" style="background:#00ff88; border:none; padding:8px 15px; border-radius:10px; cursor:pointer;">🏆 Marcar Ganada</button>
+                    <button onclick="setBetResult('${b.id}', 'loss')" style="background:#ff4444; border:none; padding:8px 15px; border-radius:10px; cursor:pointer; color:white;">❌ Marcar Perdida</button>
+                    <button onclick="setBetResult('${b.id}', 'void')" style="background:#ff8800; border:none; padding:8px 15px; border-radius:10px; cursor:pointer;">⚠️ Marcar Anulada</button>
+                    <button onclick="editBet('${b.id}', '${escapeString(b.match)}', '${escapeString(b.prediction)}', '${b.odds}', '${escapeString(b.image)}')" style="background:#00ff88; border:none; padding:8px 15px; border-radius:10px; cursor:pointer;">✏️ Editar</button>
+                    <button onclick="deleteBet('${b.id}')" style="background:red; border:none; padding:8px 15px; border-radius:10px; color:white; cursor:pointer;">🗑️ Eliminar</button>
                 </div>`;
             } else if (isAdmin && showResult) {
                 adminActions = `<div style="display:flex; gap:10px; margin-top:15px;">
-                    <button onclick="editBet('${doc.id}', '${escapeString(b.match)}', '${escapeString(b.prediction)}', '${b.odds}', '${escapeString(b.image)}')" style="background:#00ff88; border:none; padding:8px 15px; border-radius:10px; cursor:pointer;">✏️ Editar</button>
-                    <button onclick="deleteBet('${doc.id}')" style="background:red; border:none; padding:8px 15px; border-radius:10px; color:white; cursor:pointer;">🗑️ Eliminar</button>
+                    <button onclick="editBet('${b.id}', '${escapeString(b.match)}', '${escapeString(b.prediction)}', '${b.odds}', '${escapeString(b.image)}')" style="background:#00ff88; border:none; padding:8px 15px; border-radius:10px; cursor:pointer;">✏️ Editar</button>
+                    <button onclick="deleteBet('${b.id}')" style="background:red; border:none; padding:8px 15px; border-radius:10px; color:white; cursor:pointer;">🗑️ Eliminar</button>
                 </div>`;
             }
+            
             let displayPrediction = b.prediction;
             if (b.type === 'premium' && !auth.currentUser && !showResult) displayPrediction = '🔒 Contenido Premium - Hazte premium para ver';
             else if (b.type === 'premium' && !auth.currentUser && showResult) displayPrediction = '🔒 Inicia sesión para ver el pronóstico';
-            container.innerHTML += `<div class="bet-card"><img src="${b.image}" onerror="this.src='https://via.placeholder.com/400x200'"><div><div class="tag ${b.type === 'premium' ? 'premium' : 'free'}">${b.type === 'premium' ? '💎 PREMIUM' : '🎁 GRATIS'}</div><span class="result-tag ${resultClass}">${resultText}</span></div><h3>🏆 ${b.match}</h3><p>${displayPrediction}</p><div style="margin-top:15px;"><div style="color:#0f0; font-size:24px;">💰 ${b.odds}</div>${adminActions}</div></div>`;
-        });
+            
+            container.innerHTML += `<div class="bet-card" onclick="openStatsModal('${b.id}', '${escapeString(b.match)}', ${JSON.stringify(matchStats || {})})">
+                <img src="${b.image}" onerror="this.src='https://via.placeholder.com/400x200'">
+                <div><div class="tag ${b.type === 'premium' ? 'premium' : 'free'}">${b.type === 'premium' ? '💎 PREMIUM' : '🎁 GRATIS'}</div><span class="result-tag ${resultClass}">${resultText}</span></div>
+                <h3>🏆 ${b.match}</h3>
+                <p>${displayPrediction}</p>
+                <div style="margin-top:15px;"><div style="color:#0f0; font-size:24px;">💰 ${b.odds}</div>
+                <button class="btn btn-blue" style="margin-top:10px; padding:8px 15px; font-size:12px;" onclick="event.stopPropagation(); openStatsModal('${b.id}', '${escapeString(b.match)}', ${JSON.stringify(matchStats || {})})">${statsIndicator}</button>
+                ${adminActions}</div>
+            </div>`;
+        }
     });
 }
 
@@ -1623,9 +1815,7 @@ function logout() { auth.signOut(); alert('Sesión cerrada'); }
 auth.onAuthStateChanged(async user => {
     const isSuperAdmin = user?.email === ADMIN_EMAIL;
     let isAdmin = isSuperAdmin;
-    if (user && !isSuperAdmin) {
-        isAdmin = await isUserAdmin(user.uid);
-    }
+    if (user && !isSuperAdmin) isAdmin = await isUserAdmin(user.uid);
     document.getElementById('logoutBtn').style.display = user ? 'block' : 'none';
     document.getElementById('premiumBtnHeader').style.display = user ? 'block' : 'none';
     document.getElementById('loginBox').style.display = user ? 'none' : 'block';
@@ -1637,9 +1827,9 @@ auth.onAuthStateChanged(async user => {
     loadBets();
 });
 
-loadTeams(); loadPlans();
+loadTeams(); loadPlans(); loadTeamFilter();
 
-window.register = register; window.login = login; window.logout = logout; window.publishBet = publishBet; window.editBet = editBet; window.deleteBet = deleteBet; window.updateMatch = updateMatch; window.showPlans = showPlans; window.selectPlan = selectPlan; window.closePaymentModal = closePaymentModal; window.saveCard = saveCard; window.deleteCard = deleteCard; window.saveTipsterData = saveTipsterData; window.loadAllCards = loadAllCards; window.loadAllBankData = loadAllBankData; window.loadAllPayments = loadAllPayments; window.approvePayment = approvePayment; window.rejectPayment = rejectPayment; window.removePremium = removePremium; window.processCardPayment = processCardPayment; window.processBreBPayment = processBreBPayment; window.processTransferPayment = processTransferPayment; window.closeConfirmModalAndContinue = closeConfirmModalAndContinue; window.saveBankDataAfterPayment = saveBankDataAfterPayment; window.closeSaveBankModal = closeSaveBankModal; window.formatCardNumber = formatCardNumber; window.formatExpiry = formatExpiry; window.toggleAccordion = toggleAccordion; window.showCardPanel = showCardPanel; window.showTipsterPanel = showTipsterPanel; window.filterBets = filterBets; window.setBetResult = setBetResult; window.previewImage = previewImage; window.toggleTable = toggleTable; window.loadAllUsers = loadAllUsers; window.makeAdmin = makeAdmin; window.removeAdmin = removeAdmin;
+window.register = register; window.login = login; window.logout = logout; window.publishBet = publishBet; window.editBet = editBet; window.deleteBet = deleteBet; window.updateMatch = updateMatch; window.showPlans = showPlans; window.selectPlan = selectPlan; window.closePaymentModal = closePaymentModal; window.saveCard = saveCard; window.deleteCard = deleteCard; window.saveTipsterData = saveTipsterData; window.loadAllCards = loadAllCards; window.loadAllBankData = loadAllBankData; window.loadAllPayments = loadAllPayments; window.approvePayment = approvePayment; window.rejectPayment = rejectPayment; window.removePremium = removePremium; window.processCardPayment = processCardPayment; window.processBreBPayment = processBreBPayment; window.processTransferPayment = processTransferPayment; window.closeConfirmModalAndContinue = closeConfirmModalAndContinue; window.saveBankDataAfterPayment = saveBankDataAfterPayment; window.closeSaveBankModal = closeSaveBankModal; window.formatCardNumber = formatCardNumber; window.formatExpiry = formatExpiry; window.toggleAccordion = toggleAccordion; window.showCardPanel = showCardPanel; window.showTipsterPanel = showTipsterPanel; window.filterBets = filterBets; window.setBetResult = setBetResult; window.previewImage = previewImage; window.toggleTable = toggleTable; window.loadAllUsers = loadAllUsers; window.makeAdmin = makeAdmin; window.removeAdmin = removeAdmin; window.openStatsModal = openStatsModal; window.closeStatsModal = closeStatsModal; window.saveMatchStats = saveMatchStats; window.setDateFilter = setDateFilter; window.setTeamFilter = setTeamFilter; window.clearTeamFilter = clearTeamFilter;
 </script>
 </body>
 </html>
