@@ -1102,11 +1102,11 @@ footer {
 
     <!-- FILTROS POR FECHA -->
     <div class="date-filters">
-        <button class="date-btn active" onclick="setDateFilter('today', event)">📅 Hoy</button>
+        <button class="date-btn" onclick="setDateFilter('today', event)">📅 Hoy</button>
         <button class="date-btn" onclick="setDateFilter('yesterday', event)">📆 Ayer</button>
         <button class="date-btn" onclick="setDateFilter('week', event)">📊 Esta Semana</button>
         <button class="date-btn" onclick="setDateFilter('month', event)">📈 Este Mes</button>
-        <button class="date-btn" onclick="setDateFilter('all', event)">🎯 Todas</button>
+        <button class="date-btn active" onclick="setDateFilter('all', event)">🎯 Todas</button>
     </div>
 
     <!-- FILTRO POR EQUIPO -->
@@ -1302,7 +1302,7 @@ let selectedCardId = null;
 let betsUnsubscribe = null;
 let editingId = null;
 let currentFilter = 'all';
-let currentDateFilter = 'today';
+let currentDateFilter = 'all';
 let currentTeamFilter = 'all';
 let currentBetIdForStats = null;
 let brebImageBase64 = null;
@@ -1314,7 +1314,7 @@ function formatExpiry(input) { let v = input.value.replace(/\D/g, ''); if (v.len
 function toggleAccordion(id) { const c = document.getElementById(id); c.classList.toggle('active'); const icon = c.previousElementSibling.querySelector('.icon'); icon.style.transform = c.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0deg)'; }
 function showCardPanel() { const cp = document.getElementById('cardPanel'); const tp = document.getElementById('tipsterPanel'); tp.style.display = 'none'; cp.style.display = cp.style.display === 'none' || cp.style.display === '' ? 'block' : 'none'; if (cp.style.display === 'block') cp.scrollIntoView({ behavior: 'smooth' }); }
 function showTipsterPanel() { const cp = document.getElementById('cardPanel'); const tp = document.getElementById('tipsterPanel'); cp.style.display = 'none'; tp.style.display = tp.style.display === 'none' || tp.style.display === '' ? 'block' : 'none'; if (tp.style.display === 'block') tp.scrollIntoView({ behavior: 'smooth' }); }
-function escapeString(str) { return str ? str.replace(/'/g, "\\'").replace(/"/g, '&quot;') : ''; }
+function escapeAttr(str) { return str ? str.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;') : ''; }
 
 /* ── FILTROS ── */
 function filterBets(filter, ev) {
@@ -1750,7 +1750,7 @@ function loadBets() {
 
             const matchStats = await loadMatchStats(b.id);
             const statsIndicator = matchStats ? '📊 Ver estadísticas' : '➕ Añadir estadísticas';
-            const statsJsonStr = escapeString(JSON.stringify(matchStats || {}));
+            const statsJsonStr = escapeAttr(JSON.stringify(matchStats || {}));
 
             let adminActions = '';
             if (isAdmin && !showResult) {
@@ -1758,12 +1758,12 @@ function loadBets() {
                     <button onclick="setBetResult('${b.id}','win')" style="background:#00ff88; border:none; padding:8px 15px; border-radius:10px; cursor:pointer;">🏆 Marcar Ganada</button>
                     <button onclick="setBetResult('${b.id}','loss')" style="background:#ff4444; border:none; padding:8px 15px; border-radius:10px; cursor:pointer; color:white;">❌ Marcar Perdida</button>
                     <button onclick="setBetResult('${b.id}','void')" style="background:#ff8800; border:none; padding:8px 15px; border-radius:10px; cursor:pointer;">⚠️ Marcar Anulada</button>
-                    <button onclick="editBet('${b.id}','${escapeString(b.match)}','${escapeString(b.prediction)}','${b.odds}')" style="background:#00ff88; border:none; padding:8px 15px; border-radius:10px; cursor:pointer;">✏️ Editar</button>
+                    <button onclick="editBet('${b.id}','${escapeAttr(b.match)}','${escapeAttr(b.prediction)}','${b.odds}')" style="background:#00ff88; border:none; padding:8px 15px; border-radius:10px; cursor:pointer;">✏️ Editar</button>
                     <button onclick="deleteBet('${b.id}')" style="background:red; border:none; padding:8px 15px; border-radius:10px; color:white; cursor:pointer;">🗑️ Eliminar</button>
                 </div>`;
             } else if (isAdmin && showResult) {
                 adminActions = `<div style="display:flex; gap:10px; margin-top:15px;">
-                    <button onclick="editBet('${b.id}','${escapeString(b.match)}','${escapeString(b.prediction)}','${b.odds}')" style="background:#00ff88; border:none; padding:8px 15px; border-radius:10px; cursor:pointer;">✏️ Editar</button>
+                    <button onclick="editBet('${b.id}','${escapeAttr(b.match)}','${escapeAttr(b.prediction)}','${b.odds}')" style="background:#00ff88; border:none; padding:8px 15px; border-radius:10px; cursor:pointer;">✏️ Editar</button>
                     <button onclick="deleteBet('${b.id}')" style="background:red; border:none; padding:8px 15px; border-radius:10px; color:white; cursor:pointer;">🗑️ Eliminar</button>
                 </div>`;
             }
@@ -1801,7 +1801,7 @@ function loadBets() {
                 <p>${displayPrediction}</p>
                 <div style="margin-top:15px;">
                     <div style="color:#0f0; font-size:24px;">💰 ${b.odds}</div>
-                    <button class="btn btn-blue" style="margin-top:10px; padding:8px 15px; font-size:12px;" onclick="openStatsModal('${b.id}','${escapeString(b.match)}','${statsJsonStr}')">${statsIndicator}</button>
+                    <button class="btn btn-blue" style="margin-top:10px; padding:8px 15px; font-size:12px;" onclick="openStatsModal('${b.id}','${escapeAttr(b.match)}','${statsJsonStr}')">${statsIndicator}</button>
                     ${adminActions}
                 </div>
             </div>`;
@@ -1841,7 +1841,7 @@ auth.onAuthStateChanged(user => {
     const cb = document.getElementById('showCardBtn'), tb = document.getElementById('showTipsterBtn');
     if (user) {
         cb.style.display = 'block'; tb.style.display = 'block'; loadSavedCards();
-        if (isAdmin) { loadAllTipsters(); loadAllCards(); loadAllBankData(); loadAllPayments(); }
+        
     } else {
         cb.style.display = 'none'; tb.style.display = 'none';
         document.getElementById('cardPanel').style.display = 'none';
