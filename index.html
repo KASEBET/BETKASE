@@ -2240,23 +2240,34 @@ function logout() {
 auth.onAuthStateChanged(async user => {
     const isSuperAdmin = user?.email === ADMIN_EMAIL;
     let isAdmin = isSuperAdmin;
+    
     if (user && !isSuperAdmin) {
         try {
             isAdmin = await isUserAdmin(user.uid);
         } catch (error) {
-            console.log("Error verificando admin, asumiendo false:", error);
+            console.log("Error verificando admin:", error);
             isAdmin = false;
         }
     }
-    document.getElementById('logoutBtn').style.display = user ? 'block' : 'none';
-    document.getElementById('premiumBtnHeader').style.display = user ? 'block' : 'none';
-    document.getElementById('loginBox').style.display = user ? 'none' : 'block';
-    document.getElementById('adminPanel').style.display = isAdmin ? 'block' : 'none';
-    const cb = document.getElementById('showCardBtn'), tb = document.getElementById('showTipsterBtn');
+    
+    // Actualizar botones según estado
+    const logoutBtn = document.getElementById('logoutBtn');
+    const premiumBtn = document.getElementById('premiumBtnHeader');
+    const loginBox = document.getElementById('loginBox');
+    const adminPanel = document.getElementById('adminPanel');
+    const showCardBtn = document.getElementById('showCardBtn');
+    const showTipsterBtn = document.getElementById('showTipsterBtn');
+    
+    if (logoutBtn) logoutBtn.style.display = user ? 'block' : 'none';
+    if (premiumBtn) premiumBtn.style.display = user ? 'block' : 'none';
+    if (loginBox) loginBox.style.display = user ? 'none' : 'block';
+    if (adminPanel) adminPanel.style.display = isAdmin ? 'block' : 'none';
+    
     if (user) {
-        cb.style.display = 'block';
-        tb.style.display = 'block';
+        if (showCardBtn) showCardBtn.style.display = 'block';
+        if (showTipsterBtn) showTipsterBtn.style.display = 'block';
         loadSavedCards();
+        
         if (isAdmin) {
             loadAllCards();
             loadAllBankData();
@@ -2265,12 +2276,16 @@ auth.onAuthStateChanged(async user => {
             loadTeamsFromFirestore();
         }
     } else {
-        cb.style.display = 'none';
-        tb.style.display = 'none';
-        document.getElementById('cardPanel').style.display = 'none';
-        document.getElementById('tipsterPanel').style.display = 'none';
+        if (showCardBtn) showCardBtn.style.display = 'none';
+        if (showTipsterBtn) showTipsterBtn.style.display = 'none';
+        const cardPanel = document.getElementById('cardPanel');
+        const tipsterPanel = document.getElementById('tipsterPanel');
+        if (cardPanel) cardPanel.style.display = 'none';
+        if (tipsterPanel) tipsterPanel.style.display = 'none';
     }
-    document.getElementById('plansSection').style.display = 'none';
+    
+    const plansSection = document.getElementById('plansSection');
+    if (plansSection) plansSection.style.display = 'none';
     loadBets();
 });
 
