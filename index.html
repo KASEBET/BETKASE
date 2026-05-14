@@ -1583,10 +1583,10 @@ function displayTeamsListBySport() {
     const container = document.getElementById('existingTeamsList');
     if (!container) return;
     
-    // Obtener SOLO los equipos del deporte seleccionado
+    // Obtener SOLO los equipos del deporte seleccionado en el ADMIN
     let currentTeams = [];
     
-    // Equipos predefinidos del deporte seleccionado SOLAMENTE
+    // Equipos predefinidos del deporte seleccionado
     if (sportsData[currentAdminSport] && sportsData[currentAdminSport].teams) {
         currentTeams = [...sportsData[currentAdminSport].teams];
     }
@@ -1597,6 +1597,49 @@ function displayTeamsListBySport() {
         currentTeams.push(...customTeamsBySport);
     }
     
+    // Eliminar duplicados por nombre
+    const uniqueTeams = [];
+    const names = new Set();
+    for (const team of currentTeams) {
+        if (!names.has(team.name)) {
+            names.add(team.name);
+            uniqueTeams.push(team);
+        }
+    }
+    
+    const sportNames = {
+        futbol: 'FÚTBOL',
+        tenis: 'TENIS',
+        nba: 'NBA'
+    };
+    
+    const sportIcons = {
+        futbol: '⚽',
+        tenis: '🎾',
+        nba: '🏀'
+    };
+    
+    let html = `<h5 style="color:#aaa; margin-bottom:10px;">📋 Equipos/Jugadores de ${sportNames[currentAdminSport]}:</h5>`;
+    
+    if (uniqueTeams.length === 0) {
+        html += '<p style="color:#888; text-align:center; padding:20px;">No hay equipos/jugadores en esta categoría. ¡Agrega uno!</p>';
+    } else {
+        uniqueTeams.forEach(team => {
+            const isCustom = customTeams?.some(ct => ct.name === team.name && ct.sport === currentAdminSport);
+            html += `
+                <div class="team-item">
+                    <div class="team-info">
+                        <span class="team-name">${sportIcons[currentAdminSport]} ${team.name}</span>
+                        <span class="team-logo-url">${team.logo ? team.logo.substring(0, 50) + '...' : 'Sin logo'}</span>
+                    </div>
+                    ${isCustom ? `<button class="delete-team" onclick="deleteTeam('${team.name.replace(/'/g, "\\'")}')">🗑️ Eliminar</button>` : '<span style="color:#666; font-size:11px;">🔒 Predefinido</span>'}
+                </div>
+            `;
+        });
+    }
+    
+    container.innerHTML = html;
+}
     // Eliminar duplicados por nombre
     const uniqueTeams = [];
     const names = new Set();
@@ -1807,12 +1850,33 @@ function updateTeamSelects() {
     
     const selectedLocal = localSelect.value;
     const selectedAway = awaySelect.value;
-    const currentTeams = sportsData[currentSportFilter]?.teams || sportsData.futbol.teams;
+    
+    // Obtener SOLO equipos del deporte actual de la interfaz principal
+    let currentTeams = [];
+    
+    if (sportsData[currentSportFilter] && sportsData[currentSportFilter].teams) {
+        currentTeams = [...sportsData[currentSportFilter].teams];
+    }
+    
+    if (customTeams && customTeams.length > 0) {
+        const customTeamsBySport = customTeams.filter(t => t.sport === currentSportFilter);
+        currentTeams.push(...customTeamsBySport);
+    }
+    
+    // Eliminar duplicados
+    const uniqueTeams = [];
+    const names = new Set();
+    for (const team of currentTeams) {
+        if (!names.has(team.name)) {
+            names.add(team.name);
+            uniqueTeams.push(team);
+        }
+    }
     
     localSelect.innerHTML = '<option value="">-- Seleccionar --</option>';
     awaySelect.innerHTML = '<option value="">-- Seleccionar --</option>';
     
-    currentTeams.forEach(team => {
+    uniqueTeams.forEach(team => {
         localSelect.appendChild(new Option(team.name, JSON.stringify(team)));
         awaySelect.appendChild(new Option(team.name, JSON.stringify(team)));
     });
@@ -1820,7 +1884,6 @@ function updateTeamSelects() {
     if (selectedLocal) localSelect.value = selectedLocal;
     if (selectedAway) awaySelect.value = selectedAway;
 }
-
 function getDateRange() {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -2194,7 +2257,7 @@ function loadTeams() {
     
     if (!local || !away) return;
     
-    // Obtener SOLO equipos del deporte actualmente seleccionado en la interfaz principal
+    // Obtener SOLO equipos del deporte actualmente seleccionado
     let currentTeams = [];
     
     if (sportsData[currentSportFilter] && sportsData[currentSportFilter].teams) {
@@ -2224,15 +2287,26 @@ function loadTeams() {
         away.appendChild(new Option(team.name, JSON.stringify(team)));
     });
 }
-
 function updateMatch() {
-    const l = document.getElementById('localTeam').value, a = document.getElementById('awayTeam').value, p = document.getElementById('matchPreview');
+    const l = document.getElementById('localTeam').value;
+    const a = document.getElementById('awayTeam').value;
+    const p = document.getElementById('matchPreview');
+    
     if (l && a && l !== a) {
-        const lt = JSON.parse(l), at = JSON.parse(a);
-        document.getElementById('localPreview').src = lt.logo; document.getElementById('localPreview').style.display = 'block';
-        document.getElementById('awayPreview').src = at.logo; document.getElementById('awayPreview').style.display = 'block';
-        p.innerHTML = `<h3>🏆 ${lt.name} vs ${at.name}</h3><p style="color:#0f0;">✅ Listo</p>`;
-    } else { p.innerHTML = '<h3>Selecciona ambos</h3>'; }
+        try {
+            const lt = JSON.parse(l);
+            const at = JSON.parse(a);
+            document.getElementById('localPreview').src = lt.logo;
+            document.getElementById('localPreview').style.display = 'block';
+            document.getElementById('awayPreview').src = at.logo;
+            document.getElementById('awayPreview').style.display = 'block';
+            p.innerHTML = `<h3>🏆 ${lt.name} vs ${at.name}</h3><p style="color:#0f0;">✅ Listo para publicar</p>`;
+        } catch(e) {
+            p.innerHTML = '<h3>Error con los datos</h3>';
+        }
+    } else {
+        p.innerHTML = '<h3>Selecciona dos opciones diferentes</h3>';
+    }
 }
 
 function getMatchText() { 
