@@ -330,6 +330,21 @@ header {
 .tab-btn:hover:not(.active) {
     border-color: #00ff88;
 }
+    
+/* Selector de deportes */
+.sport-btn {
+    transition: .3s;
+}
+
+.sport-btn:hover {
+    transform: translateY(-2px);
+}
+
+.sport-btn.active {
+    background: #00ff88 !important;
+    color: black !important;
+    border-color: #00ff88 !important;
+}
 
 .bets {
     display: grid;
@@ -1200,10 +1215,21 @@ footer {
     </div>
 </div>
 </div>
-
+<h3>🏆 Gestión por Deporte</h3>
+<div style="display: flex; gap: 10px; margin-bottom: 20px;">
+    <button class="btn btn-blue" onclick="setAdminSport('futbol')">⚽ Fútbol</button>
+    <button class="btn btn-blue" onclick="setAdminSport('tenis')">🎾 Tenis</button>
+    <button class="btn btn-blue" onclick="setAdminSport('nba')">🏀 NBA</button>
+</div>
+<div id="adminSportInfo" style="margin-bottom: 20px;"></div>
 <section class="section">
     <h2 class="section-title">⚽ Historial de Apuestas</h2>
-
+    <!-- SELECTOR DE DEPORTES -->
+    <div class="sport-selector" style="display: flex; gap: 15px; justify-content: center; margin-bottom: 30px; flex-wrap: wrap;">
+        <button class="sport-btn active" onclick="setSportFilter('futbol', event)" style="padding: 12px 30px; background: #00ff88; color: black; border: none; border-radius: 30px; font-weight: bold; cursor: pointer;">⚽ FÚTBOL</button>
+        <button class="sport-btn" onclick="setSportFilter('tenis', event)" style="padding: 12px 30px; background: #0c0c0c; color: white; border: 1px solid #333; border-radius: 30px; font-weight: bold; cursor: pointer;">🎾 TENIS</button>
+        <button class="sport-btn" onclick="setSportFilter('nba', event)" style="padding: 12px 30px; background: #0c0c0c; color: white; border: 1px solid #333; border-radius: 30px; font-weight: bold; cursor: pointer;">🏀 NBA</button>
+    </div>
     <!-- FILTROS POR FECHA -->
     <div class="date-filters">
         <button class="date-btn" onclick="setDateFilter('today', event)">📅 Hoy</button>
@@ -1393,6 +1419,57 @@ const teams = [
     { name: "Deportivo Alavés", logo: "https://i.postimg.cc/yxvf9zWR/alaves.png" },
     { name: "Crystal Palace", logo: "https://i.postimg.cc/65Cq952R/Crystal-Palace-FC-logo-(2022)-svg.png" }
 ];
+const sportsData = {
+    futbol: {
+        name: "Fútbol",
+        teams: [
+            { name: "Manchester City", logo: "https://i.postimg.cc/j5w9hyxR/2026-05-13-73f43f96-4ece-4239-aa63-b065cf33697e.png" },
+            { name: "Manchester United", logo: "https://i.postimg.cc/yYx0KgrL/manutd.png" },
+            { name: "Real Madrid", logo: "https://i.postimg.cc/T19s9DNn/real-madrid.jpg" },
+            { name: "Barcelona", logo: "https://i.postimg.cc/d3YMnvsv/barcelona.png" },
+            { name: "Liverpool", logo: "https://i.postimg.cc/nhLy33JX/liverpool.png" },
+            { name: "Chelsea", logo: "https://i.postimg.cc/7hJkmXwQ/chelsea.png" },
+            { name: "Arsenal", logo: "https://i.postimg.cc/FzMqSPkY/arsenal.png" },
+            { name: "Bayern Munich", logo: "https://i.postimg.cc/7YgJw0Mf/bayern.png" },
+            { name: "PSG", logo: "https://i.postimg.cc/B6DzMqX4/psg.png" },
+            { name: "Juventus", logo: "https://i.postimg.cc/L5JSzLBj/juventus.png" },
+            { name: "AC Milan", logo: "https://i.postimg.cc/NFHW6N1c/acmilan.png" },
+            { name: "Inter Milan", logo: "https://i.postimg.cc/GtPyhNJ1/inter.png" },
+            { name: "Atletico Madrid", logo: "https://i.postimg.cc/d1HdRbPv/atletico.png" },
+            { name: "Tottenham", logo: "https://i.postimg.cc/5N7z1nRN/tottenham.png" },
+            { name: "Newcastle", logo: "https://i.postimg.cc/8cCRnTGJ/newcastle.png" },
+            { name: "Deportivo Alavés", logo: "https://i.postimg.cc/yxvf9zWR/alaves.png" },
+            { name: "Crystal Palace", logo: "https://i.postimg.cc/65Cq952R/Crystal-Palace-FC-logo-(2022)-svg.png" }
+        ]
+    },
+    tenis: {
+        name: "Tenis",
+        teams: [
+            { name: "Carlos Alcaraz", logo: "https://i.postimg.cc/j5w9hyxR/2026-05-13-73f43f96-4ece-4239-aa63-b065cf33697e.png" },
+            { name: "Novak Djokovic", logo: "https://i.postimg.cc/j5w9hyxR/2026-05-13-73f43f96-4ece-4239-aa63-b065cf33697e.png" },
+            { name: "Jannik Sinner", logo: "https://i.postimg.cc/j5w9hyxR/2026-05-13-73f43f96-4ece-4239-aa63-b065cf33697e.png" },
+            { name: "Daniil Medvedev", logo: "https://i.postimg.cc/j5w9hyxR/2026-05-13-73f43f96-4ece-4239-aa63-b065cf33697e.png" },
+            { name: "Rafael Nadal", logo: "https://i.postimg.cc/j5w9hyxR/2026-05-13-73f43f96-4ece-4239-aa63-b065cf33697e.png" },
+            { name: "Alexander Zverev", logo: "https://i.postimg.cc/j5w9hyxR/2026-05-13-73f43f96-4ece-4239-aa63-b065cf33697e.png" },
+            { name: "Casper Ruud", logo: "https://i.postimg.cc/j5w9hyxR/2026-05-13-73f43f96-4ece-4239-aa63-b065cf33697e.png" },
+            { name: "Stefanos Tsitsipas", logo: "https://i.postimg.cc/j5w9hyxR/2026-05-13-73f43f96-4ece-4239-aa63-b065cf33697e.png" }
+        ]
+    },
+    nba: {
+        name: "NBA",
+        teams: [
+            { name: "Los Angeles Lakers", logo: "https://i.postimg.cc/j5w9hyxR/2026-05-13-73f43f96-4ece-4239-aa63-b065cf33697e.png" },
+            { name: "Golden State Warriors", logo: "https://i.postimg.cc/j5w9hyxR/2026-05-13-73f43f96-4ece-4239-aa63-b065cf33697e.png" },
+            { name: "Boston Celtics", logo: "https://i.postimg.cc/j5w9hyxR/2026-05-13-73f43f96-4ece-4239-aa63-b065cf33697e.png" },
+            { name: "Miami Heat", logo: "https://i.postimg.cc/j5w9hyxR/2026-05-13-73f43f96-4ece-4239-aa63-b065cf33697e.png" },
+            { name: "Chicago Bulls", logo: "https://i.postimg.cc/j5w9hyxR/2026-05-13-73f43f96-4ece-4239-aa63-b065cf33697e.png" },
+            { name: "Brooklyn Nets", logo: "https://i.postimg.cc/j5w9hyxR/2026-05-13-73f43f96-4ece-4239-aa63-b065cf33697e.png" },
+            { name: "Phoenix Suns", logo: "https://i.postimg.cc/j5w9hyxR/2026-05-13-73f43f96-4ece-4239-aa63-b065cf33697e.png" },
+            { name: "Milwaukee Bucks", logo: "https://i.postimg.cc/j5w9hyxR/2026-05-13-73f43f96-4ece-4239-aa63-b065cf33697e.png" }
+        ]
+    }
+};
+
 
 const planDurations = { "quincenal": 15, "mensual": 30, "anual": 365 };
 const defaultPlans = [
@@ -1400,8 +1477,16 @@ const defaultPlans = [
     { id: "mensual", name: "Plan Mensual", price: 50000, period: "mes", features: ["Todo del Quincenal", "Picks VIP", "Grupo privado"], recommended: true },
     { id: "anual", name: "Plan Anual", price: 500000, period: "año", features: ["Todo del Mensual", "2 meses gratis", "Soporte VIP"], recommended: false }
 ];
+    let currentAdminSport = 'futbol';
 
+function setAdminSport(sport) {
+    currentAdminSport = sport;
+    document.getElementById('adminSportInfo').innerHTML = `<p style="color:#00ff88;">📌 Gestionando: ${sportsData[sport].name}</p>`;
+    loadTeams();
+}
+let currentSportFilter = 'futbol';
 let currentSelectedPlan = null;
+let currentSportFilter = 'futbol';
 let selectedCardId = null;
 let betsUnsubscribe = null;
 let editingId = null;
@@ -1438,6 +1523,21 @@ function showCardPanel() { const cp = document.getElementById('cardPanel'); cons
 function showTipsterPanel() { const cp = document.getElementById('cardPanel'); const tp = document.getElementById('tipsterPanel'); cp.style.display = 'none'; tp.style.display = tp.style.display === 'none' || tp.style.display === '' ? 'block' : 'none'; if (tp.style.display === 'block') tp.scrollIntoView({ behavior: 'smooth' }); }
 function escapeAttr(str) { return str ? str.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;') : ''; }
 
+    /* ── FUNCIONES PARA CADA DEPORTE ── */
+function setSportFilter(sport, ev) {
+    currentSportFilter = sport;
+    document.querySelectorAll('.sport-btn').forEach(btn => btn.classList.remove('active'));
+    if (ev && ev.target) ev.target.classList.add('active');
+    
+    // Cambiar el título de la sección
+    const sectionTitle = document.querySelector('.section-title');
+    if (sport === 'futbol') sectionTitle.innerHTML = '⚽ Apuestas de Fútbol';
+    else if (sport === 'tenis') sectionTitle.innerHTML = '🎾 Apuestas de Tenis';
+    else if (sport === 'nba') sectionTitle.innerHTML = '🏀 Apuestas de NBA';
+    
+    // Recargar apuestas
+    loadBets();
+}
 /* ── FILTROS ── */
 function filterBets(filter, ev) {
     currentFilter = filter;
@@ -2015,18 +2115,14 @@ function loadTeams() {
     
     if (!local || !away) return;
     
-    // Cargar equipos desde Firestore primero
-    loadTeamsFromFirestore().then(() => {
-        const allTeams = [...teams];
-        if (window.customTeams) allTeams.push(...window.customTeams);
-        
-        local.innerHTML = '<option value="">-- Seleccionar --</option>';
-        away.innerHTML = '<option value="">-- Seleccionar --</option>';
-        
-        allTeams.forEach(team => {
-            local.appendChild(new Option(team.name, JSON.stringify(team)));
-            away.appendChild(new Option(team.name, JSON.stringify(team)));
-        });
+    const currentTeams = sportsData[currentSportFilter]?.teams || sportsData.futbol.teams;
+    
+    local.innerHTML = '<option value="">-- Seleccionar --</option>';
+    away.innerHTML = '<option value="">-- Seleccionar --</option>';
+    
+    currentTeams.forEach(team => {
+        local.appendChild(new Option(team.name, JSON.stringify(team)));
+        away.appendChild(new Option(team.name, JSON.stringify(team)));
     });
 }
 function updateMatch() {
@@ -2039,7 +2135,17 @@ function updateMatch() {
     } else { p.innerHTML = '<h3>Selecciona ambos equipos</h3>'; }
 }
 
-function getMatchText() { const l = document.getElementById('localTeam').value, a = document.getElementById('awayTeam').value; if (l && a && l !== a) return `${JSON.parse(l).name} vs ${JSON.parse(a).name}`; return ''; }
+function getMatchText() { 
+    const l = document.getElementById('localTeam').value, a = document.getElementById('awayTeam').value; 
+    if (l && a && l !== a) {
+        if (currentSportFilter === 'tenis') {
+            return `${JSON.parse(l).name} vs ${JSON.parse(a).name}`;
+        } else {
+            return `${JSON.parse(l).name} vs ${JSON.parse(a).name}`;
+        }
+    }
+    return ''; 
+}
 function getLocalImage() { const l = document.getElementById('localTeam').value; return l ? JSON.parse(l).logo : ''; }
 function getAwayImage() { const a = document.getElementById('awayTeam').value; return a ? JSON.parse(a).logo : ''; }
 
@@ -2048,7 +2154,7 @@ function publishBet() {
     const user = auth.currentUser;
     if (!user) return alert('Inicia sesión');
     const match = getMatchText();
-    if (!match) return alert('Selecciona equipos');
+    if (!match) return alert('Selecciona equipos/jugadores');
     const pred = document.getElementById('prediction').value, odds = document.getElementById('odds').value;
     if (!pred || !odds) return alert('Completa campos');
     const data = {
@@ -2058,6 +2164,7 @@ function publishBet() {
         image: getLocalImage(),
         awayImage: getAwayImage(),
         type: document.getElementById('type').value,
+        sport: currentSportFilter, // Guardar el deporte actual
         status: 'active',
         result: null,
         createdAt: Date.now(),
@@ -2094,6 +2201,9 @@ function loadBets() {
         let betsArray = [];
         for (const doc of snap.docs) {
             const b = doc.data();
+                        // Filtrar por deporte (si no tiene sport, asumir futbol)
+            if (b.sport !== currentSportFilter && b.sport !== undefined) continue;
+            if (!b.sport && currentSportFilter !== 'futbol') continue;
             const betDate = new Date(b.createdAt);
             const dateRange = getDateRange();
             if (dateRange.start && (betDate < dateRange.start || betDate >= dateRange.end)) continue;
