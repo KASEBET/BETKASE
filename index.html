@@ -1499,7 +1499,7 @@ let currentSportFilter = 'futbol';
 let currentAdminSport = 'futbol';
 let brebImageBase64 = null;
 let transferImageBase64 = null;
-let window.customTeams = [];
+let customTeams = [];
 
 /* ── FUNCIONES PARA MOSTRAR/OCULTAR TABLAS ADMIN ── */
 function hideAllAdminSections() {
@@ -1592,9 +1592,9 @@ async function loadTeamsFromFirestore() {
     try {
         const snapshot = await db.collection('teams').orderBy('name').get();
         if (!snapshot.empty) {
-            window.customTeams = [];
+            customTeams = [];
             snapshot.forEach(doc => {
-                window.customTeams.push({ id: doc.id, ...doc.data(), sport: doc.data().sport || 'futbol' });
+                customTeams.push({ id: doc.id, ...doc.data(), sport: doc.data().sport || 'futbol' });
             });
         }
     } catch (error) {
@@ -1608,11 +1608,11 @@ function displayTeamsList() {
     if (!container) return;
     
     const allTeams = [...sportsData.futbol.teams, ...sportsData.tenis.teams, ...sportsData.nba.teams];
-    if (window.customTeams) allTeams.push(...window.customTeams);
+    if (customTeams ) allTeams.push(...customTeams);
     
     container.innerHTML = '<h5 style="color:#aaa; margin-bottom:10px;">📋 Equipos disponibles:</h5>';
     allTeams.forEach(team => {
-        const isCustom = window.customTeams?.some(ct => ct.name === team.name);
+        const isCustom = customTeams?.some(ct => ct.name === team.name);
         container.innerHTML += `
             <div class="team-item">
                 <div class="team-info">
@@ -1633,7 +1633,7 @@ async function addNewTeam() {
     if (!teamLogo) return alert('❌ Ingresa la URL del logo');
     
     const allTeams = [...sportsData.futbol.teams, ...sportsData.tenis.teams, ...sportsData.nba.teams];
-    if (window.customTeams) allTeams.push(...window.customTeams);
+    if (customTeams) allTeams.push(...customTeams);
     
     if (allTeams.some(t => t.name.toLowerCase() === teamName.toLowerCase())) {
         return alert('❌ Este equipo/jugador ya existe');
@@ -1643,8 +1643,8 @@ async function addNewTeam() {
         const newTeam = { name: teamName, logo: teamLogo, sport: currentAdminSport, createdAt: Date.now() };
         const docRef = await db.collection('teams').add(newTeam);
         
-        if (!window.customTeams) window.customTeams = [];
-        window.customTeams.push({ id: docRef.id, ...newTeam });
+        if (!customTeams) customTeams = [];
+        customTeams.push({ id: docRef.id, ...newTeam });
         
         // Actualizar el deporte actual con el nuevo equipo
         sportsData[currentAdminSport].teams.push({ name: teamName, logo: teamLogo });
@@ -1664,12 +1664,12 @@ async function addNewTeam() {
 async function deleteTeam(teamName) {
     if (!confirm(`¿Eliminar "${teamName}"?`)) return;
     
-    const teamToDelete = window.customTeams?.find(t => t.name === teamName);
+    const teamToDelete = customTeams?.find(t => t.name === teamName);
     if (!teamToDelete) return alert("No se encontró");
     
     try {
         await db.collection('teams').doc(teamToDelete.id).delete();
-        window.customTeams = window.customTeams.filter(t => t.name !== teamName);
+        customTeams = customTeams.filter(t => t.name !== teamName);
         
         // Eliminar del deporte correspondiente
         if (teamToDelete.sport && sportsData[teamToDelete.sport]) {
@@ -1965,7 +1965,7 @@ async function removePremium(userId) {
     } catch (error) { alert("Error al remover premium: " + error.message); }
 }
 
-async function loadAllPayments() {
+aasync function loadAllPayments() {
     const user = auth.currentUser;
     if (user?.email !== ADMIN_EMAIL) {
         alert('Solo administradores');
@@ -2002,7 +2002,8 @@ async function loadAllPayments() {
                 acciones = `<div class="table-actions"><button class="btn btn-orange" onclick="removePremium('${p.userId}')">🚫 Quitar Premium</button></div>`;
             }
             
-            html += `<tr><td>${fecha}</td><td>${p.userEmail}</td><td>${p.planName}</td><td>$${p.amount.toLocaleString()} COP}·(metodo)\(estado)\(comprobante)\(acciones)</tr>`;
+            // LÍNEA CORREGIDA
+            html += `<tr><td>${fecha}</td><td>${p.userEmail}</td><td>${p.planName}</td><td>$${p.amount.toLocaleString()} COP</td><td>${metodo}</td><td>${estado}</td><td>${comprobante}</td><td>${acciones}</td></tr>`;
         });
         
         html += `</tbody></table></div>`;
