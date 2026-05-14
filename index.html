@@ -1640,49 +1640,6 @@ function displayTeamsListBySport() {
     
     container.innerHTML = html;
 }
-    // Eliminar duplicados por nombre
-    const uniqueTeams = [];
-    const names = new Set();
-    for (const team of currentTeams) {
-        if (!names.has(team.name)) {
-            names.add(team.name);
-            uniqueTeams.push(team);
-        }
-    }
-    
-    const sportNames = {
-        futbol: 'FÚTBOL',
-        tenis: 'TENIS',
-        nba: 'NBA'
-    };
-    
-    const sportIcons = {
-        futbol: '⚽',
-        tenis: '🎾',
-        nba: '🏀'
-    };
-    
-    let html = `<h5 style="color:#aaa; margin-bottom:10px;">📋 Equipos/Jugadores de ${sportNames[currentAdminSport]}:</h5>`;
-    
-    if (uniqueTeams.length === 0) {
-        html += '<p style="color:#888; text-align:center; padding:20px;">No hay equipos/jugadores en esta categoría. ¡Agrega uno!</p>';
-    } else {
-        uniqueTeams.forEach(team => {
-            const isCustom = customTeams?.some(ct => ct.name === team.name && ct.sport === currentAdminSport);
-            html += `
-                <div class="team-item">
-                    <div class="team-info">
-                        <span class="team-name">${sportIcons[currentAdminSport]} ${team.name}</span>
-                        <span class="team-logo-url">${team.logo ? team.logo.substring(0, 50) + '...' : 'Sin logo'}</span>
-                    </div>
-                    ${isCustom ? `<button class="delete-team" onclick="deleteTeam('${team.name.replace(/'/g, "\\'")}')">🗑️ Eliminar</button>` : '<span style="color:#666; font-size:11px;">🔒 Predefinido</span>'}
-                </div>
-            `;
-        });
-    }
-    
-    container.innerHTML = html;
-}
 
 /* ── FILTROS ── */
 function filterBets(filter, ev) {
