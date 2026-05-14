@@ -228,7 +228,6 @@ header {
     text-align: center;
 }
 
-/* FILTROS POR FECHA */
 .date-filters {
     display: flex;
     gap: 15px;
@@ -254,7 +253,6 @@ header {
     border-color: #00ff88;
 }
 
-/* FILTRO POR EQUIPO */
 .team-filter {
     display: flex;
     gap: 10px;
@@ -275,7 +273,6 @@ header {
     outline: none;
 }
 
-/* PANEL DE ESTADÍSTICAS GENERALES */
 .stats-summary {
     background: linear-gradient(135deg, #1a1a2e, #16213e);
     padding: 20px;
@@ -330,8 +327,7 @@ header {
 .tab-btn:hover:not(.active) {
     border-color: #00ff88;
 }
-    
-/* Selector de deportes */
+
 .sport-selector {
     display: flex;
     gap: 15px;
@@ -394,7 +390,6 @@ header {
     border-radius: 50%;
 }
 
-/* LOGOS DE EQUIPOS EN TARJETA */
 .match-logos {
     display: flex;
     align-items: center;
@@ -861,7 +856,6 @@ footer {
     margin-top: 20px;
 }
 
-/* TABLAS ADMIN - ESTILO ORIGINAL FUNCIONAL */
 .users-table {
     width: 100%;
     overflow-x: auto;
@@ -952,12 +946,10 @@ footer {
     color: #fff;
 }
 
-/* Las secciones de tablas estarán ocultas por defecto */
 #usersList, #cardsList, #bankDataList, #paymentsList {
     display: none;
 }
 
-/* MODAL DE ESTADÍSTICAS */
 .stats-modal {
     display: none;
     position: fixed;
@@ -1025,7 +1017,7 @@ footer {
     .table-actions { flex-direction: column; }
     .stats-grid { grid-template-columns: 1fr; }
 }
-/* Estilos para gestión de equipos */
+
 .teams-management {
     background: linear-gradient(145deg, #0a0a0a, #0c0c0c);
     border-radius: 20px;
@@ -1109,7 +1101,6 @@ footer {
     font-size: 12px;
 }
 
-/* Estilos para gestión por deporte en admin */
 .admin-sport-selector {
     background: linear-gradient(145deg, #0a0a0a, #0c0c0c);
     border-radius: 20px;
@@ -1226,42 +1217,39 @@ footer {
     <input type="text" id="odds" placeholder="💰 Cuota">
     <select id="type"><option value="gratis">Gratis</option><option value="premium">Premium</option></select>
     <button class="btn btn-green" onclick="publishBet()">Publicar Apuesta</button>
-    
-    <!-- Gestión de Equipos -->
-    <!-- Gestión por Deporte (AHORA PRIMERO) -->
-<div class="admin-sport-selector">
-    <h4>🏆 1. SELECCIONAR DEPORTE PARA GESTIONAR</h4>
-    <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
-        <button class="btn btn-blue" id="adminSportFutbol" onclick="setAdminSport('futbol')" style="background:#00ff88; color:black;">⚽ FÚTBOL (Activo)</button>
-        <button class="btn btn-blue" id="adminSportTenis" onclick="setAdminSport('tenis')">🎾 TENIS</button>
-        <button class="btn btn-blue" id="adminSportNBA" onclick="setAdminSport('nba')">🏀 NBA</button>
+
+    <div class="admin-sport-selector">
+        <h4>🏆 1. SELECCIONAR DEPORTE PARA GESTIONAR</h4>
+        <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+            <button class="btn btn-blue" id="adminSportFutbol" onclick="setAdminSport('futbol')" style="background:#00ff88; color:black;">⚽ FÚTBOL (Activo)</button>
+            <button class="btn btn-blue" id="adminSportTenis" onclick="setAdminSport('tenis')">🎾 TENIS</button>
+            <button class="btn btn-blue" id="adminSportNBA" onclick="setAdminSport('nba')">🏀 NBA</button>
+        </div>
+        <div id="adminSportInfo" style="color:#00ff88; font-size:14px; background:#0a0a0a; padding:10px; border-radius:10px; margin-bottom:15px;"></div>
     </div>
-    <div id="adminSportInfo" style="color:#00ff88; font-size:14px; background:#0a0a0a; padding:10px; border-radius:10px; margin-bottom:15px;"></div>
+
+    <div class="teams-management">
+        <h4 id="teamsManagementTitle">⚽ AGREGAR NUEVO EQUIPO/JUGADOR A FÚTBOL</h4>
+        <div class="team-input-group">
+            <input type="text" id="newTeamName" placeholder="Nombre del equipo/jugador (ej: Real Betis / Carlos Alcaraz)">
+            <input type="text" id="newTeamLogo" placeholder="URL del logo/imagen (ej: https://...png)">
+            <button class="btn btn-green" onclick="addNewTeam()">➕ AGREGAR</button>
+        </div>
+        <div id="existingTeamsList" class="existing-teams">
+            <h5 style="color:#aaa; margin-bottom:10px;">📋 Equipos/Jugadores del deporte seleccionado:</h5>
+        </div>
+    </div>
 </div>
 
-<!-- Gestión de Equipos (AHORA DESPUÉS) -->
-<div class="teams-management">
-    <h4 id="teamsManagementTitle">⚽ AGREGAR NUEVO EQUIPO/JUGADOR A FÚTBOL</h4>
-    <div class="team-input-group">
-        <input type="text" id="newTeamName" placeholder="Nombre del equipo/jugador (ej: Real Betis / Carlos Alcaraz)">
-        <input type="text" id="newTeamLogo" placeholder="URL del logo/imagen (ej: https://...png)">
-        <button class="btn btn-green" onclick="addNewTeam()">➕ AGREGAR</button>
-    </div>
-    <div id="existingTeamsList" class="existing-teams">
-        <h5 style="color:#aaa; margin-bottom:10px;">📋 Equipos/Jugadores del deporte seleccionado:</h5>
-    </div>
-</div>
 <section class="section">
     <h2 class="section-title">⚽ Apuestas de Fútbol</h2>
-    
-    <!-- SELECTOR DE DEPORTES -->
+
     <div class="sport-selector">
         <button class="sport-btn active" onclick="setSportFilter('futbol', event)">⚽ FÚTBOL</button>
         <button class="sport-btn" onclick="setSportFilter('tenis', event)">🎾 TENIS</button>
         <button class="sport-btn" onclick="setSportFilter('nba', event)">🏀 NBA</button>
     </div>
-    
-    <!-- FILTROS POR FECHA -->
+
     <div class="date-filters">
         <button class="date-btn" onclick="setDateFilter('today', event)">📅 Hoy</button>
         <button class="date-btn" onclick="setDateFilter('yesterday', event)">📆 Ayer</button>
@@ -1270,7 +1258,6 @@ footer {
         <button class="date-btn active" onclick="setDateFilter('all', event)">🎯 Todas</button>
     </div>
 
-    <!-- FILTRO POR EQUIPO -->
     <div class="team-filter">
         <select id="teamFilterSelect" onchange="setTeamFilter()">
             <option value="all">⚽ Todos los equipos/jugadores</option>
@@ -1278,7 +1265,6 @@ footer {
         <button class="btn btn-green" onclick="clearTeamFilter()" style="padding: 8px 20px;">🗑️ Limpiar filtro</button>
     </div>
 
-    <!-- PANEL DE ESTADÍSTICAS GENERALES -->
     <div id="statsPanel" style="background: linear-gradient(145deg, #0a0a0a, #0c0c0c); border-radius: 25px; padding: 20px; margin-bottom: 30px; border: 1px solid #00ff88;">
         <h3 style="text-align: center; margin-bottom: 20px;">📊 Estadísticas de Apuestas</h3>
         <div id="statsSummary" class="stats-summary"></div>
@@ -1294,7 +1280,6 @@ footer {
     <div class="bets" id="bets">Cargando...</div>
 </section>
 
-<!-- MODAL DE ESTADÍSTICAS DEL PARTIDO -->
 <div id="statsModal" class="stats-modal">
     <div class="stats-content">
         <h3 id="statsModalTitle">📊 Estadísticas del Partido</h3>
@@ -1324,7 +1309,7 @@ footer {
     <div class="modal-content">
         <h3 id="modalPlanName">Plan</h3>
         <p id="modalPlanPrice" style="text-align:center; font-size:24px; color:#00ff88;">$0 COP</p>
-        
+
         <div class="accordion">
             <div class="accordion-header" onclick="toggleAccordion('cardsAccordion')">
                 <span>💳 Pagar con Tarjeta Débito/Crédito</span>
@@ -1431,7 +1416,6 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const ADMIN_EMAIL = "camargosantiago2003@gmail.com";
 
-// DATOS POR DEPORTE
 const sportsData = {
     futbol: {
         name: "Fútbol",
@@ -1533,12 +1517,12 @@ function setSportFilter(sport, ev) {
     currentSportFilter = sport;
     document.querySelectorAll('.sport-btn').forEach(btn => btn.classList.remove('active'));
     if (ev && ev.target) ev.target.classList.add('active');
-    
+
     const sectionTitle = document.querySelector('.section-title');
     if (sport === 'futbol') sectionTitle.innerHTML = '⚽ Apuestas de Fútbol';
     else if (sport === 'tenis') sectionTitle.innerHTML = '🎾 Apuestas de Tenis';
     else if (sport === 'nba') sectionTitle.innerHTML = '🏀 Apuestas de NBA';
-    
+
     loadTeams();
     loadTeamFilter();
     loadBets();
@@ -1546,15 +1530,14 @@ function setSportFilter(sport, ev) {
 
 function setAdminSport(sport) {
     currentAdminSport = sport;
-    
-    // Actualizar estilos de botones
+
     document.getElementById('adminSportFutbol').style.background = '#0c0c0c';
     document.getElementById('adminSportFutbol').style.color = 'white';
     document.getElementById('adminSportTenis').style.background = '#0c0c0c';
     document.getElementById('adminSportTenis').style.color = 'white';
     document.getElementById('adminSportNBA').style.background = '#0c0c0c';
     document.getElementById('adminSportNBA').style.color = 'white';
-    
+
     if (sport === 'futbol') {
         document.getElementById('adminSportFutbol').style.background = '#00ff88';
         document.getElementById('adminSportFutbol').style.color = 'black';
@@ -1571,32 +1554,55 @@ function setAdminSport(sport) {
         document.getElementById('teamsManagementTitle').innerHTML = '🏀 AGREGAR NUEVO EQUIPO DE NBA';
         document.getElementById('adminSportInfo').innerHTML = '📌 ACTUALMENTE GESTIONANDO: <strong style="color:#00ff88;">NBA</strong> - Los equipos que agregues se guardarán en esta categoría';
     }
-    
-    // Mostrar solo los equipos del deporte seleccionado
+
     displayTeamsListBySport();
-    
-    // Actualizar selects
     loadTeams();
     loadTeamFilter();
 }
+
 function displayTeamsListBySport() {
     const container = document.getElementById('existingTeamsList');
     if (!container) return;
-    
-    // Obtener SOLO los equipos del deporte seleccionado en el ADMIN
+
     let currentTeams = [];
-    
-    // Equipos predefinidos del deporte seleccionado
+
     if (sportsData[currentAdminSport] && sportsData[currentAdminSport].teams) {
         currentTeams = [...sportsData[currentAdminSport].teams];
     }
-    
-    // Agregar equipos personalizados de ESTE deporte solamente
+
     if (customTeams && customTeams.length > 0) {
         const customTeamsBySport = customTeams.filter(t => t.sport === currentAdminSport);
         currentTeams.push(...customTeamsBySport);
     }
-    
+
+    const uniqueTeams = [];
+    const names = new Set();
+    for (const team of currentTeams) {
+        if (!names.has(team.name)) {
+            names.add(team.name);
+            uniqueTeams.push(team);
+        }
+    }
+
+    let html = '<h5 style="color:#aaa; margin-bottom:10px;">📋 Equipos/Jugadores del deporte seleccionado:</h5>';
+    if (uniqueTeams.length === 0) {
+        html += '<p style="color:#666;">No hay equipos/jugadores en esta categoría.</p>';
+    } else {
+        uniqueTeams.forEach(team => {
+            const isCustom = customTeams && customTeams.some(t => t.name === team.name);
+            html += `<div class="team-item">
+                <div class="team-info">
+                    <img src="${team.logo}" style="width:30px; height:30px; object-fit:contain; border-radius:5px;" onerror="this.style.display='none'">
+                    <span class="team-name">${team.name}</span>
+                    <span class="team-logo-url">${team.logo}</span>
+                </div>
+                ${isCustom ? `<button class="delete-team" onclick="deleteTeam('${escapeAttr(team.name)}')">🗑️ Eliminar</button>` : '<span style="font-size:11px; color:#555;">Predefinido</span>'}
+            </div>`;
+        });
+    }
+    container.innerHTML = html;
+}
+
 /* ── FILTROS ── */
 function filterBets(filter, ev) {
     currentFilter = filter;
@@ -1626,22 +1632,20 @@ function clearTeamFilter() {
 function loadTeamFilter() {
     const select = document.getElementById('teamFilterSelect');
     if (!select) return;
-    
+
     select.innerHTML = '<option value="all">⚽ Todos los equipos/jugadores</option>';
-    
-    // Obtener SOLO equipos del deporte actual
+
     let currentTeams = [];
-    
+
     if (sportsData[currentSportFilter] && sportsData[currentSportFilter].teams) {
         currentTeams = [...sportsData[currentSportFilter].teams];
     }
-    
+
     if (customTeams && customTeams.length > 0) {
         const customTeamsBySport = customTeams.filter(t => t.sport === currentSportFilter);
         currentTeams.push(...customTeamsBySport);
     }
-    
-    // Eliminar duplicados
+
     const uniqueTeams = [];
     const names = new Set();
     for (const team of currentTeams) {
@@ -1650,7 +1654,7 @@ function loadTeamFilter() {
             uniqueTeams.push(team);
         }
     }
-    
+
     uniqueTeams.forEach(team => {
         select.innerHTML += `<option value="${team.name.replace(/'/g, "\\'")}">🏆 ${team.name}</option>`;
     });
@@ -1672,38 +1676,35 @@ async function loadTeamsFromFirestore() {
     displayTeamsListBySport();
 }
 
-
-
 async function addNewTeam() {
     const teamName = document.getElementById('newTeamName').value.trim();
     const teamLogo = document.getElementById('newTeamLogo').value.trim();
-    
+
     if (!teamName) return alert('❌ Ingresa el nombre');
     if (!teamLogo) return alert('❌ Ingresa la URL del logo');
-    
+
     const allTeams = [...sportsData.futbol.teams, ...sportsData.tenis.teams, ...sportsData.nba.teams];
     if (customTeams) allTeams.push(...customTeams);
-    
+
     if (allTeams.some(t => t.name.toLowerCase() === teamName.toLowerCase())) {
         return alert('❌ Este equipo/jugador ya existe');
     }
-    
+
     try {
         const newTeam = { name: teamName, logo: teamLogo, sport: currentAdminSport, createdAt: Date.now() };
         const docRef = await db.collection('teams').add(newTeam);
-        
+
         if (!customTeams) customTeams = [];
         customTeams.push({ id: docRef.id, ...newTeam });
-        
-        // Actualizar el deporte actual con el nuevo equipo
+
         sportsData[currentAdminSport].teams.push({ name: teamName, logo: teamLogo });
-        
+
         updateTeamSelects();
-        displayTeamsList();
-        
+        displayTeamsListBySport();
+
         document.getElementById('newTeamName').value = '';
         document.getElementById('newTeamLogo').value = '';
-        
+
         alert(`✅ "${teamName}" agregado a ${sportsData[currentAdminSport].name}`);
     } catch (error) {
         alert("Error al guardar: " + error.message);
@@ -1712,23 +1713,22 @@ async function addNewTeam() {
 
 async function deleteTeam(teamName) {
     if (!confirm(`¿Eliminar "${teamName}"?`)) return;
-    
-    const teamToDelete = customTeams?.find(t => t.name === teamName);
-    if (!teamToDelete) return alert("No se encontró");
-    
+
+    const teamToDelete = customTeams && customTeams.find(t => t.name === teamName);
+    if (!teamToDelete) return alert("No se encontró el equipo en los personalizados");
+
     try {
         await db.collection('teams').doc(teamToDelete.id).delete();
         customTeams = customTeams.filter(t => t.name !== teamName);
-        
-        // Eliminar del deporte correspondiente
+
         if (teamToDelete.sport && sportsData[teamToDelete.sport]) {
             sportsData[teamToDelete.sport].teams = sportsData[teamToDelete.sport].teams.filter(t => t.name !== teamName);
         }
-        
+
         updateTeamSelects();
-        displayTeamsList();
+        displayTeamsListBySport();
         loadTeamFilter();
-        
+
         alert(`✅ "${teamName}" eliminado`);
     } catch (error) {
         alert("Error al eliminar: " + error.message);
@@ -1738,25 +1738,23 @@ async function deleteTeam(teamName) {
 function updateTeamSelects() {
     const localSelect = document.getElementById('localTeam');
     const awaySelect = document.getElementById('awayTeam');
-    
+
     if (!localSelect || !awaySelect) return;
-    
+
     const selectedLocal = localSelect.value;
     const selectedAway = awaySelect.value;
-    
-    // Obtener SOLO equipos del deporte actual de la interfaz principal
+
     let currentTeams = [];
-    
+
     if (sportsData[currentSportFilter] && sportsData[currentSportFilter].teams) {
         currentTeams = [...sportsData[currentSportFilter].teams];
     }
-    
+
     if (customTeams && customTeams.length > 0) {
         const customTeamsBySport = customTeams.filter(t => t.sport === currentSportFilter);
         currentTeams.push(...customTeamsBySport);
     }
-    
-    // Eliminar duplicados
+
     const uniqueTeams = [];
     const names = new Set();
     for (const team of currentTeams) {
@@ -1765,25 +1763,26 @@ function updateTeamSelects() {
             uniqueTeams.push(team);
         }
     }
-    
+
     localSelect.innerHTML = '<option value="">-- Seleccionar --</option>';
     awaySelect.innerHTML = '<option value="">-- Seleccionar --</option>';
-    
+
     uniqueTeams.forEach(team => {
         localSelect.appendChild(new Option(team.name, JSON.stringify(team)));
         awaySelect.appendChild(new Option(team.name, JSON.stringify(team)));
     });
-    
+
     if (selectedLocal) localSelect.value = selectedLocal;
     if (selectedAway) awaySelect.value = selectedAway;
 }
+
 function getDateRange() {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     switch (currentDateFilter) {
         case 'today': return { start: today, end: new Date(today.getTime() + 86400000) };
-        case 'yesterday': const y = new Date(today.getTime() - 86400000); return { start: y, end: today };
-        case 'week': const ws = new Date(today); ws.setDate(today.getDate() - today.getDay()); return { start: ws, end: new Date(today.getTime() + 86400000) };
+        case 'yesterday': { const y = new Date(today.getTime() - 86400000); return { start: y, end: today }; }
+        case 'week': { const ws = new Date(today); ws.setDate(today.getDate() - today.getDay()); return { start: ws, end: new Date(today.getTime() + 86400000) }; }
         case 'month': return { start: new Date(today.getFullYear(), today.getMonth(), 1), end: new Date(today.getTime() + 86400000) };
         default: return { start: null, end: null };
     }
@@ -1823,23 +1822,23 @@ function openStatsModal(betId, matchName, statsJson) {
     document.getElementById('statsModalTitle').innerHTML = `📊 ${matchName}`;
     const fields = ['goalsLocal','goalsAway','yellowLocal','yellowAway','redLocal','redAway','cornersLocal','cornersAway','shotsLocal','shotsAway','shotsOnTargetLocal','shotsOnTargetAway'];
     fields.forEach(f => { document.getElementById(f).value = currentStats?.[f] || 0; });
-    
+
     const isAdmin = auth.currentUser?.email === ADMIN_EMAIL;
     fields.forEach(f => {
         const input = document.getElementById(f);
         if (input) input.disabled = !isAdmin;
     });
-    
+
     const displayDiv = document.getElementById('statsDisplay');
     if (currentStats && Object.keys(currentStats).length > 0) {
         displayDiv.innerHTML = `<div style="background:#0c0c0c; border-radius:15px; padding:15px; margin-top:10px;"><h4 style="color:#00ff88; margin-bottom:10px;">📈 Estadísticas actuales:</h4><div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:14px; color:#aaa;"><div>⚽ Goles/Puntos: ${currentStats.goalsLocal||0} - ${currentStats.goalsAway||0}</div><div>🟨 Amarillas/Faltas: ${currentStats.yellowLocal||0} - ${currentStats.yellowAway||0}</div><div>🟥 Rojas/Técnicas: ${currentStats.redLocal||0} - ${currentStats.redAway||0}</div><div>🎯 Corners/Asistencias: ${currentStats.cornersLocal||0} - ${currentStats.cornersAway||0}</div><div>💥 Remates/Intentos: ${currentStats.shotsLocal||0} - ${currentStats.shotsAway||0}</div><div>🎯 A puerta/Precisión: ${currentStats.shotsOnTargetLocal||0} - ${currentStats.shotsOnTargetAway||0}</div></div></div>`;
     } else {
         displayDiv.innerHTML = '';
     }
-    
+
     const saveButton = document.querySelector('#statsForm .btn-green');
     if (saveButton) saveButton.style.display = isAdmin ? 'block' : 'none';
-    
+
     document.getElementById('statsModal').style.display = 'flex';
 }
 
@@ -1919,86 +1918,88 @@ async function loadSavedCards() {
     else container.innerHTML = cards.map(c => `<div class="saved-card"><div class="card-info"><span>${c.brand}</span><span>**** ${c.last4}</span><span>${c.cardHolder}</span><span>Exp: ${c.expiry}</span></div><button class="delete-card" onclick="deleteCard('${c.id}')">Eliminar</button></div>`).join('');
 }
 
-async function deleteCard(cardId) { if (!confirm('¿Eliminar?')) return; const user = auth.currentUser; const doc = await db.collection('users').doc(user.uid).get(); let cards = doc.data().savedCards || []; cards = cards.filter(c => c.id !== cardId); await db.collection('users').doc(user.uid).update({ savedCards: cards }); loadSavedCards(); }
+async function deleteCard(cardId) {
+    const user = auth.currentUser;
+    if (!user) return;
+    const doc = await db.collection('users').doc(user.uid).get();
+    let cards = doc.exists && doc.data().savedCards ? doc.data().savedCards : [];
+    cards = cards.filter(c => c.id !== cardId);
+    await db.collection('users').doc(user.uid).set({ savedCards: cards }, { merge: true });
+    alert('✅ Tarjeta eliminada');
+    loadSavedCards();
+}
 
-/* ── TIPSTER ── */
 async function saveTipsterData() {
     const user = auth.currentUser;
     if (!user) return alert('Inicia sesión');
-    const data = { accountType: document.getElementById('tipsterAccountType').value, bank: document.getElementById('tipsterBank').value, accountNumber: document.getElementById('tipsterAccountNumber').value, accountHolder: document.getElementById('tipsterAccountHolder').value, idNumber: document.getElementById('tipsterIdNumber').value, email: document.getElementById('tipsterEmail').value || user.email, phone: document.getElementById('tipsterPhone').value, updatedAt: Date.now() };
-    if (!data.accountType) return alert('Selecciona tipo de cuenta');
-    await db.collection('tipsters').doc(user.uid).set({ email: user.email, paymentData: data, totalEarnings: 0, createdAt: Date.now() }, { merge: true });
-    alert('✅ Datos guardados');
+    const data = {
+        userId: user.uid,
+        userEmail: user.email,
+        accountType: document.getElementById('tipsterAccountType').value,
+        bank: document.getElementById('tipsterBank').value,
+        accountNumber: document.getElementById('tipsterAccountNumber').value,
+        accountHolder: document.getElementById('tipsterAccountHolder').value,
+        idNumber: document.getElementById('tipsterIdNumber').value,
+        email: document.getElementById('tipsterEmail').value || user.email,
+        phone: document.getElementById('tipsterPhone').value,
+        updatedAt: Date.now()
+    };
+    if (!data.bank || !data.accountNumber || !data.accountHolder) return alert('Completa los campos requeridos');
+    await db.collection('bankData').doc(user.uid).set(data, { merge: true });
+    document.getElementById('tipsterStatus').innerHTML = '<p style="color:#00ff88;">✅ Datos guardados correctamente</p>';
 }
 
 /* ── ADMIN: USUARIOS ── */
+async function isUserAdmin(userId) {
+    const doc = await db.collection('admins').doc(userId).get();
+    return doc.exists && doc.data().isAdmin === true;
+}
+
 async function loadAllUsers() {
-    try {
-        const usersSnapshot = await db.collection('users').get();
-        let html = `<h3>👥 Usuarios Registrados</h3><div class="users-table"><table><thead><tr><th>Email</th><th>UID</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>`;
-        for (const doc of usersSnapshot.docs) {
-            const userData = doc.data();
-            const userEmail = userData.email || 'Email no disponible';
-            const userId = doc.id;
-            const adminDoc = await db.collection('admins').doc(userId).get();
-            const isAdmin = adminDoc.exists;
-            const showAdminButton = userEmail !== ADMIN_EMAIL;
-            let adminButton = '';
-            if (showAdminButton) {
-                if (isAdmin) adminButton = `<button class="btn btn-orange" onclick="removeAdmin('${userId}', '${userEmail.replace(/'/g, "\\'")}')">🔽 Quitar Admin</button>`;
-                else adminButton = `<button class="btn btn-purple" onclick="makeAdmin('${userId}', '${userEmail.replace(/'/g, "\\'")}')">👑 Dar Admin</button>`;
-            } else adminButton = `<span style="color:#00ff88;">👑 Super Admin</span>`;
-            html += `<tr><td>${userEmail}</td><td style="font-size:12px;">${userId.substring(0, 8)}...</td><td>${isAdmin ? '<span style="color:#00ff88;">✅ Administrador</span>' : '<span style="color:#888;">👤 Usuario</span>'}<td><td class="table-actions">${adminButton}</td></tr>`;
-        }
-        html += `</tbody></table></div>`;
-        document.getElementById('usersList').innerHTML = html;
-    } catch (error) {
-        document.getElementById('usersList').innerHTML = `<p style="color:red;">Error cargando usuarios: ${error.message}</p>`;
+    const snap = await db.collection('users').get();
+    let html = `<h3>👥 Usuarios Registrados</h3><div class="users-table"><table><thead><tr><th>Email</th><th>UID</th><th>Fecha</th><th>Acciones</th></tr></thead><tbody>`;
+    for (const doc of snap.docs) {
+        const d = doc.data();
+        const fecha = d.createdAt ? new Date(d.createdAt).toLocaleDateString() : 'N/A';
+        const isAdminUser = await isUserAdmin(doc.id);
+        html += `<tr><td>${d.email || 'N/A'}</td><td style="font-size:11px;">${doc.id}</td><td>${fecha}</td><td><div class="table-actions">${isAdminUser ? `<button class="btn btn-red" onclick="removeAdmin('${doc.id}')">🚫 Quitar Admin</button>` : `<button class="btn btn-purple" onclick="makeAdmin('${doc.id}')">👑 Hacer Admin</button>`}</div></td></tr>`;
     }
+    html += `</tbody></table></div>`;
+    document.getElementById('usersList').innerHTML = html;
 }
 
-async function makeAdmin(userId, userEmail) {
-    if (!confirm(`¿Dar permisos de administrador a ${userEmail}?`)) return;
-    try {
-        await db.collection('admins').doc(userId).set({ email: userEmail, grantedBy: auth.currentUser?.email, grantedAt: Date.now(), isAdmin: true });
-        alert(`✅ ${userEmail} ahora es administrador.`);
-        loadAllUsers();
-    } catch (error) { alert("Error: " + error.message); }
+async function makeAdmin(userId) {
+    if (!confirm('¿Hacer administrador a este usuario?')) return;
+    await db.collection('admins').doc(userId).set({ isAdmin: true, createdAt: Date.now() });
+    alert('✅ Usuario ahora es administrador');
+    loadAllUsers();
 }
 
-async function removeAdmin(userId, userEmail) {
-    if (!confirm(`¿Quitar permisos de administrador a ${userEmail}?`)) return;
-    try {
-        await db.collection('admins').doc(userId).delete();
-        alert(`✅ ${userEmail} ya no es administrador.`);
-        loadAllUsers();
-    } catch (error) { alert("Error: " + error.message); }
+async function removeAdmin(userId) {
+    if (!confirm('¿Quitar permisos de administrador?')) return;
+    await db.collection('admins').doc(userId).delete();
+    alert('✅ Permisos de administrador removidos');
+    loadAllUsers();
 }
 
-async function isUserAdmin(uid) {
-    if (!uid) return false;
-    if (auth.currentUser?.email === ADMIN_EMAIL) return true;
-    try {
-        const adminDoc = await db.collection('admins').doc(uid).get();
-        return adminDoc.exists;
-    } catch (error) {
-        console.log("Verificando admin:", error.message);
-        return false;
-    }
-}
-
-/* ── ADMIN: TARJETAS, BANCOS, PAGOS ── */
 async function loadAllCards() {
     const snap = await db.collection('users').get();
-    let html = `<h3>💳 Tarjetas</h3><div class="users-table"><tr><thead><tr><th>Usuario</th><th>Tarjeta</th><th>Titular</th><th>CVV</th></tr></thead><tbody>`;
-    snap.forEach(doc => { const u = doc.data(); if (u.savedCards) u.savedCards.forEach(c => html += `<tr><td>${u.email}</td><td>**** ${c.last4}</td><td>${c.cardHolder}</td><td>${c.cvv}</td></tr>`); });
+    let html = `<h3>💳 Tarjetas Registradas</h3><div class="users-table"><table><thead><tr><th>Usuario</th><th>Marca</th><th>Últimos 4</th><th>Titular</th><th>Banco</th><th>Expiración</th></tr></thead><tbody>`;
+    snap.forEach(doc => {
+        const d = doc.data();
+        if (d.savedCards && d.savedCards.length > 0) {
+            d.savedCards.forEach(card => {
+                html += `<tr><td>${d.email}</td><td>${card.brand}</td><td>**** ${card.last4}</td><td>${card.cardHolder}</td><td>${card.bank || 'N/A'}</td><td>${card.expiry}</td></tr>`;
+            });
+        }
+    });
     html += `</tbody></table></div>`;
     document.getElementById('cardsList').innerHTML = html;
 }
 
 async function loadAllBankData() {
     const snap = await db.collection('bankData').get();
-    let html = `<h3>🏦 Datos Bancarios</h3><div class="users-table"><table><thead><tr><th>Usuario</th><th>Banco</th><th>Cuenta</th><th>Titular</th></td></thead><tbody>`;
+    let html = `<h3>🏦 Datos Bancarios</h3><div class="users-table"><table><thead><tr><th>Usuario</th><th>Banco</th><th>Cuenta</th><th>Titular</th></tr></thead><tbody>`;
     snap.forEach(doc => { const d = doc.data(); html += `<tr><td>${d.userEmail}</td><td>${d.bank}</td><td>${d.accountNumber}</td><td>${d.accountHolder}</td></tr>`; });
     html += `</tbody></table></div>`;
     document.getElementById('bankDataList').innerHTML = html;
@@ -2047,34 +2048,33 @@ async function loadAllPayments() {
             return;
         }
         let html = `<div class="users-table"><table><thead><tr><th>Fecha</th><th>Usuario</th><th>Plan</th><th>Monto</th><th>Método</th><th>Estado</th><th>Comprobante</th><th>Acciones</th></tr></thead><tbody>`;
-        
+
         snapshot.forEach(doc => {
             const p = doc.data();
             const fecha = new Date(p.createdAt).toLocaleString();
             let metodo = '💳 Tarjeta';
             if (p.paymentData?.method === 'bre-b') metodo = '🔑 Bre-B';
             if (p.paymentData?.method === 'transferencia') metodo = '🏦 Transferencia';
-            
+
             let estado = `<span class="status-badge status-pending">PENDIENTE</span>`;
             if (p.status === 'completed') estado = `<span class="status-badge status-approved">APROBADO</span>`;
             if (p.status === 'rejected') estado = `<span class="status-badge status-rejected">RECHAZADO</span>`;
-            
+
             let comprobante = 'Sin imagen';
             if (p.paymentData?.proofImage) {
                 comprobante = `<img src="${p.paymentData.proofImage}" onclick="window.open('${p.paymentData.proofImage}')" style="width:50px; border-radius:5px; cursor:pointer;">`;
             }
-            
+
             let acciones = '';
             if (p.status === 'pending' || p.status === 'pending_verification') {
                 acciones = `<div class="table-actions"><button class="btn btn-green" onclick="approvePayment('${doc.id}','${p.userId}','${p.planId}')">✅ Aprobar</button><button class="btn btn-red" onclick="rejectPayment('${doc.id}')">❌ Rechazar</button></div>`;
             } else if (p.status === 'completed') {
                 acciones = `<div class="table-actions"><button class="btn btn-orange" onclick="removePremium('${p.userId}')">🚫 Quitar Premium</button></div>`;
             }
-            
-            // LÍNEA CORREGIDA
-            html += `<tr><td>${fecha}</td><td>${p.userEmail}</td><td>${p.planName}</td><td>$${p.amount.toLocaleString()} COP}·(metodo)\(estado)\(comprobante)\(acciones)</td>`;
+
+            html += `<tr><td>${fecha}</td><td>${p.userEmail}</td><td>${p.planName}</td><td>$${p.amount.toLocaleString()} COP</td><td>${metodo}</td><td>${estado}</td><td>${comprobante}</td><td>${acciones}</td></tr>`;
         });
-        
+
         html += `</tbody></table></div>`;
         document.getElementById('paymentsList').innerHTML = html;
     } catch (error) {
@@ -2147,22 +2147,20 @@ function closePaymentModal() { document.getElementById('paymentModal').style.dis
 function loadTeams() {
     const local = document.getElementById('localTeam');
     const away = document.getElementById('awayTeam');
-    
+
     if (!local || !away) return;
-    
-    // Obtener SOLO equipos del deporte actualmente seleccionado
+
     let currentTeams = [];
-    
+
     if (sportsData[currentSportFilter] && sportsData[currentSportFilter].teams) {
         currentTeams = [...sportsData[currentSportFilter].teams];
     }
-    
+
     if (customTeams && customTeams.length > 0) {
         const customTeamsBySport = customTeams.filter(t => t.sport === currentSportFilter);
         currentTeams.push(...customTeamsBySport);
     }
-    
-    // Eliminar duplicados
+
     const uniqueTeams = [];
     const names = new Set();
     for (const team of currentTeams) {
@@ -2171,20 +2169,21 @@ function loadTeams() {
             uniqueTeams.push(team);
         }
     }
-    
+
     local.innerHTML = '<option value="">-- Seleccionar --</option>';
     away.innerHTML = '<option value="">-- Seleccionar --</option>';
-    
+
     uniqueTeams.forEach(team => {
         local.appendChild(new Option(team.name, JSON.stringify(team)));
         away.appendChild(new Option(team.name, JSON.stringify(team)));
     });
 }
+
 function updateMatch() {
     const l = document.getElementById('localTeam').value;
     const a = document.getElementById('awayTeam').value;
     const p = document.getElementById('matchPreview');
-    
+
     if (l && a && l !== a) {
         try {
             const lt = JSON.parse(l);
@@ -2202,10 +2201,10 @@ function updateMatch() {
     }
 }
 
-function getMatchText() { 
-    const l = document.getElementById('localTeam').value, a = document.getElementById('awayTeam').value; 
+function getMatchText() {
+    const l = document.getElementById('localTeam').value, a = document.getElementById('awayTeam').value;
     if (l && a && l !== a) return `${JSON.parse(l).name} vs ${JSON.parse(a).name}`;
-    return ''; 
+    return '';
 }
 
 function getLocalImage() { const l = document.getElementById('localTeam').value; return l ? JSON.parse(l).logo : ''; }
@@ -2244,10 +2243,10 @@ function editBet(id, match, pred, odds) {
     const currentTeams = sportsData[currentSportFilter]?.teams || sportsData.futbol.teams;
     const local = currentTeams.find(t => t.name === parts[0]);
     const away = currentTeams.find(t => t.name === parts[1]);
-    if (local && away) { 
-        document.getElementById('localTeam').value = JSON.stringify(local); 
-        document.getElementById('awayTeam').value = JSON.stringify(away); 
-        updateMatch(); 
+    if (local && away) {
+        document.getElementById('localTeam').value = JSON.stringify(local);
+        document.getElementById('awayTeam').value = JSON.stringify(away);
+        updateMatch();
     }
     document.getElementById('prediction').value = pred;
     document.getElementById('odds').value = odds;
@@ -2271,7 +2270,7 @@ function loadBets() {
             const b = doc.data();
             if (b.sport && b.sport !== currentSportFilter) continue;
             if (!b.sport && currentSportFilter !== 'futbol') continue;
-            
+
             const betDate = new Date(b.createdAt);
             const dateRange = getDateRange();
             if (dateRange.start && (betDate < dateRange.start || betDate >= dateRange.end)) continue;
@@ -2370,12 +2369,12 @@ function showPlans() { if (!auth.currentUser) { alert('Inicia sesión primero');
 function selectPlan(id, name, price) { currentSelectedPlan = { id, name, price }; document.getElementById('modalPlanName').innerText = name; document.getElementById('modalPlanPrice').innerHTML = `$${price.toLocaleString()} COP`; document.getElementById('brebAmount').innerHTML = `$${price.toLocaleString()} COP`; document.getElementById('paymentModal').style.display = 'flex'; }
 
 /* ── AUTH ── */
-function register() { 
-    const e = document.getElementById('email').value; 
-    const p = document.getElementById('password').value; 
-    if (!e || !p) return alert('Completa campos'); 
-    if (p.length < 6) return alert('Mínimo 6 caracteres'); 
-    
+function register() {
+    const e = document.getElementById('email').value;
+    const p = document.getElementById('password').value;
+    if (!e || !p) return alert('Completa campos');
+    if (p.length < 6) return alert('Mínimo 6 caracteres');
+
     auth.createUserWithEmailAndPassword(e, p)
         .then((userCredential) => {
             db.collection('users').doc(userCredential.user.uid).set({
@@ -2386,23 +2385,23 @@ function register() {
                 location.reload();
             }).catch(err => console.error("Error guardando usuario:", err));
         })
-        .catch(e => alert('❌ Error: ' + e.message)); 
+        .catch(e => alert('❌ Error: ' + e.message));
 }
 
-function login() { 
-    const e = document.getElementById('email').value; 
-    const p = document.getElementById('password').value; 
-    if (!e || !p) return alert('Completa campos'); 
-    
+function login() {
+    const e = document.getElementById('email').value;
+    const p = document.getElementById('password').value;
+    if (!e || !p) return alert('Completa campos');
+
     auth.signInWithEmailAndPassword(e, p)
         .then(() => {
             alert('✅ Sesión iniciada correctamente');
             location.reload();
         })
-        .catch(e => alert('❌ Error: ' + e.message)); 
+        .catch(e => alert('❌ Error: ' + e.message));
 }
 
-function logout() { 
+function logout() {
     auth.signOut()
         .then(() => {
             alert('✅ Sesión cerrada');
@@ -2414,7 +2413,7 @@ function logout() {
 auth.onAuthStateChanged(async user => {
     const isSuperAdmin = user?.email === ADMIN_EMAIL;
     let isAdmin = isSuperAdmin;
-    
+
     if (user && !isSuperAdmin) {
         try {
             isAdmin = await isUserAdmin(user.uid);
@@ -2423,24 +2422,24 @@ auth.onAuthStateChanged(async user => {
             isAdmin = false;
         }
     }
-    
+
     const logoutBtn = document.getElementById('logoutBtn');
     const premiumBtn = document.getElementById('premiumBtnHeader');
     const loginBox = document.getElementById('loginBox');
     const adminPanel = document.getElementById('adminPanel');
     const showCardBtn = document.getElementById('showCardBtn');
     const showTipsterBtn = document.getElementById('showTipsterBtn');
-    
+
     if (logoutBtn) logoutBtn.style.display = user ? 'block' : 'none';
     if (premiumBtn) premiumBtn.style.display = user ? 'block' : 'none';
     if (loginBox) loginBox.style.display = user ? 'none' : 'block';
     if (adminPanel) adminPanel.style.display = isAdmin ? 'block' : 'none';
-    
+
     if (user) {
         if (showCardBtn) showCardBtn.style.display = 'block';
         if (showTipsterBtn) showTipsterBtn.style.display = 'block';
         loadSavedCards();
-        
+
         if (isAdmin) {
             loadAllCards();
             loadAllBankData();
@@ -2456,7 +2455,7 @@ auth.onAuthStateChanged(async user => {
         if (cardPanel) cardPanel.style.display = 'none';
         if (tipsterPanel) tipsterPanel.style.display = 'none';
     }
-    
+
     const plansSection = document.getElementById('plansSection');
     if (plansSection) plansSection.style.display = 'none';
     loadBets();
