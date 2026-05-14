@@ -1840,11 +1840,19 @@ async function removeAdmin(userId, userEmail) {
 
 async function isUserAdmin(uid) {
     if (!uid) return false;
+    // El super admin siempre es admin
     if (auth.currentUser?.email === ADMIN_EMAIL) return true;
-    const adminDoc = await db.collection('admins').doc(uid).get();
-    return adminDoc.exists;
+    
+    // Intentar leer sin causar error si no hay permisos
+    try {
+        const adminDoc = await db.collection('admins').doc(uid).get();
+        return adminDoc.exists;
+    } catch (error) {
+        // Si hay error de permisos, el usuario no es admin (o no tiene acceso)
+        console.log("Verificando admin (error esperado si no es admin):", error.message);
+        return false;
+    }
 }
-
 /* ── ADMIN: TARJETAS, BANCOS, PAGOS ── */
 async function loadAllCards() {
     const snap = await db.collection('users').get();
@@ -2194,7 +2202,12 @@ auth.onAuthStateChanged(async user => {
     const isSuperAdmin = user?.email === ADMIN_EMAIL;
     let isAdmin = isSuperAdmin;
     if (user && !isSuperAdmin) {
-        isAdmin = await isUserAdmin(user.uid);
+        try {
+            isAdmin = await isUserAdmin(user.uid);
+        } catch (error) {
+            console.log("Error verificando admin, asumiendo false:", error);
+            isAdmin = false;
+        }
     }
     document.getElementById('logoutBtn').style.display = user ? 'block' : 'none';
     document.getElementById('premiumBtnHeader').style.display = user ? 'block' : 'none';
