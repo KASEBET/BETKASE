@@ -1424,12 +1424,27 @@ function openStatsModal(betId, matchName, statsJson) {
     document.getElementById('statsModalTitle').innerHTML = `📊 ${matchName}`;
     const fields = ['goalsLocal','goalsAway','yellowLocal','yellowAway','redLocal','redAway','cornersLocal','cornersAway','shotsLocal','shotsAway','shotsOnTargetLocal','shotsOnTargetAway'];
     fields.forEach(f => { document.getElementById(f).value = currentStats?.[f] || 0; });
+    
+    // Deshabilitar inputs si NO es admin
+    const isAdmin = auth.currentUser?.email === ADMIN_EMAIL;
+    fields.forEach(f => {
+        const input = document.getElementById(f);
+        if (input) input.disabled = !isAdmin;
+    });
+    
     const displayDiv = document.getElementById('statsDisplay');
     if (currentStats && Object.keys(currentStats).length > 0) {
         displayDiv.innerHTML = `<div style="background:#0c0c0c; border-radius:15px; padding:15px; margin-top:10px;"><h4 style="color:#00ff88; margin-bottom:10px;">📈 Estadísticas actuales:</h4><div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:14px; color:#aaa;"><div>⚽ Goles: ${currentStats.goalsLocal||0} - ${currentStats.goalsAway||0}</div><div>🟨 Amarillas: ${currentStats.yellowLocal||0} - ${currentStats.yellowAway||0}</div><div>🟥 Rojas: ${currentStats.redLocal||0} - ${currentStats.redAway||0}</div><div>🎯 Corners: ${currentStats.cornersLocal||0} - ${currentStats.cornersAway||0}</div><div>💥 Remates: ${currentStats.shotsLocal||0} - ${currentStats.shotsAway||0}</div><div>🎯 A puerta: ${currentStats.shotsOnTargetLocal||0} - ${currentStats.shotsOnTargetAway||0}</div></div></div>`;
     } else {
         displayDiv.innerHTML = '';
     }
+    
+    // Mostrar u ocultar el botón de guardar según si es admin
+    const saveButton = document.querySelector('#statsForm .btn-green');
+    if (saveButton) {
+        saveButton.style.display = isAdmin ? 'block' : 'none';
+    }
+    
     document.getElementById('statsModal').style.display = 'flex';
 }
 
