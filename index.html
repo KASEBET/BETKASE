@@ -10,6 +10,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
 <style>
+/* ========== ESTILOS COMPLETOS (igual que tu versión original) ========== */
 * {
     margin: 0;
     padding: 0;
@@ -228,35 +229,6 @@ header {
     text-align: center;
 }
 
-.tabs {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-bottom: 30px;
-    flex-wrap: wrap;
-}
-
-.tab-btn {
-    padding: 12px 30px;
-    background: #0c0c0c;
-    border: 1px solid #333;
-    border-radius: 30px;
-    cursor: pointer;
-    transition: .3s;
-    color: white;
-    font-weight: bold;
-}
-
-.tab-btn.active {
-    background: #00ff88;
-    color: black;
-    border-color: #00ff88;
-}
-
-.tab-btn:hover:not(.active) {
-    border-color: #00ff88;
-}
-
 /* FILTROS POR FECHA */
 .date-filters {
     display: flex;
@@ -280,10 +252,6 @@ header {
 .date-btn.active {
     background: #00ff88;
     color: black;
-    border-color: #00ff88;
-}
-
-.date-btn:hover:not(.active) {
     border-color: #00ff88;
 }
 
@@ -335,60 +303,33 @@ header {
     color: #888;
 }
 
-/* MODAL DE ESTADÍSTICAS DEL PARTIDO */
-.stats-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.95);
-    z-index: 1000;
+.tabs {
+    display: flex;
+    gap: 10px;
     justify-content: center;
-    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
 }
 
-.stats-content {
-    background: linear-gradient(145deg, #111, #191919);
-    padding: 40px;
-    border-radius: 30px;
-    max-width: 700px;
-    width: 90%;
-    max-height: 85vh;
-    overflow-y: auto;
-    border: 1px solid #00ff88;
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin: 20px 0;
-}
-
-.stat-item {
+.tab-btn {
+    padding: 12px 30px;
     background: #0c0c0c;
-    padding: 15px;
-    border-radius: 15px;
-    text-align: center;
-}
-
-.stat-item label {
-    display: block;
-    color: #00ff88;
-    font-size: 12px;
-    margin-bottom: 5px;
-}
-
-.stat-item input {
-    width: 100%;
-    padding: 10px;
-    background: #050505;
     border: 1px solid #333;
-    border-radius: 10px;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: .3s;
     color: white;
-    text-align: center;
+    font-weight: bold;
+}
+
+.tab-btn.active {
+    background: #00ff88;
+    color: black;
+    border-color: #00ff88;
+}
+
+.tab-btn:hover:not(.active) {
+    border-color: #00ff88;
 }
 
 .bets {
@@ -397,7 +338,6 @@ header {
     gap: 25px;
 }
 
-/* TARJETA DE APUESTA */
 .bet-card {
     background: linear-gradient(145deg, #111, #191919);
     padding: 30px;
@@ -406,6 +346,7 @@ header {
     transition: .3s;
     position: relative;
     overflow: hidden;
+    cursor: pointer;
 }
 
 .bet-card:hover {
@@ -891,7 +832,7 @@ footer {
     margin-top: 20px;
 }
 
-/* TABLAS ADMIN */
+/* TABLAS ADMIN - ESTILO ORIGINAL FUNCIONAL */
 .users-table {
     width: 100%;
     overflow-x: auto;
@@ -899,7 +840,6 @@ footer {
     border-radius: 20px;
     background: #0c0c0c;
     border: 1px solid #222;
-    display: none;
 }
 
 .users-table table {
@@ -981,6 +921,62 @@ footer {
 .status-rejected {
     background: #ff4444;
     color: #fff;
+}
+
+/* MODAL DE ESTADÍSTICAS */
+.stats-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.95);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.stats-content {
+    background: linear-gradient(145deg, #111, #191919);
+    padding: 40px;
+    border-radius: 30px;
+    max-width: 700px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    border: 1px solid #00ff88;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.stat-item {
+    background: #0c0c0c;
+    padding: 15px;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.stat-item label {
+    display: block;
+    color: #00ff88;
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
+.stat-item input {
+    width: 100%;
+    padding: 10px;
+    background: #050505;
+    border: 1px solid #333;
+    border-radius: 10px;
+    color: white;
+    text-align: center;
 }
 
 @media (max-width: 1000px) {
@@ -1083,16 +1079,19 @@ footer {
 
 <div class="admin-panel" id="adminPanel">
     <h2>🎮 Panel Administrador</h2>
+    <!-- BOTONES ADMIN ACTUALIZADOS -->
     <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
-        <button class="btn btn-green" onclick="toggleTable('usersTable')">👥 Ver Usuarios</button>
-        <button class="btn btn-green" onclick="toggleTable('cardsTable')">💳 Ver Tarjetas</button>
-        <button class="btn btn-green" onclick="toggleTable('bankDataTable')">🏦 Ver Datos Bancarios</button>
-        <button class="btn btn-green" onclick="toggleTable('paymentsTable')">💰 Ver Pagos</button>
+        <button class="btn btn-green" onclick="loadAllUsers()">👥 Ver Usuarios</button>
+        <button class="btn btn-green" onclick="loadAllCards()">💳 Ver Tarjetas</button>
+        <button class="btn btn-green" onclick="loadAllBankData()">🏦 Ver Datos Bancarios</button>
+        <button class="btn btn-green" onclick="loadAllPayments()">💰 Ver Pagos</button>
+        <button class="btn btn-green" onclick="loadAllTipsters()">💰 Ver Tipsters</button>
     </div>
-    <div id="usersTable" class="users-table"></div>
-    <div id="cardsTable" class="users-table"></div>
-    <div id="bankDataTable" class="users-table"></div>
-    <div id="paymentsTable" class="users-table"></div>
+    <div id="tipstersList" style="margin-top:20px;"></div>
+    <div id="cardsList" style="margin-top:20px;"></div>
+    <div id="bankDataList" style="margin-top:20px;"></div>
+    <div id="paymentsList" style="margin-top:20px;"></div>
+    <div id="usersList" style="margin-top:20px;"></div>
     <hr style="margin: 30px 0;">
     <h3>⚽ Gestión de Apuestas</h3>
     <div class="team-selectors">
@@ -1172,7 +1171,7 @@ footer {
     <div class="modal-content">
         <h3 id="modalPlanName">Plan</h3>
         <p id="modalPlanPrice" style="text-align:center; font-size:24px; color:#00ff88;">$0 COP</p>
-
+        
         <div class="accordion">
             <div class="accordion-header" onclick="toggleAccordion('cardsAccordion')">
                 <span>💳 Pagar con Tarjeta Débito/Crédito</span>
@@ -1316,7 +1315,6 @@ let currentTeamFilter = 'all';
 let currentBetIdForStats = null;
 let brebImageBase64 = null;
 let transferImageBase64 = null;
-let currentOpenTable = null;
 
 /* ── HELPERS ── */
 function formatCardNumber(input) { let v = input.value.replace(/\D/g, ''); v = v.replace(/(\d{4})(?=\d)/g, '$1 '); input.value = v; }
@@ -1325,77 +1323,6 @@ function toggleAccordion(id) { const c = document.getElementById(id); c.classLis
 function showCardPanel() { const cp = document.getElementById('cardPanel'); const tp = document.getElementById('tipsterPanel'); tp.style.display = 'none'; cp.style.display = cp.style.display === 'none' || cp.style.display === '' ? 'block' : 'none'; if (cp.style.display === 'block') cp.scrollIntoView({ behavior: 'smooth' }); }
 function showTipsterPanel() { const cp = document.getElementById('cardPanel'); const tp = document.getElementById('tipsterPanel'); cp.style.display = 'none'; tp.style.display = tp.style.display === 'none' || tp.style.display === '' ? 'block' : 'none'; if (tp.style.display === 'block') tp.scrollIntoView({ behavior: 'smooth' }); }
 function escapeAttr(str) { return str ? str.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;') : ''; }
-
-/* ── TABLAS ADMIN ── */
-function toggleTable(tableId) {
-    const tables = ['usersTable', 'cardsTable', 'bankDataTable', 'paymentsTable'];
-    
-    if (currentOpenTable === tableId) {
-        document.getElementById(tableId).style.display = 'none';
-        currentOpenTable = null;
-    } else {
-        tables.forEach(id => { document.getElementById(id).style.display = 'none'; });
-        document.getElementById(tableId).style.display = 'block';
-        currentOpenTable = tableId;
-        
-        if (tableId === 'usersTable') loadAllUsers();
-        if (tableId === 'cardsTable') loadAllCards();
-        if (tableId === 'bankDataTable') loadAllBankData();
-        if (tableId === 'paymentsTable') loadAllPayments();
-    }
-}
-
-async function loadAllUsers() {
-    try {
-        const usersSnapshot = await db.collection('users').get();
-        let html = `<h3>👥 Usuarios Registrados</h3><div class="users-table" style="display:block;"><table><thead><tr><th>Email</th><th>UID</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>`;
-        for (const doc of usersSnapshot.docs) {
-            const userData = doc.data();
-            const userEmail = userData.email || 'Email no disponible';
-            const userId = doc.id;
-            const adminDoc = await db.collection('admins').doc(userId).get();
-            const isAdmin = adminDoc.exists;
-            const showAdminButton = userEmail !== ADMIN_EMAIL;
-            let adminButton = '';
-            if (showAdminButton) {
-                if (isAdmin) adminButton = `<button class="btn btn-orange" onclick="removeAdmin('${userId}', '${userEmail.replace(/'/g, "\\'")}')">🔽 Quitar Admin</button>`;
-                else adminButton = `<button class="btn btn-purple" onclick="makeAdmin('${userId}', '${userEmail.replace(/'/g, "\\'")}')">👑 Dar Admin</button>`;
-            } else adminButton = `<span style="color:#00ff88;">👑 Super Admin</span>`;
-            html += `<tr><td>${userEmail}</td><td style="font-size:12px;">${userId.substring(0, 8)}...</td><td>${isAdmin ? '<span style="color:#00ff88;">✅ Administrador</span>' : '<span style="color:#888;">👤 Usuario</span>'}<td><td class="table-actions">${adminButton}</td></tr>`;
-        }
-        html += `</tbody></table></div>`;
-        document.getElementById('usersTable').innerHTML = html;
-    } catch (error) {
-        document.getElementById('usersTable').innerHTML = `<p style="color:red;">Error cargando usuarios: ${error.message}</p>`;
-    }
-}
-
-async function makeAdmin(userId, userEmail) {
-    if (!confirm(`¿Dar permisos de administrador a ${userEmail}?`)) return;
-    try {
-        await db.collection('admins').doc(userId).set({ email: userEmail, grantedBy: auth.currentUser?.email, grantedAt: Date.now(), isAdmin: true });
-        alert(`✅ ${userEmail} ahora es administrador.`);
-        loadAllUsers();
-        if (currentOpenTable === 'paymentsTable') loadAllPayments();
-    } catch (error) { alert("Error: " + error.message); }
-}
-
-async function removeAdmin(userId, userEmail) {
-    if (!confirm(`¿Quitar permisos de administrador a ${userEmail}?`)) return;
-    try {
-        await db.collection('admins').doc(userId).delete();
-        alert(`✅ ${userEmail} ya no es administrador.`);
-        loadAllUsers();
-        if (currentOpenTable === 'paymentsTable') loadAllPayments();
-    } catch (error) { alert("Error: " + error.message); }
-}
-
-async function isUserAdmin(uid) {
-    if (!uid) return false;
-    if (auth.currentUser?.email === ADMIN_EMAIL) return true;
-    const adminDoc = await db.collection('admins').doc(uid).get();
-    return adminDoc.exists;
-}
 
 /* ── FILTROS ── */
 function filterBets(filter, ev) {
@@ -1436,11 +1363,11 @@ function getDateRange() {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     switch (currentDateFilter) {
-        case 'today':     return { start: today, end: new Date(today.getTime() + 86400000) };
+        case 'today': return { start: today, end: new Date(today.getTime() + 86400000) };
         case 'yesterday': const y = new Date(today.getTime() - 86400000); return { start: y, end: today };
-        case 'week':      const ws = new Date(today); ws.setDate(today.getDate() - today.getDay()); return { start: ws, end: new Date(today.getTime() + 86400000) };
-        case 'month':     return { start: new Date(today.getFullYear(), today.getMonth(), 1), end: new Date(today.getTime() + 86400000) };
-        default:          return { start: null, end: null };
+        case 'week': const ws = new Date(today); ws.setDate(today.getDate() - today.getDay()); return { start: ws, end: new Date(today.getTime() + 86400000) };
+        case 'month': return { start: new Date(today.getFullYear(), today.getMonth(), 1), end: new Date(today.getTime() + 86400000) };
+        default: return { start: null, end: null };
     }
 }
 
@@ -1575,29 +1502,90 @@ async function saveTipsterData() {
     alert('✅ Datos guardados');
 }
 
-/* ── ADMIN: TARJETAS, BANCOS, PAGOS ── */
+/* ── ADMIN: USUARIOS (con dar/quitar admin) ── */
+async function loadAllUsers() {
+    try {
+        const usersSnapshot = await db.collection('users').get();
+        let html = `
+            <h3>👥 Usuarios Registrados</h3>
+            <div class="users-table">
+                <table>
+                    <thead>
+                        <tr><th>Email</th><th>UID</th><th>Estado</th><th>Acciones</th></tr>
+                    </thead>
+                    <tbody>
+        `;
+        for (const doc of usersSnapshot.docs) {
+            const userData = doc.data();
+            const userEmail = userData.email || 'Email no disponible';
+            const userId = doc.id;
+            const adminDoc = await db.collection('admins').doc(userId).get();
+            const isAdmin = adminDoc.exists;
+            const showAdminButton = userEmail !== ADMIN_EMAIL;
+            let adminButton = '';
+            if (showAdminButton) {
+                if (isAdmin) adminButton = `<button class="btn btn-orange" onclick="removeAdmin('${userId}', '${userEmail.replace(/'/g, "\\'")}')">🔽 Quitar Admin</button>`;
+                else adminButton = `<button class="btn btn-purple" onclick="makeAdmin('${userId}', '${userEmail.replace(/'/g, "\\'")}')">👑 Dar Admin</button>`;
+            } else adminButton = `<span style="color:#00ff88;">👑 Super Admin</span>`;
+            html += `<tr><td>${userEmail}</td><td style="font-size:12px;">${userId.substring(0, 8)}...</td><td>${isAdmin ? '<span style="color:#00ff88;">✅ Administrador</span>' : '<span style="color:#888;">👤 Usuario</span>'}</td><td class="table-actions">${adminButton}</td></tr>`;
+        }
+        html += `</tbody></table></div>`;
+        document.getElementById('usersList').innerHTML = html;
+    } catch (error) {
+        document.getElementById('usersList').innerHTML = `<p style="color:red;">Error cargando usuarios: ${error.message}</p>`;
+    }
+}
+
+async function makeAdmin(userId, userEmail) {
+    if (!confirm(`¿Dar permisos de administrador a ${userEmail}?`)) return;
+    try {
+        await db.collection('admins').doc(userId).set({ email: userEmail, grantedBy: auth.currentUser?.email, grantedAt: Date.now(), isAdmin: true });
+        alert(`✅ ${userEmail} ahora es administrador.`);
+        loadAllUsers();
+        if (currentOpenTable === 'paymentsTable') loadAllPayments();
+    } catch (error) { alert("Error: " + error.message); }
+}
+
+async function removeAdmin(userId, userEmail) {
+    if (!confirm(`¿Quitar permisos de administrador a ${userEmail}?`)) return;
+    try {
+        await db.collection('admins').doc(userId).delete();
+        alert(`✅ ${userEmail} ya no es administrador.`);
+        loadAllUsers();
+        if (currentOpenTable === 'paymentsTable') loadAllPayments();
+    } catch (error) { alert("Error: " + error.message); }
+}
+
+async function isUserAdmin(uid) {
+    if (!uid) return false;
+    if (auth.currentUser?.email === ADMIN_EMAIL) return true;
+    const adminDoc = await db.collection('admins').doc(uid).get();
+    return adminDoc.exists;
+}
+
+/* ── ADMIN: TARJETAS, BANCOS, PAGOS, TIPSTERS ── */
+async function loadAllTipsters() {
+    const snap = await db.collection('tipsters').get();
+    let html = `<h3>💰 Tipsters</h3><div class="users-table"><table><thead><tr><th>Email</th><th>Banco</th><th>Cuenta</th><th>Titular</th></tr></thead><tbody>`;
+    snap.forEach(doc => { const t = doc.data(); if (t.paymentData) html += `<tr><td>${t.email}</td><td>${t.paymentData.bank}</td><td>${t.paymentData.accountNumber}</td><td>${t.paymentData.accountHolder}</td></tr>`; });
+    html += `</tbody></table></div>`;
+    document.getElementById('tipstersList').innerHTML = html;
+}
+
 async function loadAllCards() {
     const snap = await db.collection('users').get();
-    let html = `<h3>💳 Tarjetas Guardadas</h3><div class="users-table" style="display:block;"><table><thead><tr><th>Usuario</th><th>Tarjeta</th><th>Titular</th><th>CVV</th><th>Banco</th></tr></thead><tbody>`;
-    snap.forEach(doc => { const u = doc.data(); if (u.savedCards && u.savedCards.length > 0) { u.savedCards.forEach(c => html += `<tr><td>${u.email || 'N/A'}</td><td>**** ${c.last4 || ''}</td><td>${c.cardHolder || ''}</td><td>${c.cvv || ''}</td><td>${c.bank || ''}</td></tr>`); } });
+    let html = `<h3>💳 Tarjetas</h3><div class="users-table"><table><thead><tr><th>Usuario</th><th>Tarjeta</th><th>Titular</th><th>CVV</th></tr></thead><tbody>`;
+    snap.forEach(doc => { const u = doc.data(); if (u.savedCards) u.savedCards.forEach(c => html += `<tr><td>${u.email}</td><td>**** ${c.last4}</td><td>${c.cardHolder}</td><td>${c.cvv}</td></tr>`); });
     html += `</tbody></table></div>`;
-    document.getElementById('cardsTable').innerHTML = html;
+    document.getElementById('cardsList').innerHTML = html;
 }
 
 async function loadAllBankData() {
     const snap = await db.collection('bankData').get();
-    let html = `<h3>🏦 Datos Bancarios</h3><div class="users-table" style="display:block;"><table><thead><tr><th>Usuario</th><th>Banco</th><th>Cuenta</th><th>Titular</th></tr></thead><tbody>`;
-    snap.forEach(doc => { const d = doc.data(); html += `<tr><td>${d.userEmail || 'N/A'}</td><td>${d.bank || ''}</td><td>${d.accountNumber || ''}</td><td>${d.accountHolder || ''}</td></tr>`; });
+    let html = `<h3>🏦 Datos Bancarios</h3><div class="users-table"><table><thead><tr><th>Usuario</th><th>Banco</th><th>Cuenta</th><th>Titular</th></tr></thead><tbody>`;
+    snap.forEach(doc => { const d = doc.data(); html += `<tr><td>${d.userEmail}</td><td>${d.bank}</td><td>${d.accountNumber}</td><td>${d.accountHolder}</td></tr>`; });
     html += `</tbody></table></div>`;
-    document.getElementById('bankDataTable').innerHTML = html;
-}
-
-async function loadAllTipsters() {
-    const snap = await db.collection('tipsters').get();
-    let html = `<h3>💰 Tipsters</h3><div class="users-table" style="display:block;"></table><thead><tr><th>Email</th><th>Banco</th><th>Cuenta</th><th>Titular</th></tr></thead><tbody>`;
-    snap.forEach(doc => { const t = doc.data(); if (t.paymentData) html += `<tr><td>${t.email}</td><td>${t.paymentData.bank}</td><td>${t.paymentData.accountNumber}</td><td>${t.paymentData.accountHolder}</td></tr>`; });
-    html += `</tbody></table></div>`;
-    document.getElementById('tipstersList').innerHTML = html;
+    document.getElementById('bankDataList').innerHTML = html;
 }
 
 async function approvePayment(paymentId, userId, planId) {
@@ -1631,10 +1619,18 @@ async function removePremium(userId) {
 }
 
 async function loadAllPayments() {
+    const user = auth.currentUser;
+    if (user?.email !== ADMIN_EMAIL) {
+        alert('Solo administradores');
+        return;
+    }
     try {
         const snapshot = await db.collection('payments').orderBy('createdAt', 'desc').get();
-        if (snapshot.empty) { document.getElementById('paymentsTable').innerHTML = `<p>No hay pagos registrados</p>`; return; }
-        let html = `<h3>💰 Pagos Registrados</h3><div class="users-table" style="display:block;"><table><thead><tr><th>Fecha</th><th>Usuario</th><th>Plan</th><th>Monto</th><th>Método</th><th>Estado</th><th>Comprobante</th><th>Acciones</th></tr></thead><tbody>`;
+        if (snapshot.empty) {
+            document.getElementById('paymentsList').innerHTML = `<p>No hay pagos registrados</p>`;
+            return;
+        }
+        let html = `<div class="users-table"><table><thead><tr><th>Fecha</th><th>Usuario</th><th>Plan</th><th>Monto</th><th>Método</th><th>Estado</th><th>Comprobante</th><th>Acciones</th></tr></thead><tbody>`;
         snapshot.forEach(doc => {
             const p = doc.data();
             const fecha = new Date(p.createdAt).toLocaleString();
@@ -1652,11 +1648,14 @@ async function loadAllPayments() {
             } else if (p.status === 'completed') {
                 acciones = `<div class="table-actions"><button class="btn btn-orange" onclick="removePremium('${p.userId}')">🚫 Quitar Premium</button></div>`;
             }
-            html += `<tr><td>${fecha}</td><td>${p.userEmail}</td><td>${p.planName}</td><td>$${p.amount.toLocaleString()} COP</td>${metodo}</td>${estado}</td>${comprobante}</td><td class="table-actions">${acciones}</td></tr>`;
+            html += `<tr><td>${fecha}</td><td>${p.userEmail}</td><td>${p.planName}</td><td>$${p.amount.toLocaleString()} COP}·(metodo)\(estado)\(comprobante)\(acciones)</tr>`;
         });
         html += `</tbody></table></div>`;
-        document.getElementById('paymentsTable').innerHTML = html;
-    } catch (error) { console.error(error); document.getElementById('paymentsTable').innerHTML = `<p style="color:red;">Error cargando pagos</p>`; }
+        document.getElementById('paymentsList').innerHTML = html;
+    } catch (error) {
+        console.error(error);
+        document.getElementById('paymentsList').innerHTML = `<p style="color:red;">Error cargando pagos</p>`;
+    }
 }
 
 /* ── PAGOS ── */
@@ -1911,6 +1910,7 @@ auth.onAuthStateChanged(async user => {
             loadAllCards();
             loadAllBankData();
             loadAllPayments();
+            loadAllUsers();
         }
     } else {
         cb.style.display = 'none';
@@ -1946,8 +1946,7 @@ window.setBetResult = setBetResult; window.previewImage = previewImage;
 window.setDateFilter = setDateFilter; window.setTeamFilter = setTeamFilter;
 window.clearTeamFilter = clearTeamFilter; window.openStatsModal = openStatsModal;
 window.closeStatsModal = closeStatsModal; window.saveMatchStats = saveMatchStats;
-window.toggleTable = toggleTable; window.loadAllUsers = loadAllUsers;
-window.makeAdmin = makeAdmin; window.removeAdmin = removeAdmin;
+window.loadAllUsers = loadAllUsers; window.makeAdmin = makeAdmin; window.removeAdmin = removeAdmin;
 </script>
 </body>
 </html>
