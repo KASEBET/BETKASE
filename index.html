@@ -1746,17 +1746,16 @@ function setEditTeamMode(mode) {
     }
 }
 
-function handleEditTeamFile(input) {
+async function handleEditTeamFile(input) {
     const preview = document.getElementById('editTeamFilePreview');
     if (input.files && input.files[0]) {
         const file = input.files[0];
-        if (file.size > 1048576) { alert('Imagen demasiado grande (máx 1MB).'); input.value = ''; preview.innerHTML = ''; editingTeamImageBase64 = null; return; }
-        const reader = new FileReader();
-        reader.onload = e => {
-            editingTeamImageBase64 = e.target.result;
-            preview.innerHTML = `<img src="${e.target.result}" style="max-width:80px; max-height:80px; border-radius:10px; border:2px solid #00ff88; margin-top:8px;">`;
-        };
-        reader.readAsDataURL(file);
+        if (file.size > 10 * 1024 * 1024) { alert('Imagen demasiado grande (máx 10MB).'); input.value = ''; preview.innerHTML = ''; editingTeamImageBase64 = null; return; }
+        try {
+            const base64 = await resizeImageToBase64(file, 300, 300, 0.85);
+            editingTeamImageBase64 = base64;
+            preview.innerHTML = `<img src="${base64}" style="width:60px; height:60px; object-fit:contain; border-radius:10px; border:2px solid #00ff88; margin-top:8px;">`;
+        } catch(err) { alert(err); input.value = ''; editingTeamImageBase64 = null; }
     }
 }
 
@@ -1812,24 +1811,16 @@ function setTeamImageMode(mode) {
     }
 }
 
-function previewNewTeamImage(input) {
+async function previewNewTeamImage(input) {
     const preview = document.getElementById('newTeamLogoPreview');
     if (input.files && input.files[0]) {
         const file = input.files[0];
-        if (file.size > 1048576) {
-            alert('La imagen es demasiado grande (máx 1MB).');
-            input.value = '';
-            preview.innerHTML = '';
-            newTeamImageBase64 = null;
-            return;
-        }
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            newTeamImageBase64 = e.target.result;
-            preview.innerHTML = `<img src="${e.target.result}" style="max-width:80px; max-height:80px; border-radius:10px; border:2px solid #00ff88; margin-top:8px;">`;
-        };
-        reader.onerror = function() { alert('Error al leer el archivo.'); input.value = ''; newTeamImageBase64 = null; };
-        reader.readAsDataURL(file);
+        if (file.size > 10 * 1024 * 1024) { alert('Imagen demasiado grande (máx 10MB).'); input.value = ''; preview.innerHTML = ''; newTeamImageBase64 = null; return; }
+        try {
+            const base64 = await resizeImageToBase64(file, 300, 300, 0.85);
+            newTeamImageBase64 = base64;
+            preview.innerHTML = `<img src="${base64}" style="width:60px; height:60px; object-fit:contain; border-radius:10px; border:2px solid #00ff88; margin-top:8px;">`;
+        } catch(err) { alert(err); input.value = ''; newTeamImageBase64 = null; }
     }
 }
 
@@ -1866,6 +1857,8 @@ async function loadTeamsFromFirestore() {
         console.error("Error cargando equipos:", error);
     }
     displayTeamsListBySport();
+    loadTeams();
+    loadTeamFilter();
 }
 
 async function addNewTeam() {
@@ -2079,20 +2072,44 @@ async function loadMatchStats(betId) {
     return doc.exists ? doc.data() : null;
 }
 
+/* ── RESIZE DE IMAGEN CON CANVAS ── */
+function resizeImageToBase64(file, maxW, maxH, quality) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => {
+            const img = new Image();
+            img.onload = () => {
+                let w = img.width, h = img.height;
+                if (w > maxW || h > maxH) {
+                    const ratio = Math.min(maxW / w, maxH / h);
+                    w = Math.round(w * ratio);
+                    h = Math.round(h * ratio);
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = w; canvas.height = h;
+                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                resolve(canvas.toDataURL('image/jpeg', quality || 0.82));
+            };
+            img.onerror = () => reject('Error al procesar la imagen.');
+            img.src = e.target.result;
+        };
+        reader.onerror = () => reject('Error al leer el archivo.');
+        reader.readAsDataURL(file);
+    });
+}
+
 /* ── IMAGEN ── */
-function previewImage(input, previewId) {
+async function previewImage(input, previewId) {
     const preview = document.getElementById(previewId);
     if (input.files && input.files[0]) {
         const file = input.files[0];
-        if (file.size > 1048576) { alert('La imagen es demasiado grande (máx 1MB).'); input.value = ''; preview.innerHTML = ''; return; }
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            preview.innerHTML = '<img src="' + e.target.result + '" style="max-width:150px; max-height:80px; border-radius:10px; border:2px solid #00ff88; margin-top:10px;">';
-            if (previewId === 'brebPreview') brebImageBase64 = e.target.result;
-            else if (previewId === 'transferPreview') transferImageBase64 = e.target.result;
-        };
-        reader.onerror = function() { alert('Error al leer el archivo.'); input.value = ''; };
-        reader.readAsDataURL(file);
+        if (file.size > 10 * 1024 * 1024) { alert('Imagen demasiado grande (máx 10MB).'); input.value = ''; preview.innerHTML = ''; return; }
+        try {
+            const base64 = await resizeImageToBase64(file, 800, 600, 0.82);
+            preview.innerHTML = `<img src="${base64}" style="max-width:150px; max-height:80px; object-fit:contain; border-radius:10px; border:2px solid #00ff88; margin-top:10px;">`;
+            if (previewId === 'brebPreview') brebImageBase64 = base64;
+            else if (previewId === 'transferPreview') transferImageBase64 = base64;
+        } catch(err) { alert(err); input.value = ''; preview.innerHTML = ''; }
     }
 }
 
@@ -2461,6 +2478,20 @@ function editBet(id, match, pred, odds) {
 function deleteBet(id) { if (confirm('¿Eliminar?')) db.collection('bets').doc(id).delete(); }
 async function setBetResult(id, result) { await db.collection('bets').doc(id).update({ result, status: 'completed' }); alert(`✅ Apuesta marcada como ${result === 'win' ? 'GANADA' : result === 'loss' ? 'PERDIDA' : 'ANULADA'}`); }
 
+/* ── LOGO ACTUAL DEL EQUIPO ── */
+function getTeamCurrentLogo(teamName) {
+    if (!teamName) return '';
+    if (customTeams && customTeams.length) {
+        const custom = customTeams.find(t => t.name === teamName);
+        if (custom && custom.logo) return custom.logo;
+    }
+    for (const sport of Object.keys(sportsData)) {
+        const t = sportsData[sport].teams.find(t => t.name === teamName);
+        if (t && t.logo) return t.logo;
+    }
+    return '';
+}
+
 /* ── CARGAR APUESTAS ── */
 function loadBets() {
     if (betsUnsubscribe) betsUnsubscribe();
@@ -2526,8 +2557,9 @@ function loadBets() {
             if (b.type === 'premium' && !auth.currentUser && !showResult) displayPrediction = '🔒 Contenido Premium - Hazte premium para ver';
             else if (b.type === 'premium' && !auth.currentUser && showResult) displayPrediction = '🔒 Inicia sesión para ver el pronóstico';
 
-            const localLogo = b.image || '';
-            const awayLogo = b.awayImage || '';
+            const parts = b.match ? b.match.split(' vs ') : [];
+            const localLogo = (parts[0] ? getTeamCurrentLogo(parts[0]) : '') || b.image || '';
+            const awayLogo = (parts[1] ? getTeamCurrentLogo(parts[1]) : '') || b.awayImage || '';
             let logosHtml = '';
             if (localLogo && awayLogo) {
                 logosHtml = `<div class="match-logos"><img class="team-logo" src="${localLogo}" onerror="this.style.display='none'" alt="Local"><span class="vs-text">VS</span><img class="team-logo" src="${awayLogo}" onerror="this.style.display='none'" alt="Visitante"></div>`;
@@ -2644,12 +2676,12 @@ auth.onAuthStateChanged(async user => {
         if (showTipsterBtn) showTipsterBtn.style.display = 'block';
         loadSavedCards();
 
+        loadTeamsFromFirestore();
         if (isAdmin) {
             loadAllCards();
             loadAllBankData();
             loadAllPayments();
             loadAllUsers();
-            loadTeamsFromFirestore();
         }
     } else {
         if (showCardBtn) showCardBtn.style.display = 'none';
@@ -2668,6 +2700,7 @@ auth.onAuthStateChanged(async user => {
 loadTeams();
 loadPlans();
 loadTeamFilter();
+loadTeamsFromFirestore();
 
 /* ── EXPORTS GLOBALES ── */
 window.register = register; window.login = login; window.logout = logout;
