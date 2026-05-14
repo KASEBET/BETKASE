@@ -2429,8 +2429,22 @@ function getMatchText() {
     return '';
 }
 
-function getLocalImage() { const l = document.getElementById('localTeam').value; return l ? JSON.parse(l).logo : ''; }
-function getAwayImage() { const a = document.getElementById('awayTeam').value; return a ? JSON.parse(a).logo : ''; }
+function getLocalImage() {
+    const l = document.getElementById('localTeam').value;
+    if (!l) return '';
+    try {
+        const logo = JSON.parse(l).logo || '';
+        return logo.startsWith('data:') ? '' : logo;
+    } catch(e) { return ''; }
+}
+function getAwayImage() {
+    const a = document.getElementById('awayTeam').value;
+    if (!a) return '';
+    try {
+        const logo = JSON.parse(a).logo || '';
+        return logo.startsWith('data:') ? '' : logo;
+    } catch(e) { return ''; }
+}
 
 /* ── APUESTAS ── */
 function publishBet() {
