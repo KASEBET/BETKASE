@@ -1965,7 +1965,7 @@ async function removePremium(userId) {
     } catch (error) { alert("Error al remover premium: " + error.message); }
 }
 
-aasync function loadAllPayments() {
+async function loadAllPayments() {
     const user = auth.currentUser;
     if (user?.email !== ADMIN_EMAIL) {
         alert('Solo administradores');
