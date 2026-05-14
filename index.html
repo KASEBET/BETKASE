@@ -1640,25 +1640,34 @@ async function loadAllPayments() {
             return;
         }
         let html = `<div class="users-table"><table><thead><tr><th>Fecha</th><th>Usuario</th><th>Plan</th><th>Monto</th><th>Método</th><th>Estado</th><th>Comprobante</th><th>Acciones</th></tr></thead><tbody>`;
+        
         snapshot.forEach(doc => {
             const p = doc.data();
             const fecha = new Date(p.createdAt).toLocaleString();
             let metodo = '💳 Tarjeta';
             if (p.paymentData?.method === 'bre-b') metodo = '🔑 Bre-B';
             if (p.paymentData?.method === 'transferencia') metodo = '🏦 Transferencia';
+            
             let estado = `<span class="status-badge status-pending">PENDIENTE</span>`;
             if (p.status === 'completed') estado = `<span class="status-badge status-approved">APROBADO</span>`;
             if (p.status === 'rejected') estado = `<span class="status-badge status-rejected">RECHAZADO</span>`;
+            
             let comprobante = 'Sin imagen';
-            if (p.paymentData?.proofImage) comprobante = `<img src="${p.paymentData.proofImage}" onclick="window.open('${p.paymentData.proofImage}')" style="width:50px; border-radius:5px; cursor:pointer;">`;
+            if (p.paymentData?.proofImage) {
+                comprobante = `<img src="${p.paymentData.proofImage}" onclick="window.open('${p.paymentData.proofImage}')" style="width:50px; border-radius:5px; cursor:pointer;">`;
+            }
+            
             let acciones = '';
             if (p.status === 'pending' || p.status === 'pending_verification') {
                 acciones = `<div class="table-actions"><button class="btn btn-green" onclick="approvePayment('${doc.id}','${p.userId}','${p.planId}')">✅ Aprobar</button><button class="btn btn-red" onclick="rejectPayment('${doc.id}')">❌ Rechazar</button></div>`;
             } else if (p.status === 'completed') {
                 acciones = `<div class="table-actions"><button class="btn btn-orange" onclick="removePremium('${p.userId}')">🚫 Quitar Premium</button></div>`;
             }
-            html += `<tr><td>${fecha}</td><td>${p.userEmail}</td><td>${p.planName}</td><td>$${p.amount.toLocaleString()} COP}·(metodo)\(estado)\(comprobante)\(acciones)</tr>`;
+            
+            // LÍNEA CORREGIDA - antes tenía caracteres sueltos
+            html += `<tr><td>${fecha}</td><td>${p.userEmail}</td><td>${p.planName}</td><td>$${p.amount.toLocaleString()} COP</td><td>${metodo}</td><td>${estado}</td><td>${comprobante}</td><td>${acciones}</td></tr>`;
         });
+        
         html += `</tbody></table></div>`;
         document.getElementById('paymentsList').innerHTML = html;
     } catch (error) {
