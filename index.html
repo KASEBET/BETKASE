@@ -89,6 +89,11 @@ header {
     color: white;
 }
 
+.btn-purple {
+    background: #9b59b6;
+    color: white;
+}
+
 .hero {
     min-height: 100vh;
     display: flex;
@@ -252,147 +257,12 @@ header {
     border-color: #00ff88;
 }
 
-/* FILTROS POR FECHA */
-.date-filters {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    margin-bottom: 30px;
-    flex-wrap: wrap;
-}
-
-.date-btn {
-    padding: 10px 25px;
-    background: #0c0c0c;
-    border: 1px solid #333;
-    border-radius: 30px;
-    cursor: pointer;
-    transition: .3s;
-    color: white;
-    font-weight: bold;
-}
-
-.date-btn.active {
-    background: #00ff88;
-    color: black;
-    border-color: #00ff88;
-}
-
-.date-btn:hover:not(.active) {
-    border-color: #00ff88;
-}
-
-/* FILTRO POR EQUIPO */
-.team-filter {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-bottom: 30px;
-    flex-wrap: wrap;
-    align-items: center;
-}
-
-.team-filter select {
-    padding: 12px 25px;
-    background: #0c0c0c;
-    border: 1px solid #333;
-    border-radius: 30px;
-    color: white;
-    font-size: 14px;
-    cursor: pointer;
-    outline: none;
-}
-
-/* PANEL DE ESTADÍSTICAS GENERALES */
-.stats-summary {
-    background: linear-gradient(135deg, #1a1a2e, #16213e);
-    padding: 20px;
-    border-radius: 20px;
-    margin-bottom: 30px;
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-    gap: 15px;
-}
-
-.summary-item {
-    text-align: center;
-}
-
-.summary-item .value {
-    font-size: 28px;
-    font-weight: bold;
-    color: #00ff88;
-}
-
-.summary-item .label {
-    font-size: 12px;
-    color: #888;
-}
-
-/* MODAL DE ESTADÍSTICAS DEL PARTIDO */
-.stats-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.95);
-    z-index: 1000;
-    justify-content: center;
-    align-items: center;
-}
-
-.stats-content {
-    background: linear-gradient(145deg, #111, #191919);
-    padding: 40px;
-    border-radius: 30px;
-    max-width: 700px;
-    width: 90%;
-    max-height: 85vh;
-    overflow-y: auto;
-    border: 1px solid #00ff88;
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin: 20px 0;
-}
-
-.stat-item {
-    background: #0c0c0c;
-    padding: 15px;
-    border-radius: 15px;
-    text-align: center;
-}
-
-.stat-item label {
-    display: block;
-    color: #00ff88;
-    font-size: 12px;
-    margin-bottom: 5px;
-}
-
-.stat-item input {
-    width: 100%;
-    padding: 10px;
-    background: #050505;
-    border: 1px solid #333;
-    border-radius: 10px;
-    color: white;
-    text-align: center;
-}
-
 .bets {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 25px;
 }
 
-/* TARJETA DE APUESTA */
 .bet-card {
     background: linear-gradient(145deg, #111, #191919);
     padding: 30px;
@@ -419,38 +289,19 @@ header {
     border-radius: 50%;
 }
 
-/* LOGOS DE EQUIPOS EN TARJETA */
-.match-logos {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
+.bet-card img {
+    transition: .4s;
+    width: 100%;
+    height: 200px;
+    object-fit: contain;
+    border-radius: 20px;
     margin-bottom: 20px;
     background: #0a0a0a;
-    border-radius: 20px;
-    padding: 15px;
-    min-height: 100px;
+    padding: 20px;
 }
 
-.match-logos .team-logo {
-    width: 65px;
-    height: 65px;
-    object-fit: contain;
-    border-radius: 10px;
-    transition: .4s;
-    flex-shrink: 0;
-}
-
-.bet-card:hover .match-logos .team-logo {
-    transform: scale(1.08);
-}
-
-.match-logos .vs-text {
-    font-size: 22px;
-    font-weight: 900;
-    color: #00ff88;
-    flex-shrink: 0;
-    text-shadow: 0 0 10px rgba(0,255,136,0.4);
+.bet-card:hover img {
+    transform: scale(1.05);
 }
 
 .tag {
@@ -502,7 +353,7 @@ header {
 }
 
 .bet-card h3 {
-    font-size: 22px;
+    font-size: 30px;
     margin-bottom: 15px;
 }
 
@@ -886,6 +737,7 @@ footer {
     margin-top: 20px;
 }
 
+/* TABLAS CORREGIDAS - VERSIÓN RESPONSIVE */
 .users-table {
     width: 100%;
     overflow-x: auto;
@@ -893,6 +745,7 @@ footer {
     border-radius: 20px;
     background: #0c0c0c;
     border: 1px solid #222;
+    display: none;
 }
 
 .users-table table {
@@ -983,10 +836,17 @@ footer {
 }
 
 @media (max-width: 768px) {
-    .users-table table { min-width: 900px; }
-    .users-table th, .users-table td { padding: 10px; font-size: 12px; }
-    .table-actions { flex-direction: column; }
-    .stats-grid { grid-template-columns: 1fr; }
+    .users-table table {
+        min-width: 900px;
+    }
+    .users-table th,
+    .users-table td {
+        padding: 10px;
+        font-size: 12px;
+    }
+    .table-actions {
+        flex-direction: column;
+    }
 }
 </style>
 </head>
@@ -1076,14 +936,16 @@ footer {
 
 <div class="admin-panel" id="adminPanel">
     <h2>🎮 Panel Administrador</h2>
-    <button class="btn btn-green" onclick="loadAllTipsters()">💰 Ver Tipsters</button>
-    <button class="btn btn-green" onclick="loadAllCards()" style="margin-left:10px;">💳 Ver Tarjetas</button>
-    <button class="btn btn-green" onclick="loadAllBankData()" style="margin-left:10px;">🏦 Ver Datos Bancarios</button>
-    <button class="btn btn-green" onclick="loadAllPayments()" style="margin-left:10px;">💰 Ver Pagos</button>
-    <div id="tipstersList" style="margin-top:20px;"></div>
-    <div id="cardsList" style="margin-top:20px;"></div>
-    <div id="bankDataList" style="margin-top:20px;"></div>
-    <div id="paymentsList" style="margin-top:20px;"></div>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
+        <button class="btn btn-green" onclick="toggleTable('usersTable')">👥 Ver Usuarios</button>
+        <button class="btn btn-green" onclick="toggleTable('cardsTable')">💳 Ver Tarjetas</button>
+        <button class="btn btn-green" onclick="toggleTable('bankDataTable')">🏦 Ver Datos Bancarios</button>
+        <button class="btn btn-green" onclick="toggleTable('paymentsTable')">💰 Ver Pagos</button>
+    </div>
+    <div id="usersTable" class="users-table"></div>
+    <div id="cardsTable" class="users-table"></div>
+    <div id="bankDataTable" class="users-table"></div>
+    <div id="paymentsTable" class="users-table"></div>
     <hr style="margin: 30px 0;">
     <h3>⚽ Gestión de Apuestas</h3>
     <div class="team-selectors">
@@ -1099,71 +961,21 @@ footer {
 
 <section class="section">
     <h2 class="section-title">⚽ Historial de Apuestas</h2>
-
-    <!-- FILTROS POR FECHA -->
-    <div class="date-filters">
-        <button class="date-btn active" onclick="setDateFilter('today', event)">📅 Hoy</button>
-        <button class="date-btn" onclick="setDateFilter('yesterday', event)">📆 Ayer</button>
-        <button class="date-btn" onclick="setDateFilter('week', event)">📊 Esta Semana</button>
-        <button class="date-btn" onclick="setDateFilter('month', event)">📈 Este Mes</button>
-        <button class="date-btn" onclick="setDateFilter('all', event)">🎯 Todas</button>
-    </div>
-
-    <!-- FILTRO POR EQUIPO -->
-    <div class="team-filter">
-        <select id="teamFilterSelect" onchange="setTeamFilter()">
-            <option value="all">⚽ Todos los equipos</option>
-        </select>
-        <button class="btn btn-green" onclick="clearTeamFilter()" style="padding: 8px 20px;">🗑️ Limpiar filtro</button>
-    </div>
-
-    <!-- PANEL DE ESTADÍSTICAS GENERALES -->
-    <div id="statsPanel" style="background: linear-gradient(145deg, #0a0a0a, #0c0c0c); border-radius: 25px; padding: 20px; margin-bottom: 30px; border: 1px solid #00ff88;">
-        <h3 style="text-align: center; margin-bottom: 20px;">📊 Estadísticas de Apuestas</h3>
-        <div id="statsSummary" class="stats-summary"></div>
-    </div>
-
     <div class="tabs">
-        <button class="tab-btn active" onclick="filterBets('all', event)">📋 Todas</button>
-        <button class="tab-btn" onclick="filterBets('win', event)">🏆 Ganadas</button>
-        <button class="tab-btn" onclick="filterBets('loss', event)">❌ Perdidas</button>
-        <button class="tab-btn" onclick="filterBets('void', event)">⚠️ Anuladas</button>
-        <button class="tab-btn" onclick="filterBets('pending', event)">⏳ Pendientes</button>
+        <button class="tab-btn active" onclick="filterBets('all')">📋 Todas</button>
+        <button class="tab-btn" onclick="filterBets('win')">🏆 Ganadas</button>
+        <button class="tab-btn" onclick="filterBets('loss')">❌ Perdidas</button>
+        <button class="tab-btn" onclick="filterBets('void')">⚠️ Anuladas</button>
+        <button class="tab-btn" onclick="filterBets('pending')">⏳ Pendientes</button>
     </div>
     <div class="bets" id="bets">Cargando...</div>
 </section>
-
-<!-- MODAL DE ESTADÍSTICAS DEL PARTIDO -->
-<div id="statsModal" class="stats-modal">
-    <div class="stats-content">
-        <h3 id="statsModalTitle">📊 Estadísticas del Partido</h3>
-        <div id="statsForm">
-            <div class="stats-grid">
-                <div class="stat-item"><label>⚽ Goles Local</label><input type="number" id="goalsLocal" value="0" min="0"></div>
-                <div class="stat-item"><label>⚽ Goles Visitante</label><input type="number" id="goalsAway" value="0" min="0"></div>
-                <div class="stat-item"><label>🟨 Amarillas Local</label><input type="number" id="yellowLocal" value="0" min="0"></div>
-                <div class="stat-item"><label>🟨 Amarillas Visitante</label><input type="number" id="yellowAway" value="0" min="0"></div>
-                <div class="stat-item"><label>🟥 Rojas Local</label><input type="number" id="redLocal" value="0" min="0"></div>
-                <div class="stat-item"><label>🟥 Rojas Visitante</label><input type="number" id="redAway" value="0" min="0"></div>
-                <div class="stat-item"><label>🎯 Corners Local</label><input type="number" id="cornersLocal" value="0" min="0"></div>
-                <div class="stat-item"><label>🎯 Corners Visitante</label><input type="number" id="cornersAway" value="0" min="0"></div>
-                <div class="stat-item"><label>💥 Remates Local</label><input type="number" id="shotsLocal" value="0" min="0"></div>
-                <div class="stat-item"><label>💥 Remates Visitante</label><input type="number" id="shotsAway" value="0" min="0"></div>
-                <div class="stat-item"><label>🎯 Remates a Puerta Local</label><input type="number" id="shotsOnTargetLocal" value="0" min="0"></div>
-                <div class="stat-item"><label>🎯 Remates a Puerta Visitante</label><input type="number" id="shotsOnTargetAway" value="0" min="0"></div>
-            </div>
-            <button class="btn-green payment-btn" onclick="saveMatchStats()">💾 Guardar Estadísticas</button>
-        </div>
-        <div id="statsDisplay" style="margin-top: 20px;"></div>
-        <button class="close-modal" onclick="closeStatsModal()">Cerrar</button>
-    </div>
-</div>
 
 <div id="paymentModal" class="modal">
     <div class="modal-content">
         <h3 id="modalPlanName">Plan</h3>
         <p id="modalPlanPrice" style="text-align:center; font-size:24px; color:#00ff88;">$0 COP</p>
-
+        
         <div class="accordion">
             <div class="accordion-header" onclick="toggleAccordion('cardsAccordion')">
                 <span>💳 Pagar con Tarjeta Débito/Crédito</span>
@@ -1181,7 +993,7 @@ footer {
                 <button class="btn-green payment-btn" onclick="processCardPayment()">✅ Pagar con Tarjeta</button>
             </div>
         </div>
-
+        
         <div class="accordion">
             <div class="accordion-header" onclick="toggleAccordion('brebAccordion')">
                 <span>🔑 Pagar con Bre-B</span>
@@ -1200,7 +1012,9 @@ footer {
                 <div class="input-group">
                     <label>📎 Subir comprobante de pago (imagen)</label>
                     <div class="file-input">
-                        <div class="file-label" onclick="document.getElementById('brebFileInput').click()">📁 Haz clic para seleccionar imagen</div>
+                        <div class="file-label" onclick="document.getElementById('brebFileInput').click()">
+                            📁 Haz clic para seleccionar imagen
+                        </div>
                         <input type="file" id="brebFileInput" accept="image/*" style="display:none" onchange="previewImage(this, 'brebPreview')">
                     </div>
                     <div id="brebPreview" class="image-preview"></div>
@@ -1227,7 +1041,9 @@ footer {
                 <div class="input-group">
                     <label>📎 Subir comprobante de pago (imagen)</label>
                     <div class="file-input">
-                        <div class="file-label" onclick="document.getElementById('transferFileInput').click()">📁 Seleccionar imagen</div>
+                        <div class="file-label" onclick="document.getElementById('transferFileInput').click()">
+                            📁 Seleccionar imagen
+                        </div>
                         <input type="file" id="transferFileInput" accept="image/*" style="display:none" onchange="previewImage(this, 'transferPreview')">
                     </div>
                     <div id="transferPreview" class="image-preview"></div>
@@ -1236,7 +1052,7 @@ footer {
                 <button class="btn-orange payment-btn" onclick="processTransferPayment()">✅ Confirmar Transferencia</button>
             </div>
         </div>
-
+        
         <button class="close-modal" onclick="closePaymentModal()">Cerrar</button>
     </div>
 </div>
@@ -1302,172 +1118,72 @@ let selectedCardId = null;
 let betsUnsubscribe = null;
 let editingId = null;
 let currentFilter = 'all';
-let currentDateFilter = 'today';
-let currentTeamFilter = 'all';
-let currentBetIdForStats = null;
 let brebImageBase64 = null;
 let transferImageBase64 = null;
 
-/* ── HELPERS ── */
+// Variable para controlar qué tabla está visible
+let currentOpenTable = null;
+
+function toggleTable(tableId) {
+    const tables = ['usersTable', 'cardsTable', 'bankDataTable', 'paymentsTable'];
+    
+    if (currentOpenTable === tableId) {
+        // Si la misma tabla, la ocultamos
+        document.getElementById(tableId).style.display = 'none';
+        currentOpenTable = null;
+    } else {
+        // Ocultamos todas
+        tables.forEach(id => {
+            document.getElementById(id).style.display = 'none';
+        });
+        // Mostramos la seleccionada y cargamos datos
+        document.getElementById(tableId).style.display = 'block';
+        currentOpenTable = tableId;
+        
+        // Cargar datos según la tabla
+        if (tableId === 'usersTable') loadAllUsers();
+        if (tableId === 'cardsTable') loadAllCards();
+        if (tableId === 'bankDataTable') loadAllBankData();
+        if (tableId === 'paymentsTable') loadAllPayments();
+    }
+}
+
 function formatCardNumber(input) { let v = input.value.replace(/\D/g, ''); v = v.replace(/(\d{4})(?=\d)/g, '$1 '); input.value = v; }
 function formatExpiry(input) { let v = input.value.replace(/\D/g, ''); if (v.length >= 2) v = v.substring(0,2) + '/' + v.substring(2,4); input.value = v; }
 function toggleAccordion(id) { const c = document.getElementById(id); c.classList.toggle('active'); const icon = c.previousElementSibling.querySelector('.icon'); icon.style.transform = c.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0deg)'; }
 function showCardPanel() { const cp = document.getElementById('cardPanel'); const tp = document.getElementById('tipsterPanel'); tp.style.display = 'none'; cp.style.display = cp.style.display === 'none' || cp.style.display === '' ? 'block' : 'none'; if (cp.style.display === 'block') cp.scrollIntoView({ behavior: 'smooth' }); }
 function showTipsterPanel() { const cp = document.getElementById('cardPanel'); const tp = document.getElementById('tipsterPanel'); cp.style.display = 'none'; tp.style.display = tp.style.display === 'none' || tp.style.display === '' ? 'block' : 'none'; if (tp.style.display === 'block') tp.scrollIntoView({ behavior: 'smooth' }); }
-function escapeString(str) { return str ? str.replace(/'/g, "\\'").replace(/"/g, '&quot;') : ''; }
+function filterBets(filter) { currentFilter = filter; document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active')); event.target.classList.add('active'); loadBets(); }
 
-/* ── FILTROS ── */
-function filterBets(filter, ev) {
-    currentFilter = filter;
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    if (ev && ev.target) ev.target.classList.add('active');
-    loadBets();
-}
-
-function setDateFilter(filter, ev) {
-    currentDateFilter = filter;
-    document.querySelectorAll('.date-btn').forEach(btn => btn.classList.remove('active'));
-    if (ev && ev.target) ev.target.classList.add('active');
-    loadBets();
-}
-
-function setTeamFilter() {
-    currentTeamFilter = document.getElementById('teamFilterSelect').value;
-    loadBets();
-}
-
-function clearTeamFilter() {
-    currentTeamFilter = 'all';
-    document.getElementById('teamFilterSelect').value = 'all';
-    loadBets();
-}
-
-function loadTeamFilter() {
-    const select = document.getElementById('teamFilterSelect');
-    select.innerHTML = '<option value="all">⚽ Todos los equipos</option>';
-    const uniqueTeams = [...new Set(teams.map(t => t.name))];
-    uniqueTeams.sort().forEach(team => {
-        select.innerHTML += `<option value="${team}">🏆 ${team}</option>`;
-    });
-}
-
-function getDateRange() {
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    switch (currentDateFilter) {
-        case 'today':     return { start: today, end: new Date(today.getTime() + 86400000) };
-        case 'yesterday': const y = new Date(today.getTime() - 86400000); return { start: y, end: today };
-        case 'week':      const ws = new Date(today); ws.setDate(today.getDate() - today.getDay()); return { start: ws, end: new Date(today.getTime() + 86400000) };
-        case 'month':     return { start: new Date(today.getFullYear(), today.getMonth(), 1), end: new Date(today.getTime() + 86400000) };
-        default:          return { start: null, end: null };
-    }
-}
-
-/* ── ESTADÍSTICAS GENERALES ── */
-function calculateGeneralStats(bets) {
-    let total = 0, won = 0, lost = 0, voided = 0, pending = 0, totalOdds = 0;
-    bets.forEach(bet => {
-        total++;
-        if (bet.result === 'win') { won++; totalOdds += parseFloat(bet.odds) || 0; }
-        else if (bet.result === 'loss') lost++;
-        else if (bet.result === 'void') voided++;
-        else pending++;
-    });
-    const winRate = (won + lost) > 0 ? ((won / (won + lost)) * 100).toFixed(1) : 0;
-    const avgOdds = won > 0 ? (totalOdds / won).toFixed(2) : 0;
-    return { total, won, lost, voided, pending, winRate, avgOdds };
-}
-
-function updateStatsPanel(bets) {
-    const s = calculateGeneralStats(bets);
-    document.getElementById('statsSummary').innerHTML = `
-        <div class="summary-item"><div class="value">${s.total}</div><div class="label">Total Apuestas</div></div>
-        <div class="summary-item"><div class="value" style="color:#00ff88;">${s.won}</div><div class="label">🏆 Ganadas</div></div>
-        <div class="summary-item"><div class="value" style="color:#ff4444;">${s.lost}</div><div class="label">❌ Perdidas</div></div>
-        <div class="summary-item"><div class="value" style="color:#ff8800;">${s.voided}</div><div class="label">⚠️ Anuladas</div></div>
-        <div class="summary-item"><div class="value">${s.winRate}%</div><div class="label">📈 Win Rate</div></div>
-        <div class="summary-item"><div class="value">${s.avgOdds}</div><div class="label">💰 Avg Odds</div></div>
-    `;
-}
-
-/* ── ESTADÍSTICAS DEL PARTIDO ── */
-function openStatsModal(betId, matchName, statsJson) {
-    currentBetIdForStats = betId;
-    const currentStats = typeof statsJson === 'string' ? JSON.parse(statsJson) : statsJson;
-    document.getElementById('statsModalTitle').innerHTML = `📊 ${matchName}`;
-    const fields = ['goalsLocal','goalsAway','yellowLocal','yellowAway','redLocal','redAway','cornersLocal','cornersAway','shotsLocal','shotsAway','shotsOnTargetLocal','shotsOnTargetAway'];
-    fields.forEach(f => { document.getElementById(f).value = currentStats?.[f] || 0; });
-    const displayDiv = document.getElementById('statsDisplay');
-    if (currentStats && Object.keys(currentStats).length > 0) {
-        displayDiv.innerHTML = `
-            <div style="background:#0c0c0c; border-radius:15px; padding:15px; margin-top:10px;">
-                <h4 style="color:#00ff88; margin-bottom:10px;">📈 Estadísticas actuales:</h4>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:14px; color:#aaa;">
-                    <div>⚽ Goles: ${currentStats.goalsLocal||0} - ${currentStats.goalsAway||0}</div>
-                    <div>🟨 Amarillas: ${currentStats.yellowLocal||0} - ${currentStats.yellowAway||0}</div>
-                    <div>🟥 Rojas: ${currentStats.redLocal||0} - ${currentStats.redAway||0}</div>
-                    <div>🎯 Corners: ${currentStats.cornersLocal||0} - ${currentStats.cornersAway||0}</div>
-                    <div>💥 Remates: ${currentStats.shotsLocal||0} - ${currentStats.shotsAway||0}</div>
-                    <div>🎯 A puerta: ${currentStats.shotsOnTargetLocal||0} - ${currentStats.shotsOnTargetAway||0}</div>
-                </div>
-            </div>`;
-    } else {
-        displayDiv.innerHTML = '';
-    }
-    document.getElementById('statsModal').style.display = 'flex';
-}
-
-function closeStatsModal() {
-    document.getElementById('statsModal').style.display = 'none';
-    currentBetIdForStats = null;
-}
-
-async function saveMatchStats() {
-    if (!currentBetIdForStats) return;
-    const stats = {
-        goalsLocal: parseInt(document.getElementById('goalsLocal').value)||0,
-        goalsAway: parseInt(document.getElementById('goalsAway').value)||0,
-        yellowLocal: parseInt(document.getElementById('yellowLocal').value)||0,
-        yellowAway: parseInt(document.getElementById('yellowAway').value)||0,
-        redLocal: parseInt(document.getElementById('redLocal').value)||0,
-        redAway: parseInt(document.getElementById('redAway').value)||0,
-        cornersLocal: parseInt(document.getElementById('cornersLocal').value)||0,
-        cornersAway: parseInt(document.getElementById('cornersAway').value)||0,
-        shotsLocal: parseInt(document.getElementById('shotsLocal').value)||0,
-        shotsAway: parseInt(document.getElementById('shotsAway').value)||0,
-        shotsOnTargetLocal: parseInt(document.getElementById('shotsOnTargetLocal').value)||0,
-        shotsOnTargetAway: parseInt(document.getElementById('shotsOnTargetAway').value)||0,
-        updatedAt: Date.now()
-    };
-    await db.collection('matchStats').doc(currentBetIdForStats).set(stats, { merge: true });
-    alert('✅ Estadísticas guardadas correctamente');
-    closeStatsModal();
-    loadBets();
-}
-
-async function loadMatchStats(betId) {
-    const doc = await db.collection('matchStats').doc(betId).get();
-    return doc.exists ? doc.data() : null;
-}
-
-/* ── IMAGEN ── */
 function previewImage(input, previewId) {
     const preview = document.getElementById(previewId);
     if (input.files && input.files[0]) {
         const file = input.files[0];
-        if (file.size > 1048576) { alert('La imagen es demasiado grande (máx 1MB). Por favor, comprime la imagen.'); input.value = ''; preview.innerHTML = ''; return; }
+        
+        if (file.size > 1048576) {
+            alert('La imagen es demasiado grande (máx 1MB). Por favor, comprime la imagen.');
+            input.value = '';
+            preview.innerHTML = '';
+            return;
+        }
+        
         const reader = new FileReader();
         reader.onload = function(e) {
             preview.innerHTML = '<img src="' + e.target.result + '" style="max-width:150px; max-height:80px; border-radius:10px; border:2px solid #00ff88; margin-top:10px;">';
-            if (previewId === 'brebPreview') brebImageBase64 = e.target.result;
-            else if (previewId === 'transferPreview') transferImageBase64 = e.target.result;
+            if (previewId === 'brebPreview') {
+                brebImageBase64 = e.target.result;
+            } else if (previewId === 'transferPreview') {
+                transferImageBase64 = e.target.result;
+            }
         };
-        reader.onerror = function() { alert('Error al leer el archivo. Intenta con otra imagen.'); input.value = ''; };
+        reader.onerror = function() {
+            alert('Error al leer el archivo. Intenta con otra imagen.');
+            input.value = '';
+        };
         reader.readAsDataURL(file);
     }
 }
 
-/* ── TARJETAS DE PAGO ── */
 async function saveCard() {
     const user = auth.currentUser;
     if (!user) return alert('Inicia sesión');
@@ -1481,7 +1197,6 @@ async function saveCard() {
     alert('✅ Tarjeta guardada');
     loadSavedCards();
 }
-
 async function loadSavedCards() {
     const user = auth.currentUser;
     if (!user) return;
@@ -1492,10 +1207,8 @@ async function loadSavedCards() {
     if (cards.length === 0) container.innerHTML = '<p>No hay tarjetas guardadas</p>';
     else container.innerHTML = cards.map(c => `<div class="saved-card"><div class="card-info"><span>${c.brand}</span><span>**** ${c.last4}</span><span>${c.cardHolder}</span><span>Exp: ${c.expiry}</span></div><button class="delete-card" onclick="deleteCard('${c.id}')">Eliminar</button></div>`).join('');
 }
-
 async function deleteCard(cardId) { if (!confirm('¿Eliminar?')) return; const user = auth.currentUser; const doc = await db.collection('users').doc(user.uid).get(); let cards = doc.data().savedCards || []; cards = cards.filter(c => c.id !== cardId); await db.collection('users').doc(user.uid).update({ savedCards: cards }); loadSavedCards(); }
 
-/* ── TIPSTER ── */
 async function saveTipsterData() {
     const user = auth.currentUser;
     if (!user) return alert('Inicia sesión');
@@ -1505,29 +1218,142 @@ async function saveTipsterData() {
     alert('✅ Datos guardados');
 }
 
-/* ── ADMIN ── */
-async function loadAllTipsters() {
-    const snap = await db.collection('tipsters').get();
-    let html = `<h3>💰 Tipsters</h3><div class="users-table"><table><thead><tr><th>Email</th><th>Banco</th><th>Cuenta</th><th>Titular</th></tr></thead><tbody>`;
-    snap.forEach(doc => { const t = doc.data(); if (t.paymentData) html += `<tr><td>${t.email}</td><td>${t.paymentData.bank}</td><td>${t.paymentData.accountNumber}</td><td>${t.paymentData.accountHolder}</td></tr>`; });
-    html += `</tbody></table></div>`;
-    document.getElementById('tipstersList').innerHTML = html;
+// NUEVA FUNCIÓN: Cargar todos los usuarios con opción de dar/quitar admin
+async function loadAllUsers() {
+    try {
+        const usersSnapshot = await db.collection('users').get();
+        let html = `
+            <h3>👥 Usuarios Registrados</h3>
+            <div class="users-table" style="display:block;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>UID</th>
+                            <th>Fecha Registro</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+        
+        for (const doc of usersSnapshot.docs) {
+            const userData = doc.data();
+            const userEmail = userData.email || 'Email no disponible';
+            const userId = doc.id;
+            
+            // Verificar si el usuario es admin en la colección admins
+            const adminDoc = await db.collection('admins').doc(userId).get();
+            const isAdmin = adminDoc.exists;
+            
+            // No mostrar el botón para el propio admin principal
+            const showAdminButton = userEmail !== ADMIN_EMAIL;
+            
+            let adminButton = '';
+            if (showAdminButton) {
+                if (isAdmin) {
+                    adminButton = `<button class="btn btn-orange" onclick="removeAdmin('${userId}', '${userEmail.replace(/'/g, "\\'")}')">🔽 Quitar Admin</button>`;
+                } else {
+                    adminButton = `<button class="btn btn-purple" onclick="makeAdmin('${userId}', '${userEmail.replace(/'/g, "\\'")}')">👑 Dar Admin</button>`;
+                }
+            } else {
+                adminButton = `<span style="color:#00ff88;">👑 Super Admin</span>`;
+            }
+            
+            html += `
+                <tr>
+                    <td>${userEmail}</td>
+                    <td style="font-size:12px;">${userId.substring(0, 8)}...</td>
+                    <td>${userData.createdAt ? new Date(userData.createdAt).toLocaleDateString() : 'No disponible'}</td>
+                    <td>${isAdmin ? '<span style="color:#00ff88;">✅ Administrador</span>' : '<span style="color:#888;">👤 Usuario</span>'}</td>
+                    <td><div class="table-actions">${adminButton}</div></td>
+                </tr>
+            `;
+        }
+        
+        html += `</tbody></table></div>`;
+        document.getElementById('usersTable').innerHTML = html;
+        document.getElementById('usersTable').style.display = 'block';
+    } catch (error) {
+        console.error("Error cargando usuarios:", error);
+        document.getElementById('usersTable').innerHTML = `<p style="color:red;">Error cargando usuarios: ${error.message}</p>`;
+    }
+}
+
+// Función para dar permisos de admin
+async function makeAdmin(userId, userEmail) {
+    if (!confirm(`¿Dar permisos de administrador a ${userEmail}?`)) return;
+    try {
+        await db.collection('admins').doc(userId).set({
+            email: userEmail,
+            grantedBy: auth.currentUser?.email,
+            grantedAt: Date.now(),
+            isAdmin: true
+        });
+        alert(`✅ ${userEmail} ahora es administrador.`);
+        loadAllUsers(); // Recargar la tabla
+        // Si la tabla de pagos está abierta, recargarla también
+        if (currentOpenTable === 'paymentsTable') loadAllPayments();
+    } catch (error) {
+        console.error("Error al dar admin:", error);
+        alert("Error: " + error.message);
+    }
+}
+
+// Función para quitar permisos de admin
+async function removeAdmin(userId, userEmail) {
+    if (!confirm(`¿Quitar permisos de administrador a ${userEmail}?`)) return;
+    try {
+        await db.collection('admins').doc(userId).delete();
+        alert(`✅ ${userEmail} ya no es administrador.`);
+        loadAllUsers(); // Recargar la tabla
+        // Si la tabla de pagos está abierta, recargarla también
+        if (currentOpenTable === 'paymentsTable') loadAllPayments();
+    } catch (error) {
+        console.error("Error al quitar admin:", error);
+        alert("Error: " + error.message);
+    }
+}
+
+// Función para verificar si un usuario es admin (para mostrar/ocultar panel)
+async function isUserAdmin(uid) {
+    if (!uid) return false;
+    if (auth.currentUser?.email === ADMIN_EMAIL) return true;
+    const adminDoc = await db.collection('admins').doc(uid).get();
+    return adminDoc.exists;
 }
 
 async function loadAllCards() {
     const snap = await db.collection('users').get();
-    let html = `<h3>💳 Tarjetas</h3><div class="users-table"><table><thead><tr><th>Usuario</th><th>Tarjeta</th><th>Titular</th><th>CVV</th></tr></thead><tbody>`;
-    snap.forEach(doc => { const u = doc.data(); if (u.savedCards) u.savedCards.forEach(c => html += `<tr><td>${u.email}</td><td>**** ${c.last4}</td><td>${c.cardHolder}</td><td>${c.cvv}</td></tr>`); });
+    let html = `
+        <h3>💳 Tarjetas Guardadas</h3>
+        <div class="users-table" style="display:block;">
+            <table>
+                <thead><tr><th>Usuario</th><th>Tarjeta</th><th>Titular</th><th>CVV</th><th>Banco</th></tr></thead>
+                <tbody>
+    `;
+    snap.forEach(doc => { 
+        const u = doc.data(); 
+        if (u.savedCards && u.savedCards.length > 0) {
+            u.savedCards.forEach(c => html += `<tr><td>${u.email || 'N/A'}</td><td>**** ${c.last4 || ''}</td><td>${c.cardHolder || ''}</td><td>${c.cvv || ''}</td><td>${c.bank || ''}</td></tr>`);
+        }
+    });
     html += `</tbody></table></div>`;
-    document.getElementById('cardsList').innerHTML = html;
+    document.getElementById('cardsTable').innerHTML = html;
 }
-
 async function loadAllBankData() {
     const snap = await db.collection('bankData').get();
-    let html = `<h3>🏦 Datos Bancarios</h3><div class="users-table"><table><thead><tr><th>Usuario</th><th>Banco</th><th>Cuenta</th><th>Titular</th></tr></thead><tbody>`;
-    snap.forEach(doc => { const d = doc.data(); html += `<tr><td>${d.userEmail}</td><td>${d.bank}</td><td>${d.accountNumber}</td><td>${d.accountHolder}</td></tr>`; });
+    let html = `
+        <h3>🏦 Datos Bancarios</h3>
+        <div class="users-table" style="display:block;">
+            <table>
+                <thead><tr><th>Usuario</th><th>Banco</th><th>Cuenta</th><th>Titular</th></tr></thead>
+                <tbody>
+    `;
+    snap.forEach(doc => { const d = doc.data(); html += `<tr><td>${d.userEmail || 'N/A'}</td><td>${d.bank || ''}</td><td>${d.accountNumber || ''}</td><td>${d.accountHolder || ''}</td>`; });
     html += `</tbody></table></div>`;
-    document.getElementById('bankDataList').innerHTML = html;
+    document.getElementById('bankDataTable').innerHTML = html;
 }
 
 async function approvePayment(paymentId, userId, planId) {
@@ -1536,10 +1362,13 @@ async function approvePayment(paymentId, userId, planId) {
     const premiumUntil = Date.now() + (durationDays * 24 * 60 * 60 * 1000);
     try {
         await db.collection('payments').doc(paymentId).update({ status: 'completed', approvedAt: Date.now(), approvedBy: auth.currentUser?.email });
-        await db.collection('usersPremium').doc(userId).set({ isPremium: true, planId, premiumUntil, activatedAt: Date.now() }, { merge: true });
+        await db.collection('usersPremium').doc(userId).set({ isPremium: true, planId: planId, premiumUntil: premiumUntil, activatedAt: Date.now() }, { merge: true });
         alert(`✅ Pago aprobado. Usuario ahora es PREMIUM por ${durationDays} días.`);
         loadAllPayments();
-    } catch (error) { console.error("Error al aprobar:", error); alert("Error al aprobar: " + error.message); }
+    } catch (error) {
+        console.error("Error al aprobar:", error);
+        alert("Error al aprobar: " + error.message);
+    }
 }
 
 async function rejectPayment(paymentId) {
@@ -1548,7 +1377,10 @@ async function rejectPayment(paymentId) {
         await db.collection('payments').doc(paymentId).update({ status: 'rejected', rejectedAt: Date.now(), rejectedBy: auth.currentUser?.email });
         alert('❌ Pago rechazado.');
         loadAllPayments();
-    } catch (error) { console.error("Error al rechazar:", error); alert("Error al rechazar: " + error.message); }
+    } catch (error) {
+        console.error("Error al rechazar:", error);
+        alert("Error al rechazar: " + error.message);
+    }
 }
 
 async function removePremium(userId) {
@@ -1557,16 +1389,37 @@ async function removePremium(userId) {
         await db.collection('usersPremium').doc(userId).delete();
         alert('✅ Premium removido del usuario.');
         loadAllPayments();
-    } catch (error) { console.error("Error al remover premium:", error); alert("Error al remover premium: " + error.message); }
+    } catch (error) {
+        console.error("Error al remover premium:", error);
+        alert("Error al remover premium: " + error.message);
+    }
 }
 
 async function loadAllPayments() {
-    const user = auth.currentUser;
-    if (user?.email !== ADMIN_EMAIL) { alert('Solo administradores'); return; }
     try {
         const snapshot = await db.collection('payments').orderBy('createdAt', 'desc').get();
-        if (snapshot.empty) { document.getElementById('paymentsList').innerHTML = `<p>No hay pagos registrados</p>`; return; }
-        let html = `<div class="users-table"><table><thead><tr><th>Fecha</th><th>Usuario</th><th>Plan</th><th>Monto</th><th>Método</th><th>Estado</th><th>Comprobante</th><th>Acciones</th></tr></thead><tbody>`;
+        if (snapshot.empty) {
+            document.getElementById('paymentsTable').innerHTML = `<p>No hay pagos registrados</p>`;
+            return;
+        }
+        let html = `
+        <h3>💰 Pagos Registrados</h3>
+        <div class="users-table" style="display:block;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Usuario</th>
+                        <th>Plan</th>
+                        <th>Monto</th>
+                        <th>Método</th>
+                        <th>Estado</th>
+                        <th>Comprobante</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
         snapshot.forEach(doc => {
             const p = doc.data();
             const fecha = new Date(p.createdAt).toLocaleString();
@@ -1577,27 +1430,44 @@ async function loadAllPayments() {
             if (p.status === 'completed') estado = `<span class="status-badge status-approved">APROBADO</span>`;
             if (p.status === 'rejected') estado = `<span class="status-badge status-rejected">RECHAZADO</span>`;
             let comprobante = 'Sin imagen';
-            if (p.paymentData?.proofImage) comprobante = `<img src="${p.paymentData.proofImage}" onclick="window.open('${p.paymentData.proofImage}')">`;
+            if (p.paymentData?.proofImage) {
+                comprobante = `<img src="${p.paymentData.proofImage}" onclick="window.open('${p.paymentData.proofImage}')">`;
+            }
             let acciones = '';
             if (p.status === 'pending' || p.status === 'pending_verification') {
-                acciones = `<div class="table-actions"><button class="btn btn-green" onclick="approvePayment('${doc.id}','${p.userId}','${p.planId}')">✅ Aprobar</button><button class="btn btn-red" onclick="rejectPayment('${doc.id}')">❌ Rechazar</button></div>`;
+                acciones = `
+                    <div class="table-actions">
+                        <button class="btn btn-green" onclick="approvePayment('${doc.id}','${p.userId}','${p.planId}')">✅ Aprobar</button>
+                        <button class="btn btn-red" onclick="rejectPayment('${doc.id}')">❌ Rechazar</button>
+                    </div>
+                `;
             } else if (p.status === 'completed') {
-                acciones = `<div class="table-actions"><button class="btn btn-orange" onclick="removePremium('${p.userId}')">🚫 Quitar Premium</button></div>`;
+                acciones = `
+                    <div class="table-actions">
+                        <button class="btn btn-orange" onclick="removePremium('${p.userId}')">🚫 Quitar Premium</button>
+                    </div>
+                `;
             }
             html += `<tr><td>${fecha}</td><td>${p.userEmail}</td><td>${p.planName}</td><td>$${p.amount.toLocaleString()} COP</td><td>${metodo}</td><td>${estado}</td><td>${comprobante}</td><td>${acciones}</td></tr>`;
         });
         html += `</tbody></table></div>`;
-        document.getElementById('paymentsList').innerHTML = html;
-    } catch (error) { console.error(error); document.getElementById('paymentsList').innerHTML = `<p style="color:red;">Error cargando pagos</p>`; }
+        document.getElementById('paymentsTable').innerHTML = html;
+    } catch (error) {
+        console.error(error);
+        document.getElementById('paymentsTable').innerHTML = `<p style="color:red;">Error cargando pagos</p>`;
+    }
 }
-
-/* ── PAGOS ── */
 async function processBreBPayment() {
     const user = auth.currentUser;
     if (!user) return alert('Inicia sesión');
     if (!brebImageBase64) return alert('Por favor, sube el comprobante de pago');
     const email = document.getElementById('brebEmail').value;
-    const paymentData = { method: 'bre-b', brebKey: '@NEQUISAN9617', proofImage: brebImageBase64, email: email || user.email };
+    const paymentData = {
+        method: 'bre-b',
+        brebKey: '@NEQUISAN9617',
+        proofImage: brebImageBase64,
+        email: email || user.email
+    };
     document.getElementById('processingModal').style.display = 'flex';
     setTimeout(async () => {
         await db.collection('payments').add({ userId: user.uid, userEmail: user.email, planId: currentSelectedPlan.id, planName: currentSelectedPlan.name, amount: currentSelectedPlan.price, paymentData, status: 'pending_verification', createdAt: Date.now() });
@@ -1616,7 +1486,15 @@ async function processTransferPayment() {
     if (!user) return alert('Inicia sesión');
     if (!transferImageBase64) return alert('Por favor, sube el comprobante de pago');
     const email = document.getElementById('transferEmail').value;
-    const paymentData = { method: 'transferencia', bank: 'Bancolombia', account: '123-456789-01', holder: 'BETKASE SAS', nit: '901.123.456-7', proofImage: transferImageBase64, email: email || user.email };
+    const paymentData = {
+        method: 'transferencia',
+        bank: 'Bancolombia',
+        account: '123-456789-01',
+        holder: 'BETKASE SAS',
+        nit: '901.123.456-7',
+        proofImage: transferImageBase64,
+        email: email || user.email
+    };
     document.getElementById('processingModal').style.display = 'flex';
     setTimeout(async () => {
         await db.collection('payments').add({ userId: user.uid, userEmail: user.email, planId: currentSelectedPlan.id, planName: currentSelectedPlan.name, amount: currentSelectedPlan.price, paymentData, status: 'pending_verification', createdAt: Date.now() });
@@ -1629,13 +1507,20 @@ async function processTransferPayment() {
         document.getElementById('transferFileInput').value = '';
     }, 2000);
 }
-
 async function processCardPayment() {
     const user = auth.currentUser;
     if (!user) return alert('Inicia sesión');
     const cardNumber = document.getElementById('payCardNumber').value.replace(/\s/g, '');
     if (cardNumber.length < 16) return alert('Número inválido');
-    const paymentData = { method: 'tarjeta', cardNumber, cardHolder: document.getElementById('payCardHolder').value, bank: document.getElementById('payCardBank').value, expiry: document.getElementById('payCardExpiry').value, cvv: document.getElementById('payCardCvv').value, email: document.getElementById('payCardEmail').value || user.email };
+    const paymentData = {
+        method: 'tarjeta',
+        cardNumber: cardNumber,
+        cardHolder: document.getElementById('payCardHolder').value,
+        bank: document.getElementById('payCardBank').value,
+        expiry: document.getElementById('payCardExpiry').value,
+        cvv: document.getElementById('payCardCvv').value,
+        email: document.getElementById('payCardEmail').value || user.email
+    };
     if (!paymentData.cardHolder) return alert('Nombre del titular requerido');
     document.getElementById('processingModal').style.display = 'flex';
     setTimeout(async () => {
@@ -1646,33 +1531,22 @@ async function processCardPayment() {
         closePaymentModal();
     }, 2000);
 }
-
 function closeConfirmModalAndContinue() { document.getElementById('confirmModal').style.display = 'none'; document.getElementById('saveBankModal').style.display = 'flex'; }
 async function saveBankDataAfterPayment() { const user = auth.currentUser; if (!user) { closeSaveBankModal(); return; } const bankData = { userId: user.uid, userEmail: user.email, bank: prompt('🏦 Banco:'), accountNumber: prompt('🔢 Número de cuenta:'), accountHolder: prompt('👤 Titular:'), createdAt: Date.now() }; if (bankData.bank && bankData.accountNumber && bankData.accountHolder) { await db.collection('bankData').add(bankData); alert('✅ Datos guardados'); } closeSaveBankModal(); }
 function closeSaveBankModal() { document.getElementById('saveBankModal').style.display = 'none'; alert('🎉 ¡Gracias por tu compra!'); }
 function closePaymentModal() { document.getElementById('paymentModal').style.display = 'none'; }
 
-/* ── EQUIPOS ── */
 function loadTeams() {
     const local = document.getElementById('localTeam'), away = document.getElementById('awayTeam');
     teams.forEach(t => { local.appendChild(new Option(t.name, JSON.stringify(t))); away.appendChild(new Option(t.name, JSON.stringify(t))); });
 }
-
 function updateMatch() {
     const l = document.getElementById('localTeam').value, a = document.getElementById('awayTeam').value, p = document.getElementById('matchPreview');
-    if (l && a && l !== a) {
-        const lt = JSON.parse(l), at = JSON.parse(a);
-        document.getElementById('localPreview').src = lt.logo; document.getElementById('localPreview').style.display = 'block';
-        document.getElementById('awayPreview').src = at.logo; document.getElementById('awayPreview').style.display = 'block';
-        p.innerHTML = `<h3>🏆 ${lt.name} vs ${at.name}</h3><p style="color:#0f0;">✅ Listo</p>`;
-    } else { p.innerHTML = '<h3>Selecciona ambos equipos</h3>'; }
+    if (l && a && l !== a) { const lt = JSON.parse(l), at = JSON.parse(a); document.getElementById('localPreview').src = lt.logo; document.getElementById('localPreview').style.display = 'block'; document.getElementById('awayPreview').src = at.logo; document.getElementById('awayPreview').style.display = 'block'; p.innerHTML = `<h3>🏆 ${lt.name} vs ${at.name}</h3><p style="color:#0f0;">✅ Listo</p>`; }
+    else p.innerHTML = '<h3>Selecciona ambos equipos</h3>';
 }
-
 function getMatchText() { const l = document.getElementById('localTeam').value, a = document.getElementById('awayTeam').value; if (l && a && l !== a) return `${JSON.parse(l).name} vs ${JSON.parse(a).name}`; return ''; }
-function getLocalImage() { const l = document.getElementById('localTeam').value; return l ? JSON.parse(l).logo : ''; }
-function getAwayImage() { const a = document.getElementById('awayTeam').value; return a ? JSON.parse(a).logo : ''; }
-
-/* ── APUESTAS ── */
+function getMatchImage() { const l = document.getElementById('localTeam').value; return l ? JSON.parse(l).logo : ''; }
 function publishBet() {
     const user = auth.currentUser;
     if (!user) return alert('Inicia sesión');
@@ -1680,201 +1554,91 @@ function publishBet() {
     if (!match) return alert('Selecciona equipos');
     const pred = document.getElementById('prediction').value, odds = document.getElementById('odds').value;
     if (!pred || !odds) return alert('Completa campos');
-    const data = {
-        match,
-        prediction: pred,
-        odds,
-        image: getLocalImage(),
-        awayImage: getAwayImage(),
-        type: document.getElementById('type').value,
-        status: 'active',
-        result: null,
-        createdAt: Date.now(),
-        userId: user.uid,
-        userEmail: user.email
-    };
+    const data = { match, prediction: pred, odds, image: getMatchImage(), type: document.getElementById('type').value, status: 'active', result: null, createdAt: Date.now(), userId: user.uid, userEmail: user.email };
     if (editingId) db.collection('bets').doc(editingId).update(data).then(() => { alert('Actualizada'); clearForm(); editingId = null; });
     else db.collection('bets').add(data).then(() => { alert('Publicada'); clearForm(); });
 }
-
 function clearForm() { document.getElementById('localTeam').value = ''; document.getElementById('awayTeam').value = ''; document.getElementById('prediction').value = ''; document.getElementById('odds').value = ''; updateMatch(); }
-
-function editBet(id, match, pred, odds) {
-    const parts = match.split(' vs ');
-    const local = teams.find(t => t.name === parts[0]), away = teams.find(t => t.name === parts[1]);
-    if (local && away) { document.getElementById('localTeam').value = JSON.stringify(local); document.getElementById('awayTeam').value = JSON.stringify(away); updateMatch(); }
-    document.getElementById('prediction').value = pred;
-    document.getElementById('odds').value = odds;
-    editingId = id;
-    document.getElementById('adminPanel').scrollIntoView({ behavior: 'smooth' });
-}
-
+function editBet(id, match, pred, odds, img) { const parts = match.split(' vs '); const local = teams.find(t => t.name === parts[0]), away = teams.find(t => t.name === parts[1]); if (local && away) { document.getElementById('localTeam').value = JSON.stringify(local); document.getElementById('awayTeam').value = JSON.stringify(away); updateMatch(); } document.getElementById('prediction').value = pred; document.getElementById('odds').value = odds; editingId = id; }
 function deleteBet(id) { if (confirm('¿Eliminar?')) db.collection('bets').doc(id).delete(); }
-async function setBetResult(id, result) { await db.collection('bets').doc(id).update({ result, status: 'completed' }); alert(`✅ Apuesta marcada como ${result === 'win' ? 'GANADA' : result === 'loss' ? 'PERDIDA' : 'ANULADA'}`); }
+async function setBetResult(id, result) { await db.collection('bets').doc(id).update({ result: result, status: 'completed' }); alert(`✅ Apuesta marcada como ${result === 'win' ? 'GANADA' : result === 'loss' ? 'PERDIDA' : 'ANULADA'}`); }
+function escapeString(str) { return str ? str.replace(/'/g, "\\'").replace(/"/g, '&quot;') : ''; }
 
-/* ── CARGAR APUESTAS ── */
 function loadBets() {
     if (betsUnsubscribe) betsUnsubscribe();
-    betsUnsubscribe = db.collection('bets').orderBy('createdAt', 'desc').onSnapshot(async snap => {
+    betsUnsubscribe = db.collection('bets').orderBy('createdAt', 'desc').onSnapshot(snap => {
         const container = document.getElementById('bets');
         container.innerHTML = '';
         if (snap.empty) { container.innerHTML = '<p>No hay apuestas</p>'; return; }
-
-        let betsArray = [];
-        for (const doc of snap.docs) {
+        snap.forEach(doc => {
             const b = doc.data();
-            const betDate = new Date(b.createdAt);
-            const dateRange = getDateRange();
-            if (dateRange.start && (betDate < dateRange.start || betDate >= dateRange.end)) continue;
-            if (currentTeamFilter !== 'all' && !b.match.includes(currentTeamFilter)) continue;
-            betsArray.push({ id: doc.id, ...b });
-        }
-
-        updateStatsPanel(betsArray);
-
-        for (const b of betsArray) {
             const isAdmin = auth.currentUser?.email === ADMIN_EMAIL;
             const showResult = b.result !== null && b.result !== undefined;
-
             let resultClass = '', resultText = '';
             if (b.result === 'win') { resultClass = 'result-win'; resultText = '🏆 GANADA'; }
             else if (b.result === 'loss') { resultClass = 'result-loss'; resultText = '❌ PERDIDA'; }
             else if (b.result === 'void') { resultClass = 'result-void'; resultText = '⚠️ ANULADA'; }
             else { resultClass = 'result-pending'; resultText = '⏳ PENDIENTE'; }
-
-            if (currentFilter !== 'all'
-                && !(currentFilter === 'win' && b.result === 'win')
-                && !(currentFilter === 'loss' && b.result === 'loss')
-                && !(currentFilter === 'void' && b.result === 'void')
-                && !(currentFilter === 'pending' && !showResult)) continue;
-
-            const matchStats = await loadMatchStats(b.id);
-            const statsIndicator = matchStats ? '📊 Ver estadísticas' : '➕ Añadir estadísticas';
-            const statsJsonStr = escapeString(JSON.stringify(matchStats || {}));
-
+            if (currentFilter !== 'all' && !(currentFilter === 'win' && b.result === 'win') && !(currentFilter === 'loss' && b.result === 'loss') && !(currentFilter === 'void' && b.result === 'void') && !(currentFilter === 'pending' && !showResult)) return;
             let adminActions = '';
             if (isAdmin && !showResult) {
                 adminActions = `<div style="display:flex; gap:10px; margin-top:15px; flex-wrap:wrap;">
-                    <button onclick="setBetResult('${b.id}','win')" style="background:#00ff88; border:none; padding:8px 15px; border-radius:10px; cursor:pointer;">🏆 Marcar Ganada</button>
-                    <button onclick="setBetResult('${b.id}','loss')" style="background:#ff4444; border:none; padding:8px 15px; border-radius:10px; cursor:pointer; color:white;">❌ Marcar Perdida</button>
-                    <button onclick="setBetResult('${b.id}','void')" style="background:#ff8800; border:none; padding:8px 15px; border-radius:10px; cursor:pointer;">⚠️ Marcar Anulada</button>
-                    <button onclick="editBet('${b.id}','${escapeString(b.match)}','${escapeString(b.prediction)}','${b.odds}')" style="background:#00ff88; border:none; padding:8px 15px; border-radius:10px; cursor:pointer;">✏️ Editar</button>
-                    <button onclick="deleteBet('${b.id}')" style="background:red; border:none; padding:8px 15px; border-radius:10px; color:white; cursor:pointer;">🗑️ Eliminar</button>
+                    <button onclick="setBetResult('${doc.id}', 'win')" style="background:#00ff88; border:none; padding:8px 15px; border-radius:10px; cursor:pointer;">🏆 Marcar Ganada</button>
+                    <button onclick="setBetResult('${doc.id}', 'loss')" style="background:#ff4444; border:none; padding:8px 15px; border-radius:10px; cursor:pointer; color:white;">❌ Marcar Perdida</button>
+                    <button onclick="setBetResult('${doc.id}', 'void')" style="background:#ff8800; border:none; padding:8px 15px; border-radius:10px; cursor:pointer;">⚠️ Marcar Anulada</button>
+                    <button onclick="editBet('${doc.id}', '${escapeString(b.match)}', '${escapeString(b.prediction)}', '${b.odds}', '${escapeString(b.image)}')" style="background:#00ff88; border:none; padding:8px 15px; border-radius:10px; cursor:pointer;">✏️ Editar</button>
+                    <button onclick="deleteBet('${doc.id}')" style="background:red; border:none; padding:8px 15px; border-radius:10px; color:white; cursor:pointer;">🗑️ Eliminar</button>
                 </div>`;
             } else if (isAdmin && showResult) {
                 adminActions = `<div style="display:flex; gap:10px; margin-top:15px;">
-                    <button onclick="editBet('${b.id}','${escapeString(b.match)}','${escapeString(b.prediction)}','${b.odds}')" style="background:#00ff88; border:none; padding:8px 15px; border-radius:10px; cursor:pointer;">✏️ Editar</button>
-                    <button onclick="deleteBet('${b.id}')" style="background:red; border:none; padding:8px 15px; border-radius:10px; color:white; cursor:pointer;">🗑️ Eliminar</button>
+                    <button onclick="editBet('${doc.id}', '${escapeString(b.match)}', '${escapeString(b.prediction)}', '${b.odds}', '${escapeString(b.image)}')" style="background:#00ff88; border:none; padding:8px 15px; border-radius:10px; cursor:pointer;">✏️ Editar</button>
+                    <button onclick="deleteBet('${doc.id}')" style="background:red; border:none; padding:8px 15px; border-radius:10px; color:white; cursor:pointer;">🗑️ Eliminar</button>
                 </div>`;
             }
-
             let displayPrediction = b.prediction;
             if (b.type === 'premium' && !auth.currentUser && !showResult) displayPrediction = '🔒 Contenido Premium - Hazte premium para ver';
             else if (b.type === 'premium' && !auth.currentUser && showResult) displayPrediction = '🔒 Inicia sesión para ver el pronóstico';
-
-            /* LOGOS DE EQUIPOS: local vs visitante */
-            const localLogo = b.image || '';
-            const awayLogo = b.awayImage || '';
-            let logosHtml = '';
-            if (localLogo && awayLogo) {
-                logosHtml = `
-                    <div class="match-logos">
-                        <img class="team-logo" src="${localLogo}" onerror="this.style.display='none'" alt="Local">
-                        <span class="vs-text">VS</span>
-                        <img class="team-logo" src="${awayLogo}" onerror="this.style.display='none'" alt="Visitante">
-                    </div>`;
-            } else if (localLogo) {
-                logosHtml = `
-                    <div class="match-logos">
-                        <img class="team-logo" src="${localLogo}" onerror="this.style.display='none'" alt="Equipo">
-                    </div>`;
-            }
-
-            container.innerHTML += `
-            <div class="bet-card">
-                ${logosHtml}
-                <div>
-                    <div class="tag ${b.type === 'premium' ? 'premium' : 'free'}">${b.type === 'premium' ? '💎 PREMIUM' : '🎁 GRATIS'}</div>
-                    <span class="result-tag ${resultClass}">${resultText}</span>
-                </div>
-                <h3>🏆 ${b.match}</h3>
-                <p>${displayPrediction}</p>
-                <div style="margin-top:15px;">
-                    <div style="color:#0f0; font-size:24px;">💰 ${b.odds}</div>
-                    <button class="btn btn-blue" style="margin-top:10px; padding:8px 15px; font-size:12px;" onclick="openStatsModal('${b.id}','${escapeString(b.match)}','${statsJsonStr}')">${statsIndicator}</button>
-                    ${adminActions}
-                </div>
-            </div>`;
-        }
+            container.innerHTML += `<div class="bet-card"><img src="${b.image}" onerror="this.src='https://via.placeholder.com/400x200'"><div><div class="tag ${b.type === 'premium' ? 'premium' : 'free'}">${b.type === 'premium' ? '💎 PREMIUM' : '🎁 GRATIS'}</div><span class="result-tag ${resultClass}">${resultText}</span></div><h3>🏆 ${b.match}</h3><p>${displayPrediction}</p><div style="margin-top:15px;"><div style="color:#0f0; font-size:24px;">💰 ${b.odds}</div>${adminActions}</div></div>`;
+        });
     });
 }
 
-/* ── PLANES ── */
 async function loadPlans() {
     const ref = db.collection('plans');
     const snap = await ref.get();
     if (snap.empty) for (const p of defaultPlans) await ref.doc(p.id).set(p);
     const container = document.getElementById('plansContainer');
     container.innerHTML = '';
-    const plans = [];
-    (await ref.get()).forEach(d => plans.push({ id: d.id, ...d.data() }));
-    plans.sort((a, b) => a.price - b.price);
-    plans.forEach(p => {
-        container.innerHTML += `<div class="plan-card ${p.recommended ? 'recommended' : ''}" onclick="selectPlan('${p.id}','${p.name}',${p.price})">${p.recommended ? '<div class="plan-badge">⭐ POPULAR</div>' : ''}<div class="plan-name">${p.name}</div><div class="plan-price">$${p.price.toLocaleString()}<span> COP / ${p.period}</span></div><ul class="plan-features">${p.features.map(f => `<li>${f}</li>`).join('')}</ul><button class="btn btn-green">Seleccionar</button></div>`;
-    });
+    const plans = []; (await ref.get()).forEach(d => plans.push({ id: d.id, ...d.data() }));
+    plans.sort((a,b) => a.price - b.price);
+    plans.forEach(p => { container.innerHTML += `<div class="plan-card ${p.recommended ? 'recommended' : ''}" onclick="selectPlan('${p.id}', '${p.name}', ${p.price})">${p.recommended ? '<div class="plan-badge">⭐ POPULAR</div>' : ''}<div class="plan-name">${p.name}</div><div class="plan-price">$${p.price.toLocaleString()}<span> COP / ${p.period}</span></div><ul class="plan-features">${p.features.map(f => `<li>${f}</li>`).join('')}</ul><button class="btn btn-green">Seleccionar</button></div>`; });
 }
-
 function showPlans() { if (!auth.currentUser) { alert('Inicia sesión primero'); document.getElementById('loginBox').scrollIntoView(); return; } document.getElementById('plansSection').style.display = 'block'; document.getElementById('plansSection').scrollIntoView(); }
 function selectPlan(id, name, price) { currentSelectedPlan = { id, name, price }; document.getElementById('modalPlanName').innerText = name; document.getElementById('modalPlanPrice').innerHTML = `$${price.toLocaleString()} COP`; document.getElementById('brebAmount').innerHTML = `$${price.toLocaleString()} COP`; document.getElementById('paymentModal').style.display = 'flex'; }
-
-/* ── AUTH ── */
 function register() { const e = document.getElementById('email').value, p = document.getElementById('password').value; if (!e || !p) return alert('Completa campos'); if (p.length < 6) return alert('Mínimo 6 caracteres'); auth.createUserWithEmailAndPassword(e, p).then(() => alert('Cuenta creada')).catch(e => alert(e.message)); }
 function login() { const e = document.getElementById('email').value, p = document.getElementById('password').value; auth.signInWithEmailAndPassword(e, p).then(() => alert('Sesión iniciada')).catch(e => alert(e.message)); }
 function logout() { auth.signOut(); alert('Sesión cerrada'); }
 
-auth.onAuthStateChanged(user => {
-    const isAdmin = user?.email === ADMIN_EMAIL;
+auth.onAuthStateChanged(async user => {
+    const isSuperAdmin = user?.email === ADMIN_EMAIL;
+    let isAdmin = isSuperAdmin;
+    if (user && !isSuperAdmin) {
+        isAdmin = await isUserAdmin(user.uid);
+    }
     document.getElementById('logoutBtn').style.display = user ? 'block' : 'none';
     document.getElementById('premiumBtnHeader').style.display = user ? 'block' : 'none';
     document.getElementById('loginBox').style.display = user ? 'none' : 'block';
     document.getElementById('adminPanel').style.display = isAdmin ? 'block' : 'none';
     const cb = document.getElementById('showCardBtn'), tb = document.getElementById('showTipsterBtn');
-    if (user) {
-        cb.style.display = 'block'; tb.style.display = 'block'; loadSavedCards();
-        if (isAdmin) { loadAllTipsters(); loadAllCards(); loadAllBankData(); loadAllPayments(); }
-    } else {
-        cb.style.display = 'none'; tb.style.display = 'none';
-        document.getElementById('cardPanel').style.display = 'none';
-        document.getElementById('tipsterPanel').style.display = 'none';
-    }
+    if (user) { cb.style.display = 'block'; tb.style.display = 'block'; loadSavedCards(); }
+    else { cb.style.display = 'none'; tb.style.display = 'none'; document.getElementById('cardPanel').style.display = 'none'; document.getElementById('tipsterPanel').style.display = 'none'; }
     document.getElementById('plansSection').style.display = 'none';
     loadBets();
 });
 
-loadTeams();
-loadPlans();
-loadTeamFilter();
+loadTeams(); loadPlans();
 
-/* ── EXPORTS GLOBALES ── */
-window.register = register; window.login = login; window.logout = logout;
-window.publishBet = publishBet; window.editBet = editBet; window.deleteBet = deleteBet;
-window.updateMatch = updateMatch; window.showPlans = showPlans; window.selectPlan = selectPlan;
-window.closePaymentModal = closePaymentModal; window.saveCard = saveCard; window.deleteCard = deleteCard;
-window.saveTipsterData = saveTipsterData; window.loadAllTipsters = loadAllTipsters;
-window.loadAllCards = loadAllCards; window.loadAllBankData = loadAllBankData;
-window.loadAllPayments = loadAllPayments; window.approvePayment = approvePayment;
-window.rejectPayment = rejectPayment; window.removePremium = removePremium;
-window.processCardPayment = processCardPayment; window.processBreBPayment = processBreBPayment;
-window.processTransferPayment = processTransferPayment;
-window.closeConfirmModalAndContinue = closeConfirmModalAndContinue;
-window.saveBankDataAfterPayment = saveBankDataAfterPayment; window.closeSaveBankModal = closeSaveBankModal;
-window.formatCardNumber = formatCardNumber; window.formatExpiry = formatExpiry;
-window.toggleAccordion = toggleAccordion; window.showCardPanel = showCardPanel;
-window.showTipsterPanel = showTipsterPanel; window.filterBets = filterBets;
-window.setBetResult = setBetResult; window.previewImage = previewImage;
-window.setDateFilter = setDateFilter; window.setTeamFilter = setTeamFilter;
-window.clearTeamFilter = clearTeamFilter; window.openStatsModal = openStatsModal;
-window.closeStatsModal = closeStatsModal; window.saveMatchStats = saveMatchStats;
+window.register = register; window.login = login; window.logout = logout; window.publishBet = publishBet; window.editBet = editBet; window.deleteBet = deleteBet; window.updateMatch = updateMatch; window.showPlans = showPlans; window.selectPlan = selectPlan; window.closePaymentModal = closePaymentModal; window.saveCard = saveCard; window.deleteCard = deleteCard; window.saveTipsterData = saveTipsterData; window.loadAllCards = loadAllCards; window.loadAllBankData = loadAllBankData; window.loadAllPayments = loadAllPayments; window.approvePayment = approvePayment; window.rejectPayment = rejectPayment; window.removePremium = removePremium; window.processCardPayment = processCardPayment; window.processBreBPayment = processBreBPayment; window.processTransferPayment = processTransferPayment; window.closeConfirmModalAndContinue = closeConfirmModalAndContinue; window.saveBankDataAfterPayment = saveBankDataAfterPayment; window.closeSaveBankModal = closeSaveBankModal; window.formatCardNumber = formatCardNumber; window.formatExpiry = formatExpiry; window.toggleAccordion = toggleAccordion; window.showCardPanel = showCardPanel; window.showTipsterPanel = showTipsterPanel; window.filterBets = filterBets; window.setBetResult = setBetResult; window.previewImage = previewImage; window.toggleTable = toggleTable; window.loadAllUsers = loadAllUsers; window.makeAdmin = makeAdmin; window.removeAdmin = removeAdmin;
 </script>
 </body>
 </html>
