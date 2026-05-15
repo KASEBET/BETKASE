@@ -2920,6 +2920,7 @@ async function getSoccerLiveMatches(dateParam) {
     const dp = dateParam || getESPNDateParam(0);
     const leagues = [
         { name: 'Liga BetPlay', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/col.1/scoreboard?dates=${dp}` },
+        { name: 'Copa BetPlay', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/col.cup/scoreboard?dates=${dp}` },
         { name: 'Copa Libertadores', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/conmebol.libertadores/scoreboard?dates=${dp}` },
         { name: 'Copa Sudamericana', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/conmebol.sudamericana/scoreboard?dates=${dp}` },
         { name: 'Copa América', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/conmebol.america/scoreboard?dates=${dp}` },
@@ -3258,7 +3259,7 @@ function createBetFromLiveMatch(localTeam, awayTeam, sport) {
 }
 
 function refreshLiveMatches() { loadLiveMatches(); }
-</script>
+
 window.register = register; window.login = login; window.logout = logout;
 window.publishBet = publishBet; window.editBet = editBet; window.deleteBet = deleteBet;
 window.updateMatch = updateMatch; window.showPlans = showPlans; window.selectPlan = selectPlan;
