@@ -2819,15 +2819,39 @@ async function fetchESPN(url) {
     try {
         const secureUrl = url.replace(/^http:\/\//i, 'https://');
         console.log('Fetching:', secureUrl);
-        const res = await fetch(secureUrl);
-        if (!res.ok) throw new Error('HTTP ' + res.status);
+        
+        // Añadir timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        
+        const res = await fetch(secureUrl, { 
+            signal: controller.signal,
+            headers: {
+                'Accept': 'application/json',
+                'User-Agent': 'Mozilla/5.0'
+            }
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (!res.ok) {
+            if (res.status === 404) {
+                console.log('Endpoint no encontrado (404):', url);
+                return null;
+            }
+            throw new Error(`HTTP ${res.status}`);
+        }
+        
         return await res.json();
     } catch (e) { 
-        console.warn('Error fetching:', url, e.message);
+        if (e.name === 'AbortError') {
+            console.warn('Timeout fetching:', url);
+        } else {
+            console.warn('Error fetching:', url, e.message);
+        }
         return null; 
     }
 }
-
 async function getMatchStatisticsLive(eventId, sport) {
     try {
         const paths = { 
@@ -2895,76 +2919,108 @@ async function getLiveMatchesForSport(sport) {
 async function getTennisLiveMatches() {
     const results = [];
     
-    for (const league of ['atp', 'wta']) {
+    // La API de tenis de ESPN no tiene una estructura unificada de "scoreboard" como otros deportes
+    // En su lugar, obtenemos los torneos activos y luego los partidos
+    
+    const torneosData = [
+        { nombre: "ATP Tour", id: "atp", url: "https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard" },
+        { nombre: "WTA Tour", id: "wta", url: "https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard" }
+    ];
+    
+    for (const torneo of torneosData) {
         try {
-            const scoreboardUrl = `https://site.api.espn.com/apis/site/v2/sports/tennis/${league}/scoreboard`;
-            const scoreboardData = await fetchESPN(scoreboardUrl);
+            const data = await fetchESPN(torneo.url);
+            if (!data) continue;
             
-            if (!scoreboardData?.events) continue;
-            
-            for (const event of scoreboardData.events) {
-                const status = event.status?.type?.state || '';
-                const enVivo = status === 'in';
-                const finalizado = status === 'post' || status === 'closed';
-                
-                if (!enVivo && !finalizado) continue;
-                
-                const comps = event.competitions?.[0]?.competitors || [];
-                if (comps.length < 2) continue;
-                
-                const localName = comps[0].athlete?.displayName || comps[0].team?.displayName || comps[0].name || 'Local';
-                const awayName = comps[1].athlete?.displayName || comps[1].team?.displayName || comps[1].name || 'Visitante';
-                
-                let localScore = '0';
-                let awayScore = '0';
-                let setsInfo = '';
-                
-                // Intentar obtener marcador desde linescores
-                if (comps[0].linescores && comps[0].linescores.length > 0) {
-                    const localSets = comps[0].linescores.map(ls => ls.displayValue || ls.value || '0').join(', ');
-                    const awaySets = comps[1].linescores.map(ls => ls.displayValue || ls.value || '0').join(', ');
-                    localScore = comps[0].linescores.filter(ls => parseInt(ls.displayValue || ls.value || '0') > parseInt(ls.opponent?.value || '0')).length;
-                    awayScore = comps[1].linescores.filter(ls => parseInt(ls.displayValue || ls.value || '0') > parseInt(ls.opponent?.value || '0')).length;
-                    setsInfo = `${localSets} - ${awaySets}`;
-                } else if (comps[0].score && comps[1].score) {
-                    localScore = comps[0].score;
-                    awayScore = comps[1].score;
+            // Buscar eventos actuales en la estructura de datos
+            // La API de tenis puede tener partidos en "events" dentro de torneos
+            if (data.leagues && data.leagues.length > 0) {
+                for (const league of data.leagues) {
+                    if (league.events && league.events.length > 0) {
+                        for (const evento of league.events) {
+                            // Extraer competencias del evento
+                            if (evento.competitions && evento.competitions.length > 0) {
+                                for (const comp of evento.competitions) {
+                                    const status = comp.status?.type?.state || '';
+                                    const enVivo = status === 'in';
+                                    const finalizado = status === 'post' || status === 'closed';
+                                    
+                                    if (!enVivo && !finalizado) continue;
+                                    
+                                    const competitors = comp.competitors || [];
+                                    if (competitors.length < 2) continue;
+                                    
+                                    // Obtener datos de los jugadores
+                                    const localData = competitors.find(c => c.homeAway === 'home') || competitors[0];
+                                    const awayData = competitors.find(c => c.homeAway === 'away') || competitors[1];
+                                    
+                                    const localName = localData.athlete?.displayName || localData.team?.displayName || localData.name || 'Local';
+                                    const awayName = awayData.athlete?.displayName || awayData.team?.displayName || awayData.name || 'Visitante';
+                                    
+                                    let localScore = '0';
+                                    let awayScore = '0';
+                                    let setsInfo = '';
+                                    
+                                    // Procesar puntuación de sets
+                                    if (localData.linescores && localData.linescores.length > 0) {
+                                        const localSets = localData.linescores.map(ls => ls.displayValue || ls.value || '0').join(', ');
+                                        const awaySets = awayData.linescores.map(ls => ls.displayValue || ls.value || '0').join(', ');
+                                        localScore = localData.linescores.filter(ls => parseInt(ls.displayValue || ls.value || '0') > parseInt(ls.opponent?.value || '0')).length;
+                                        awayScore = awayData.linescores.filter(ls => parseInt(ls.displayValue || ls.value || '0') > parseInt(ls.opponent?.value || '0')).length;
+                                        setsInfo = `${localSets} - ${awaySets}`;
+                                    } else if (localData.score && awayData.score) {
+                                        localScore = localData.score;
+                                        awayScore = awayData.score;
+                                    }
+                                    
+                                    const periodo = comp.status?.period || 0;
+                                    let tiempo = comp.status?.displayClock || '';
+                                    if (!tiempo) {
+                                        if (enVivo) tiempo = `Set ${periodo} en juego`;
+                                        else if (finalizado) tiempo = 'Finalizado';
+                                        else tiempo = comp.status?.type?.description || '';
+                                    }
+                                    
+                                    results.push({
+                                        id: comp.id || evento.id,
+                                        sport: 'tenis',
+                                        sportIcon: '🎾',
+                                        sportName: torneo.nombre,
+                                        local: { 
+                                            name: localName, 
+                                            logo: localData.athlete?.flag?.href || localData.team?.logo || '', 
+                                            score: localScore.toString() 
+                                        },
+                                        away: { 
+                                            name: awayName, 
+                                            logo: awayData.athlete?.flag?.href || awayData.team?.logo || '', 
+                                            score: awayScore.toString() 
+                                        },
+                                        periodo: periodo,
+                                        tiempo: tiempo,
+                                        sets: setsInfo,
+                                        enVivo: enVivo,
+                                        finalizado: finalizado,
+                                        estadisticas: null
+                                    });
+                                }
+                            }
+                        }
+                    }
                 }
-                
-                // Si no hay sets, mostrar marcador simple
-                if (localScore === '0' && awayScore === '0' && comps[0].score) {
-                    localScore = comps[0].score;
-                    awayScore = comps[1].score;
-                }
-                
-                const periodo = event.status?.period || 0;
-                const tiempo = event.status?.displayClock || (enVivo ? 'En juego' : (finalizado ? 'Finalizado' : event.status?.type?.description || ''));
-                
-                results.push({
-                    id: event.id,
-                    sport: 'tenis',
-                    sportIcon: '🎾',
-                    sportName: league === 'atp' ? 'ATP' : 'WTA',
-                    local: { name: localName, logo: '', score: localScore },
-                    away: { name: awayName, logo: '', score: awayScore },
-                    periodo: periodo,
-                    tiempo: tiempo,
-                    sets: setsInfo,
-                    enVivo: enVivo,
-                    finalizado: finalizado,
-                    estadisticas: null
-                });
             }
         } catch(e) { 
-            console.warn(`Error en tenis/${league}:`, e.message);
+            console.warn(`Error en tenis/${torneo.id}:`, e.message);
         }
     }
+    
     return results;
 }
-
 async function loadLiveMatches() {
     const container = document.getElementById('liveMatchesContainer');
     if (!container) return;
+    
+    console.log('Cargando partidos en vivo para deporte:', currentSportFilter);
     container.innerHTML = '<div style="background:#0a0a0a; border-radius:20px; padding:40px; text-align:center; border:1px solid #333; grid-column:1/-1;">🔍 Buscando partidos en vivo...</div>';
 
     const deportes = (currentSportFilter === 'futbol' || currentSportFilter === 'nba' || currentSportFilter === 'tenis')
@@ -2973,12 +3029,27 @@ async function loadLiveMatches() {
     
     for (const dep of deportes) { 
         try {
+            console.log(`Buscando partidos de ${dep}...`);
             const matches = await getLiveMatchesForSport(dep);
+            console.log(`Encontrados ${matches.length} partidos de ${dep}`);
             partidos.push(...matches);
         } catch(e) {
             console.warn(`Error obteniendo partidos de ${dep}:`, e);
         }
     }
+
+    const countEl = document.getElementById('liveMatchesCount');
+    if (countEl) countEl.innerText = partidos.length;
+    
+    console.log(`Total partidos encontrados: ${partidos.length}`);
+
+    if (partidos.length === 0) {
+        container.innerHTML = '<div style="background:#0a0a0a; border-radius:20px; padding:40px; text-align:center; border:1px solid #333; grid-column:1/-1;">📭 No hay partidos en vivo en este momento.<br><small>Verifica la conexión o intenta más tarde.</small></div>';
+        return;
+    }
+
+    // ... resto del código de renderizado
+}
 
     const countEl = document.getElementById('liveMatchesCount');
     if (countEl) countEl.innerText = partidos.length;
