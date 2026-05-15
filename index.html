@@ -1259,6 +1259,84 @@ footer {
     50% { transform: scale(1.1); }
     100% { transform: scale(1); opacity: 1; }
 }
+
+/* ── TOAST NOTIFICATIONS ── */
+#toastContainer {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+    max-width: 400px;
+}
+.toast {
+    background: linear-gradient(145deg, #141414, #1c1c1c);
+    border-radius: 16px;
+    padding: 16px 20px;
+    min-width: 280px;
+    max-width: 380px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    box-shadow: 0 8px 40px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.04);
+    border-left: 4px solid #00ff88;
+    animation: toastIn .35s cubic-bezier(.34,1.56,.64,1) forwards;
+    pointer-events: all;
+    transition: opacity .3s ease, transform .3s ease;
+}
+.toast.toast-error   { border-left-color: #ff4444; }
+.toast.toast-warning { border-left-color: #ff8800; }
+.toast.toast-info    { border-left-color: #0077ff; }
+.toast.toast-success { border-left-color: #00ff88; }
+.toast-icon  { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+.toast-body  { flex: 1; min-width: 0; }
+.toast-title { font-weight: bold; font-size: 14px; margin-bottom: 3px; color: #fff; }
+.toast-msg   { color: #aaa; font-size: 13px; line-height: 1.4; word-break: break-word; }
+.toast-close { background: none; border: none; color: #555; cursor: pointer; font-size: 20px; padding: 0; flex-shrink: 0; line-height: 1; transition: color .2s; }
+.toast-close:hover { color: #fff; }
+@keyframes toastIn {
+    from { opacity: 0; transform: translateX(50px) scale(.88); }
+    to   { opacity: 1; transform: translateX(0)    scale(1);   }
+}
+/* ── LEAGUE FILTER ── */
+.league-filter-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+    padding: 12px 14px;
+    background: #0a0a0a;
+    border-radius: 16px;
+    border: 1px solid #1a1a1a;
+}
+.league-filter-label {
+    color: #888;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    white-space: nowrap;
+}
+.league-filter-select {
+    flex: 1;
+    min-width: 180px;
+    padding: 9px 14px;
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color .2s;
+}
+.league-filter-select:focus { border-color: #00ff88; }
+.league-filter-select option, .league-filter-select optgroup { background: #111; }
+
 </style>
 </head>
 <body>
@@ -1447,6 +1525,78 @@ footer {
             <span style="background: #1a3a5c; color:#4db8ff; padding: 4px 10px; border-radius: 20px; font-size: 12px;">🔴 en vivo</span>
             <button onclick="refreshLiveMatches()" style="background: #00ff88; border: none; padding: 5px 15px; border-radius: 20px; cursor: pointer; color: black; font-weight: bold; margin-left: auto;">🔄 Actualizar</button>
         </h3>
+        <div class="league-filter-row">
+            <span class="league-filter-label">⚽ Liga:</span>
+            <select class="league-filter-select" id="liveLeagueSelect" onchange="setLeagueFilter(this.value)">
+                <option value="all">🌍 Todas las ligas</option>
+                <optgroup label="🌍 Internacionales">
+                    <option value="fifa.world">Mundial FIFA</option>
+                    <option value="fifa.wwc">Mundial Femenino</option>
+                    <option value="fifa.worldq.conmebol">Eliminatorias CONMEBOL</option>
+                    <option value="fifa.worldq.uefa">Eliminatorias UEFA</option>
+                </optgroup>
+                <optgroup label="🏴󠁧󠁢󠁥󠁮󠁧󠁿 Inglaterra">
+                    <option value="eng.1">Premier League</option>
+                    <option value="eng.2">Championship</option>
+                    <option value="eng.3">League One</option>
+                    <option value="eng.fa">FA Cup</option>
+                </optgroup>
+                <optgroup label="🇪🇸 España">
+                    <option value="esp.1">La Liga</option>
+                    <option value="esp.copa_del_rey">Copa del Rey</option>
+                </optgroup>
+                <optgroup label="🇩🇪 Alemania">
+                    <option value="ger.1">Bundesliga</option>
+                    <option value="ger.dfb_pokal">DFB Pokal</option>
+                </optgroup>
+                <optgroup label="🇮🇹 Italia">
+                    <option value="ita.1">Serie A</option>
+                    <option value="ita.coppa_italia">Coppa Italia</option>
+                </optgroup>
+                <optgroup label="🇫🇷 Francia">
+                    <option value="fra.1">Ligue 1</option>
+                </optgroup>
+                <optgroup label="🇵🇹🇳🇱🇧🇪 Europa">
+                    <option value="por.1">Primeira Liga</option>
+                    <option value="ned.1">Eredivisie</option>
+                    <option value="bel.1">Pro League</option>
+                    <option value="tur.1">Super Lig</option>
+                    <option value="sco.1">Scottish Premiership</option>
+                    <option value="rus.1">Russian Premier League</option>
+                </optgroup>
+                <optgroup label="🏆 Copas Europeas">
+                    <option value="uefa.champions">Champions League</option>
+                    <option value="uefa.europa">Europa League</option>
+                    <option value="uefa.europa.conf">Conference League</option>
+                </optgroup>
+                <optgroup label="🌎 Sudamérica">
+                    <option value="conmebol.libertadores">Copa Libertadores</option>
+                    <option value="conmebol.sudamericana">Copa Sudamericana</option>
+                    <option value="conmebol.america">Copa América</option>
+                    <option value="col.1">Liga BetPlay</option>
+                    <option value="col.cup">Copa BetPlay</option>
+                    <option value="bra.1">Brasileirao</option>
+                    <option value="bra.2">Serie B Brasil</option>
+                    <option value="arg.1">Liga Profesional Argentina</option>
+                    <option value="chi.1">Primera División Chile</option>
+                    <option value="ecu.1">LigaPro Ecuador</option>
+                    <option value="per.1">Liga 1 Perú</option>
+                    <option value="uru.1">Liga Uruguaya</option>
+                </optgroup>
+                <optgroup label="🌎 CONCACAF / USA">
+                    <option value="usa.1">MLS</option>
+                    <option value="mex.1">Liga MX</option>
+                    <option value="concacaf.champions">Concacaf Champions Cup</option>
+                </optgroup>
+                <optgroup label="🌏 Asia / África">
+                    <option value="ksa.1">Saudi Pro League</option>
+                    <option value="jpn.1">J.League</option>
+                    <option value="chn.1">Chinese Super League</option>
+                    <option value="afc.champions">AFC Champions League</option>
+                    <option value="caf.nations">Copa Africana</option>
+                </optgroup>
+            </select>
+        </div>
         <div id="liveDayFilters" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px;"></div>
         <div id="liveMatchesContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; margin-bottom: 40px;">
             <div style="background: #0a0a0a; border-radius: 20px; padding: 40px; text-align: center; border: 1px solid #333; grid-column: 1 / -1;">
@@ -1942,19 +2092,19 @@ async function handleEditTeamFile(input) {
     const preview = document.getElementById('editTeamFilePreview');
     if (input.files && input.files[0]) {
         const file = input.files[0];
-        if (file.size > 10 * 1024 * 1024) { alert('Imagen demasiado grande (máx 10MB).'); input.value = ''; preview.innerHTML = ''; editingTeamImageBase64 = null; return; }
+        if (file.size > 10 * 1024 * 1024) { showToast('Imagen demasiado grande (máx 10MB).', 'info'); input.value = ''; preview.innerHTML = ''; editingTeamImageBase64 = null; return; }
         try {
             const base64 = await resizeImageToBase64(file, 300, 300, 0.85);
             editingTeamImageBase64 = base64;
             preview.innerHTML = `<img src="${base64}" style="width:60px; height:60px; object-fit:contain; border-radius:10px; border:2px solid #00ff88; margin-top:8px;">`;
-        } catch(err) { alert(err); input.value = ''; editingTeamImageBase64 = null; }
+        } catch(err) { showToast(String(err), 'error'); input.value = ''; editingTeamImageBase64 = null; }
     }
 }
 
 async function saveEditTeamLogo() {
     if (!editingTeamName) return;
     const newLogo = editTeamMode === 'file' ? editingTeamImageBase64 : document.getElementById('editTeamLogoUrl').value.trim();
-    if (!newLogo) return alert(editTeamMode === 'file' ? '❌ Selecciona una imagen' : '❌ Ingresa una URL');
+    if (!newLogo) return showToast(editTeamMode === 'file' ? 'Selecciona una imagen' : 'Ingresa una URL válida', 'warning');
     try {
         const docId = editingTeamName.replace(/[^a-zA-Z0-9]/g, '_');
         if (editingTeamIsCustom) {
@@ -1969,13 +2119,13 @@ async function saveEditTeamLogo() {
             const t = sportsData[sport].teams.find(t => t.name === editingTeamName);
             if (t) t.logo = newLogo;
         }
-        alert('✅ Logo actualizado');
+        showToast('Logo actualizado', 'success');
         closeEditTeamModal();
         displayTeamsListBySport();
         loadTeams();
         loadTeamFilter();
     } catch (error) {
-        alert('Error: ' + error.message);
+        showToast(error.message, 'error');
     }
 }
 
@@ -2007,12 +2157,12 @@ async function previewNewTeamImage(input) {
     const preview = document.getElementById('newTeamLogoPreview');
     if (input.files && input.files[0]) {
         const file = input.files[0];
-        if (file.size > 10 * 1024 * 1024) { alert('Imagen demasiado grande (máx 10MB).'); input.value = ''; preview.innerHTML = ''; newTeamImageBase64 = null; return; }
+        if (file.size > 10 * 1024 * 1024) { showToast('Imagen demasiado grande (máx 10MB).', 'info'); input.value = ''; preview.innerHTML = ''; newTeamImageBase64 = null; return; }
         try {
             const base64 = await resizeImageToBase64(file, 300, 300, 0.85);
             newTeamImageBase64 = base64;
             preview.innerHTML = `<img src="${base64}" style="width:60px; height:60px; object-fit:contain; border-radius:10px; border:2px solid #00ff88; margin-top:8px;">`;
-        } catch(err) { alert(err); input.value = ''; newTeamImageBase64 = null; }
+        } catch(err) { showToast(String(err), 'error'); input.value = ''; newTeamImageBase64 = null; }
     }
 }
 
@@ -2059,14 +2209,14 @@ async function addNewTeam() {
         ? (newTeamImageBase64 || '')
         : document.getElementById('newTeamLogo').value.trim();
 
-    if (!teamName) return alert('❌ Ingresa el nombre');
-    if (!teamLogo) return alert(teamImageMode === 'file' ? '❌ Selecciona una imagen' : '❌ Ingresa la URL del logo');
+    if (!teamName) return showToast('Ingresa el nombre', 'error');
+    if (!teamLogo) return showToast(teamImageMode === 'file' ? 'Selecciona una imagen' : 'Ingresa la URL del logo', 'warning');
 
     const allTeams = [...sportsData.futbol.teams, ...sportsData.tenis.teams, ...sportsData.nba.teams];
     if (customTeams) allTeams.push(...customTeams);
 
     if (allTeams.some(t => t.name.toLowerCase() === teamName.toLowerCase())) {
-        return alert('❌ Este equipo/jugador ya existe');
+        return showToast('Este equipo/jugador ya existe', 'error');
     }
 
     try {
@@ -2087,9 +2237,9 @@ async function addNewTeam() {
         document.getElementById('newTeamLogoFile').value = '';
         document.getElementById('newTeamLogoPreview').innerHTML = '';
 
-        alert(`✅ "${teamName}" agregado a ${sportsData[currentAdminSport].name}`);
+        showToast(`✅ "${teamName}" agregado a ${sportsData[currentAdminSport].name}`, 'info');
     } catch (error) {
-        alert("Error al guardar: " + error.message);
+        showToast('Error al guardar: ' + error.message, 'error');
     }
 }
 
@@ -2118,9 +2268,9 @@ async function deleteTeam(teamName) {
         displayTeamsListBySport();
         loadTeamFilter();
 
-        alert(`✅ "${teamName}" eliminado`);
+        showToast(`✅ "${teamName}" eliminado`, 'info');
     } catch (error) {
-        alert("Error al eliminar: " + error.message);
+        showToast('Error al eliminar: ' + error.message, 'error');
     }
 }
 
@@ -2360,7 +2510,7 @@ async function saveMatchStats() {
         updatedAt: Date.now()
     };
     await db.collection('matchStats').doc(currentBetIdForStats).set(stats, { merge: true });
-    alert('✅ Estadísticas guardadas correctamente');
+    showToast('Estadísticas guardadas correctamente', 'success');
     closeStatsModal();
     loadBets();
 }
@@ -2401,28 +2551,28 @@ async function previewImage(input, previewId) {
     const preview = document.getElementById(previewId);
     if (input.files && input.files[0]) {
         const file = input.files[0];
-        if (file.size > 10 * 1024 * 1024) { alert('Imagen demasiado grande (máx 10MB).'); input.value = ''; preview.innerHTML = ''; return; }
+        if (file.size > 10 * 1024 * 1024) { showToast('Imagen demasiado grande (máx 10MB).', 'info'); input.value = ''; preview.innerHTML = ''; return; }
         try {
             const base64 = await resizeImageToBase64(file, 800, 600, 0.82);
             preview.innerHTML = `<img src="${base64}" style="max-width:150px; max-height:80px; object-fit:contain; border-radius:10px; border:2px solid #00ff88; margin-top:10px;">`;
             if (previewId === 'brebPreview') brebImageBase64 = base64;
             else if (previewId === 'transferPreview') transferImageBase64 = base64;
-        } catch(err) { alert(err); input.value = ''; preview.innerHTML = ''; }
+        } catch(err) { showToast(String(err), 'error'); input.value = ''; preview.innerHTML = ''; }
     }
 }
 
 /* ── TARJETAS DE PAGO ── */
 async function saveCard() {
     const user = auth.currentUser;
-    if (!user) return alert('Inicia sesión');
+    if (!user) return showToast('Inicia sesión', 'warning');
     const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
-    if (cardNumber.length < 16) return alert('Número inválido');
+    if (cardNumber.length < 16) return showToast('Número inválido', 'info');
     const cardData = { id: Date.now().toString(), cardNumber, cardHolder: document.getElementById('cardHolder').value, expiry: document.getElementById('cardExpiry').value, cvv: document.getElementById('cardCvv').value, bank: document.getElementById('cardBank').value, email: document.getElementById('cardEmail').value || user.email, last4: cardNumber.slice(-4), brand: cardNumber[0] === '4' ? 'Visa' : 'Mastercard', createdAt: Date.now() };
     const doc = await db.collection('users').doc(user.uid).get();
     let cards = doc.exists && doc.data().savedCards ? doc.data().savedCards : [];
     cards.push(cardData);
     await db.collection('users').doc(user.uid).set({ savedCards: cards }, { merge: true });
-    alert('✅ Tarjeta guardada');
+    showToast('Tarjeta guardada', 'success');
     loadSavedCards();
 }
 
@@ -2444,13 +2594,13 @@ async function deleteCard(cardId) {
     let cards = doc.exists && doc.data().savedCards ? doc.data().savedCards : [];
     cards = cards.filter(c => c.id !== cardId);
     await db.collection('users').doc(user.uid).set({ savedCards: cards }, { merge: true });
-    alert('✅ Tarjeta eliminada');
+    showToast('Tarjeta eliminada', 'success');
     loadSavedCards();
 }
 
 async function saveTipsterData() {
     const user = auth.currentUser;
-    if (!user) return alert('Inicia sesión');
+    if (!user) return showToast('Inicia sesión', 'warning');
     const data = {
         userId: user.uid,
         userEmail: user.email,
@@ -2463,7 +2613,7 @@ async function saveTipsterData() {
         phone: document.getElementById('tipsterPhone').value,
         updatedAt: Date.now()
     };
-    if (!data.bank || !data.accountNumber || !data.accountHolder) return alert('Completa los campos requeridos');
+    if (!data.bank || !data.accountNumber || !data.accountHolder) return showToast('Completa los campos requeridos', 'warning');
     await db.collection('bankData').doc(user.uid).set(data, { merge: true });
     document.getElementById('tipsterStatus').innerHTML = '<p style="color:#00ff88;">✅ Datos guardados correctamente</p>';
 }
@@ -2490,14 +2640,14 @@ async function loadAllUsers() {
 async function makeAdmin(userId) {
     if (!confirm('¿Hacer administrador a este usuario?')) return;
     await db.collection('admins').doc(userId).set({ isAdmin: true, createdAt: Date.now() });
-    alert('✅ Usuario ahora es administrador');
+    showToast('Usuario ahora es administrador', 'success');
     loadAllUsers();
 }
 
 async function removeAdmin(userId) {
     if (!confirm('¿Quitar permisos de administrador?')) return;
     await db.collection('admins').doc(userId).delete();
-    alert('✅ Permisos de administrador removidos');
+    showToast('Permisos de administrador removidos', 'success');
     loadAllUsers();
 }
 
@@ -2531,33 +2681,33 @@ async function approvePayment(paymentId, userId, planId) {
     try {
         await db.collection('payments').doc(paymentId).update({ status: 'completed', approvedAt: Date.now(), approvedBy: auth.currentUser?.email });
         await db.collection('usersPremium').doc(userId).set({ isPremium: true, planId, premiumUntil, activatedAt: Date.now() }, { merge: true });
-        alert(`✅ Pago aprobado. Usuario ahora es PREMIUM por ${durationDays} días.`);
+        showToast(`✅ Pago aprobado. Usuario ahora es PREMIUM por ${durationDays} días.`, 'info');
         loadAllPayments();
-    } catch (error) { alert("Error al aprobar: " + error.message); }
+    } catch (error) { showToast('Error al aprobar: ' + error.message, 'error'); }
 }
 
 async function rejectPayment(paymentId) {
     if (!confirm('¿Rechazar este pago?')) return;
     try {
         await db.collection('payments').doc(paymentId).update({ status: 'rejected', rejectedAt: Date.now(), rejectedBy: auth.currentUser?.email });
-        alert('❌ Pago rechazado.');
+        showToast('Pago rechazado.', 'error');
         loadAllPayments();
-    } catch (error) { alert("Error al rechazar: " + error.message); }
+    } catch (error) { showToast('Error al rechazar: ' + error.message, 'error'); }
 }
 
 async function removePremium(userId) {
     if (!confirm('¿Quitar el premium a este usuario?')) return;
     try {
         await db.collection('usersPremium').doc(userId).delete();
-        alert('✅ Premium removido del usuario.');
+        showToast('Premium removido del usuario.', 'success');
         loadAllPayments();
-    } catch (error) { alert("Error al remover premium: " + error.message); }
+    } catch (error) { showToast('Error al remover premium: ' + error.message, 'error'); }
 }
 
 async function loadAllPayments() {
     const user = auth.currentUser;
     if (user?.email !== ADMIN_EMAIL) {
-        alert('Solo administradores');
+        showToast('Solo administradores', 'warning');
         return;
     }
     try {
@@ -2604,8 +2754,8 @@ async function loadAllPayments() {
 
 async function processBreBPayment() {
     const user = auth.currentUser;
-    if (!user) return alert('Inicia sesión');
-    if (!brebImageBase64) return alert('Por favor, sube el comprobante de pago');
+    if (!user) return showToast('Inicia sesión', 'warning');
+    if (!brebImageBase64) return showToast('Por favor, sube el comprobante de pago', 'warning');
     const email = document.getElementById('brebEmail').value;
     const paymentData = { method: 'bre-b', brebKey: '@NEQUISAN9617', proofImage: brebImageBase64, email: email || user.email };
     document.getElementById('processingModal').style.display = 'flex';
@@ -2623,8 +2773,8 @@ async function processBreBPayment() {
 
 async function processTransferPayment() {
     const user = auth.currentUser;
-    if (!user) return alert('Inicia sesión');
-    if (!transferImageBase64) return alert('Por favor, sube el comprobante de pago');
+    if (!user) return showToast('Inicia sesión', 'warning');
+    if (!transferImageBase64) return showToast('Por favor, sube el comprobante de pago', 'warning');
     const email = document.getElementById('transferEmail').value;
     const paymentData = { method: 'transferencia', bank: 'Bancolombia', account: '123-456789-01', holder: 'BETKASE SAS', nit: '901.123.456-7', proofImage: transferImageBase64, email: email || user.email };
     document.getElementById('processingModal').style.display = 'flex';
@@ -2642,11 +2792,11 @@ async function processTransferPayment() {
 
 async function processCardPayment() {
     const user = auth.currentUser;
-    if (!user) return alert('Inicia sesión');
+    if (!user) return showToast('Inicia sesión', 'warning');
     const cardNumber = document.getElementById('payCardNumber').value.replace(/\s/g, '');
-    if (cardNumber.length < 16) return alert('Número inválido');
+    if (cardNumber.length < 16) return showToast('Número inválido', 'info');
     const paymentData = { method: 'tarjeta', cardNumber, cardHolder: document.getElementById('payCardHolder').value, bank: document.getElementById('payCardBank').value, expiry: document.getElementById('payCardExpiry').value, cvv: document.getElementById('payCardCvv').value, email: document.getElementById('payCardEmail').value || user.email };
-    if (!paymentData.cardHolder) return alert('Nombre del titular requerido');
+    if (!paymentData.cardHolder) return showToast('Nombre del titular requerido', 'info');
     document.getElementById('processingModal').style.display = 'flex';
     setTimeout(async () => {
         await db.collection('payments').add({ userId: user.uid, userEmail: user.email, planId: currentSelectedPlan.id, planName: currentSelectedPlan.name, amount: currentSelectedPlan.price, paymentData, status: 'pending', createdAt: Date.now() });
@@ -2658,8 +2808,8 @@ async function processCardPayment() {
 }
 
 function closeConfirmModalAndContinue() { document.getElementById('confirmModal').style.display = 'none'; document.getElementById('saveBankModal').style.display = 'flex'; }
-async function saveBankDataAfterPayment() { const user = auth.currentUser; if (!user) { closeSaveBankModal(); return; } const bankData = { userId: user.uid, userEmail: user.email, bank: prompt('🏦 Banco:'), accountNumber: prompt('🔢 Número de cuenta:'), accountHolder: prompt('👤 Titular:'), createdAt: Date.now() }; if (bankData.bank && bankData.accountNumber && bankData.accountHolder) { await db.collection('bankData').add(bankData); alert('✅ Datos guardados'); } closeSaveBankModal(); }
-function closeSaveBankModal() { document.getElementById('saveBankModal').style.display = 'none'; alert('🎉 ¡Gracias por tu compra!'); }
+async function saveBankDataAfterPayment() { const user = auth.currentUser; if (!user) { closeSaveBankModal(); return; } const bankData = { userId: user.uid, userEmail: user.email, bank: prompt('🏦 Banco:'), accountNumber: prompt('🔢 Número de cuenta:'), accountHolder: prompt('👤 Titular:'), createdAt: Date.now() }; if (bankData.bank && bankData.accountNumber && bankData.accountHolder) { await db.collection('bankData').add(bankData); showToast('Datos guardados', 'success'); } closeSaveBankModal(); }
+function closeSaveBankModal() { document.getElementById('saveBankModal').style.display = 'none'; showToast('¡Gracias por tu compra!', 'success'); }
 function closePaymentModal() { document.getElementById('paymentModal').style.display = 'none'; }
 
 /* ── EQUIPOS ── */
@@ -2746,11 +2896,11 @@ function getAwayImage() {
 /* ── APUESTAS ── */
 function publishBet(liveMatchId = null) {
     const user = auth.currentUser;
-    if (!user) return alert('Inicia sesión');
+    if (!user) return showToast('Inicia sesión', 'warning');
     const match = getMatchText();
-    if (!match) return alert('Selecciona equipos/jugadores');
+    if (!match) return showToast('Selecciona equipos/jugadores', 'info');
     const pred = document.getElementById('prediction').value, odds = document.getElementById('odds').value;
-    if (!pred || !odds) return alert('Completa campos');
+    if (!pred || !odds) return showToast('Completa campos', 'warning');
     const data = {
         match,
         prediction: pred,
@@ -2779,8 +2929,8 @@ function publishBet(liveMatchId = null) {
     window._pendingLiveMatchId = null;
     window._pendingLigaSlug = null;
     
-    if (editingId) db.collection('bets').doc(editingId).update(data).then(() => { alert('Actualizada'); clearForm(); editingId = null; });
-    else db.collection('bets').add(data).then(() => { alert('Publicada'); clearForm(); });
+    if (editingId) db.collection('bets').doc(editingId).update(data).then(() => { showToast('Actualizada', 'info'); clearForm(); editingId = null; });
+    else db.collection('bets').add(data).then(() => { showToast('Publicada', 'info'); clearForm(); });
 }
 
 function clearForm() { document.getElementById('localTeam').value = ''; document.getElementById('awayTeam').value = ''; document.getElementById('prediction').value = ''; document.getElementById('odds').value = ''; updateMatch(); }
@@ -2802,7 +2952,7 @@ function editBet(id, match, pred, odds) {
 }
 
 function deleteBet(id) { if (confirm('¿Eliminar?')) db.collection('bets').doc(id).delete(); }
-async function setBetResult(id, result) { await db.collection('bets').doc(id).update({ result, status: 'completed' }); alert(`✅ Apuesta marcada como ${result === 'win' ? 'GANADA' : result === 'loss' ? 'PERDIDA' : 'ANULADA'}`); }
+async function setBetResult(id, result) { await db.collection('bets').doc(id).update({ result, status: 'completed' }); showToast(`✅ Apuesta marcada como ${result === 'win' ? 'GANADA' : result === 'loss' ? 'PERDIDA' : 'ANULADA'}`, 'info'); }
 
 /* ── LOGO ACTUAL DEL EQUIPO ── */
 function getTeamCurrentLogo(teamName) {
@@ -3011,15 +3161,15 @@ async function loadPlans() {
     });
 }
 
-function showPlans() { if (!auth.currentUser) { alert('Inicia sesión primero'); document.getElementById('loginBox').scrollIntoView(); return; } document.getElementById('plansSection').style.display = 'block'; document.getElementById('plansSection').scrollIntoView(); }
+function showPlans() { if (!auth.currentUser) { showToast('Inicia sesión primero', 'warning'); document.getElementById('loginBox').scrollIntoView(); return; } document.getElementById('plansSection').style.display = 'block'; document.getElementById('plansSection').scrollIntoView(); }
 function selectPlan(id, name, price) { currentSelectedPlan = { id, name, price }; document.getElementById('modalPlanName').innerText = name; document.getElementById('modalPlanPrice').innerHTML = `$${price.toLocaleString()} COP`; document.getElementById('brebAmount').innerHTML = `$${price.toLocaleString()} COP`; document.getElementById('paymentModal').style.display = 'flex'; }
 
 /* ── AUTH ── */
 function register() {
     const e = document.getElementById('email').value;
     const p = document.getElementById('password').value;
-    if (!e || !p) return alert('Completa campos');
-    if (p.length < 6) return alert('Mínimo 6 caracteres');
+    if (!e || !p) return showToast('Completa todos los campos', 'warning');
+    if (p.length < 6) return showToast('La contraseña debe tener al menos 6 caracteres', 'warning');
 
     const loadingOverlay = document.getElementById('loadingOverlay');
     const loginBox = document.getElementById('loginBox');
@@ -3055,7 +3205,7 @@ function register() {
         .catch(err => {
             if (loadingOverlay) loadingOverlay.classList.remove('active');
             if (loginBox) loginBox.classList.remove('fade-out');
-            alert('❌ Error: ' + err.message);
+            showToast(getFirebaseErrorMsg(err.code) || err.message, 'error');
         });
 }
 
@@ -3063,7 +3213,7 @@ function login() {
     const e = document.getElementById('email').value;
     const p = document.getElementById('password').value;
     const remember = document.getElementById('rememberMe')?.checked;
-    if (!e || !p) return alert('Completa campos');
+    if (!e || !p) return showToast('Completa todos los campos', 'warning');
 
     // Mostrar overlay de carga
     const loadingOverlay = document.getElementById('loadingOverlay');
@@ -3112,7 +3262,7 @@ function login() {
             // Ocultar overlay en caso de error
             if (loadingOverlay) loadingOverlay.classList.remove('active');
             if (loginBox) loginBox.classList.remove('fade-out');
-            alert('❌ Error: ' + err.message);
+            showToast(getFirebaseErrorMsg(err.code) || err.message, 'error');
         });
 }
 
@@ -3122,8 +3272,8 @@ function forgotPassword() {
     const target = e || prompt('Ingresa tu correo para restablecer la contraseña:');
     if (!target) return;
     auth.sendPasswordResetEmail(target)
-        .then(() => alert('✅ Correo de recuperación enviado a ' + target + '.\nRevisa tu bandeja de entrada.'))
-        .catch(err => alert('❌ Error: ' + err.message));
+        .then(() => showToast('Correo de recuperación enviado a ' + target + '. Revisa tu bandeja de entrada.', 'success', 6000))
+        .catch(err => showToast(getFirebaseErrorMsg(err.code) || err.message, 'error'));
 }
 
 // Restaurar correo guardado al cargar
@@ -3154,7 +3304,7 @@ function logout() {
             })
             .catch(e => {
                 if (loadingOverlay) loadingOverlay.classList.remove('active');
-                alert('Error: ' + e.message);
+                showToast(e.message, 'error');
             });
     }, 500);
 }
@@ -3215,6 +3365,68 @@ loadTeamFilter();
 loadTeamsFromFirestore();
 
 /* ── EXPORTS GLOBALES ── */
+
+
+/* ── TOAST / ALERTA PERSONALIZADA ── */
+(function(){
+    const div = document.createElement('div');
+    div.id = 'toastContainer';
+    document.body.appendChild(div);
+})();
+
+function showToast(message, type, duration) {
+    type = type || 'info';
+    duration = duration || 4000;
+    const icons   = { success:'✅', error:'❌', warning:'⚠️', info:'ℹ️' };
+    const titles  = { success:'Listo', error:'Error', warning:'Atención', info:'Aviso' };
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = 'toast toast-' + type;
+    toast.innerHTML =
+        '<span class="toast-icon">' + (icons[type]||'ℹ️') + '</span>' +
+        '<div class="toast-body">' +
+            '<div class="toast-title">' + (titles[type]||'Aviso') + '</div>' +
+            '<div class="toast-msg">' + message + '</div>' +
+        '</div>' +
+        '<button class="toast-close" onclick="this.closest(\'.toast\').remove()">×</button>';
+    container.appendChild(toast);
+    setTimeout(function(){
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(50px)';
+        setTimeout(function(){ toast.remove(); }, 320);
+    }, duration);
+}
+
+function getFirebaseErrorMsg(code) {
+    var map = {
+        'auth/wrong-password':         'Contraseña incorrecta. Verifica e intenta de nuevo.',
+        'auth/invalid-credential':     'Contraseña incorrecta. Verifica e intenta de nuevo.',
+        'auth/user-not-found':         'No existe una cuenta con ese correo electrónico.',
+        'auth/invalid-email':          'El correo electrónico ingresado no es válido.',
+        'auth/email-already-in-use':   'Ese correo ya está registrado. Intenta iniciar sesión.',
+        'auth/weak-password':          'La contraseña debe tener al menos 6 caracteres.',
+        'auth/too-many-requests':      'Demasiados intentos. Espera unos minutos e intenta de nuevo.',
+        'auth/network-request-failed': 'Sin conexión. Verifica tu internet.',
+        'auth/user-disabled':          'Esta cuenta ha sido deshabilitada. Contacta al soporte.',
+        'auth/requires-recent-login':  'Necesitas volver a iniciar sesión para continuar.',
+        'auth/popup-closed-by-user':   'Ventana cerrada antes de completar el inicio de sesión.',
+        'auth/account-exists-with-different-credential': 'Ya existe una cuenta con ese correo pero con otro método.',
+    };
+    return map[code] || null;
+}
+
+/* ── FILTRO DE LIGA EN VIVO ── */
+let currentLeagueFilter = 'all';
+
+function setLeagueFilter(slug) {
+    currentLeagueFilter = slug || 'all';
+    const sel = document.getElementById('liveLeagueSelect');
+    if (sel) sel.value = currentLeagueFilter;
+    // Clear cache so the new selection is fetched fresh
+    ligasCache.clear();
+    ultimaConsultaGlobal = 0;
+    loadLiveMatches();
+}
 
 /* ── PARTIDOS EN VIVO (ESPN API) ── */
 /* ── PARTIDOS EN VIVO (ESPN API) ── */
@@ -3380,9 +3592,10 @@ async function getSoccerLiveMatches(dateParam) {
     const ahora = Date.now();
     
     // Si hay caché y no ha pasado el intervalo, devolver caché
-    if (ligasCache.has(dateParam) && (ahora - ultimaConsultaGlobal) < INTERVALO_CACHE) {
+    const cacheKey = dateParam + ':' + (currentLeagueFilter || 'all');
+    if (ligasCache.has(cacheKey) && (ahora - ultimaConsultaGlobal) < INTERVALO_CACHE) {
         console.log('📦 Usando caché de partidos');
-        return ligasCache.get(dateParam);
+        return ligasCache.get(cacheKey);
     }
     
     const results = [];
@@ -3481,7 +3694,12 @@ async function getSoccerLiveMatches(dateParam) {
     { name: 'Russian Premier League', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/rus.1/scoreboard?dates=${dp}` }
 ];
     
-    for (const league of leagues) {
+    // Filter to selected league only (fast mode) or fetch all
+    const leaguesToFetch = (currentLeagueFilter && currentLeagueFilter !== 'all')
+        ? leagues.filter(l => l.url.includes('/' + currentLeagueFilter + '/'))
+        : leagues;
+
+    for (const league of leaguesToFetch) {
         try {
             const data = await fetchESPN(league.url);
             if (data && data.events && data.events.length > 0) {
@@ -3526,6 +3744,8 @@ async function getSoccerLiveMatches(dateParam) {
             console.warn(`Error en ${league.name}:`, e);
         }
     }
+    ligasCache.set(cacheKey, results);
+    ultimaConsultaGlobal = Date.now();
     return results;
 }
 
