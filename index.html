@@ -1323,8 +1323,9 @@ footer {
     <!-- SECCIÓN DE PARTIDOS EN VIVO -->
     <div id="liveMatchesSection" style="margin-bottom: 40px;">
         <h3 style="color: #00ff88; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-            <span>🔴 PARTIDOS EN VIVO AHORA</span>
+            <span>📡 PARTIDOS DE HOY</span>
             <span id="liveMatchesCount" style="background: #ff0000; padding: 4px 10px; border-radius: 20px; font-size: 12px;">0</span>
+            <span style="background: #1a3a5c; color:#4db8ff; padding: 4px 10px; border-radius: 20px; font-size: 12px;">🔴 en vivo</span>
             <button onclick="refreshLiveMatches()" style="background: #00ff88; border: none; padding: 5px 15px; border-radius: 20px; cursor: pointer; color: black; font-weight: bold; margin-left: auto;">🔄 Actualizar</button>
         </h3>
         <div id="liveMatchesContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; margin-bottom: 40px;">
@@ -2865,6 +2866,14 @@ async function getLiveMatchesForSport(sport) {
     return [];
 }
 
+function formatMatchTime(dateStr) {
+    if (!dateStr) return '';
+    try {
+        const d = new Date(dateStr);
+        return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone });
+    } catch(e) { return ''; }
+}
+
 async function getSoccerLiveMatches() {
     const results = [];
     const leagues = [
@@ -2881,8 +2890,8 @@ async function getSoccerLiveMatches() {
             if (data && data.events && data.events.length > 0) {
                 for (const ev of data.events) {
                     const state = ev.status?.type?.state || '';
-                    // Solo mostrar partidos EN VIVO (state === 'in')
-                    if (state !== 'in') continue;
+                    if (state !== 'in' && state !== 'pre') continue;
+                    const enVivo = state === 'in';
                     
                     const comps = ev.competitions?.[0]?.competitors || [];
                     if (comps.length < 2) continue;
@@ -2892,19 +2901,21 @@ async function getSoccerLiveMatches() {
                         sport: 'futbol',
                         sportIcon: '⚽',
                         sportName: league.name,
+                        liga: league.name,
+                        hora: formatMatchTime(ev.date),
                         local: { 
                             name: comps[0].team?.displayName || comps[0].team?.name || 'Local', 
                             logo: comps[0].team?.logo || '', 
-                            score: comps[0].score || '0' 
+                            score: enVivo ? (comps[0].score || '0') : '-'
                         },
                         away: { 
                             name: comps[1].team?.displayName || comps[1].team?.name || 'Visitante', 
                             logo: comps[1].team?.logo || '', 
-                            score: comps[1].score || '0' 
+                            score: enVivo ? (comps[1].score || '0') : '-'
                         },
                         periodo: ev.status?.period || 0,
                         tiempo: ev.status?.displayClock || ev.status?.type?.description || '',
-                        enVivo: true,
+                        enVivo: enVivo,
                         finalizado: false
                     });
                 }
@@ -2923,7 +2934,8 @@ async function getNBALiveMatches() {
         if (data && data.events && data.events.length > 0) {
             for (const ev of data.events) {
                 const state = ev.status?.type?.state || '';
-                if (state !== 'in') continue;
+                if (state !== 'in' && state !== 'pre') continue;
+                const enVivo = state === 'in';
                 
                 const comps = ev.competitions?.[0]?.competitors || [];
                 if (comps.length < 2) continue;
@@ -2933,19 +2945,21 @@ async function getNBALiveMatches() {
                     sport: 'nba',
                     sportIcon: '🏀',
                     sportName: 'NBA',
+                    liga: 'NBA',
+                    hora: formatMatchTime(ev.date),
                     local: { 
                         name: comps[0].team?.displayName || comps[0].team?.name || 'Local', 
                         logo: comps[0].team?.logo || '', 
-                        score: comps[0].score || '0' 
+                        score: enVivo ? (comps[0].score || '0') : '-'
                     },
                     away: { 
                         name: comps[1].team?.displayName || comps[1].team?.name || 'Visitante', 
                         logo: comps[1].team?.logo || '', 
-                        score: comps[1].score || '0' 
+                        score: enVivo ? (comps[1].score || '0') : '-'
                     },
                     periodo: ev.status?.period || 0,
                     tiempo: ev.status?.displayClock || ev.status?.type?.description || '',
-                    enVivo: true,
+                    enVivo: enVivo,
                     finalizado: false
                 });
             }
@@ -2970,7 +2984,8 @@ async function getTennisLiveMatches() {
             
             for (const ev of data.events) {
                 const state = ev.status?.type?.state || '';
-                if (state !== 'in') continue;
+                if (state !== 'in' && state !== 'pre') continue;
+                const enVivo = state === 'in';
                 
                 const comp = ev.competitions?.[0];
                 if (!comp) continue;
@@ -2982,33 +2997,38 @@ async function getTennisLiveMatches() {
                 
                 const localName = localData.athlete?.displayName || localData.team?.displayName || localData.displayName || 'Jugador 1';
                 const awayName = awayData.athlete?.displayName || awayData.team?.displayName || awayData.displayName || 'Jugador 2';
+
+                const tournamentName = ev.competitions?.[0]?.tournament?.displayName || ev.season?.displayName || tour.name;
+                const ligaDisplay = `${tour.name} · ${tournamentName !== tour.name ? tournamentName : ''}`.replace(/· $/, '').trim();
                 
-                let localScore = '0';
-                let awayScore = '0';
+                let localScore = '-';
+                let awayScore = '-';
                 let setsInfo = '';
                 
-                if (localData.linescores && localData.linescores.length > 0) {
-                    const localSets = localData.linescores.map(ls => ls.displayValue || ls.value || '0').join(', ');
-                    const awaySets = awayData.linescores ? awayData.linescores.map(ls => ls.displayValue || ls.value || '0').join(', ') : '';
-                    localScore = localData.linescores.filter((ls, i) => {
-                        const lv = parseInt(ls.displayValue || ls.value || '0');
-                        const av = awayData.linescores?.[i] ? parseInt(awayData.linescores[i].displayValue || awayData.linescores[i].value || '0') : 0;
-                        return lv > av;
-                    }).length;
-                    awayScore = awayData.linescores ? awayData.linescores.filter((ls, i) => {
-                        const av = parseInt(ls.displayValue || ls.value || '0');
-                        const lv = localData.linescores?.[i] ? parseInt(localData.linescores[i].displayValue || localData.linescores[i].value || '0') : 0;
-                        return av > lv;
-                    }).length : 0;
-                    setsInfo = `${localSets} - ${awaySets}`;
-                } else {
-                    localScore = localData.score || '0';
-                    awayScore = awayData.score || '0';
+                if (enVivo) {
+                    if (localData.linescores && localData.linescores.length > 0) {
+                        const localSets = localData.linescores.map(ls => ls.displayValue || ls.value || '0').join(', ');
+                        const awaySets = awayData.linescores ? awayData.linescores.map(ls => ls.displayValue || ls.value || '0').join(', ') : '';
+                        localScore = localData.linescores.filter((ls, i) => {
+                            const lv = parseInt(ls.displayValue || ls.value || '0');
+                            const av = awayData.linescores?.[i] ? parseInt(awayData.linescores[i].displayValue || awayData.linescores[i].value || '0') : 0;
+                            return lv > av;
+                        }).length;
+                        awayScore = awayData.linescores ? awayData.linescores.filter((ls, i) => {
+                            const av = parseInt(ls.displayValue || ls.value || '0');
+                            const lv = localData.linescores?.[i] ? parseInt(localData.linescores[i].displayValue || localData.linescores[i].value || '0') : 0;
+                            return av > lv;
+                        }).length : 0;
+                        setsInfo = `${localSets} - ${awaySets}`;
+                    } else {
+                        localScore = localData.score || '0';
+                        awayScore = awayData.score || '0';
+                    }
                 }
                 
                 const periodo = ev.status?.period || comp.status?.period || 0;
                 let tiempo = ev.status?.displayClock || comp.status?.displayClock || '';
-                if (!tiempo) {
+                if (!tiempo && enVivo) {
                     tiempo = periodo > 0 ? `Set ${periodo} en juego` : 'En vivo';
                 }
                 
@@ -3017,6 +3037,8 @@ async function getTennisLiveMatches() {
                     sport: 'tenis',
                     sportIcon: '🎾',
                     sportName: tour.name,
+                    liga: ligaDisplay,
+                    hora: formatMatchTime(ev.date),
                     local: {
                         name: localName,
                         logo: localData.athlete?.flag?.href || localData.athlete?.headshot?.href || '',
@@ -3030,7 +3052,7 @@ async function getTennisLiveMatches() {
                     periodo: periodo,
                     tiempo: tiempo,
                     sets: setsInfo,
-                    enVivo: true,
+                    enVivo: enVivo,
                     finalizado: false
                 });
             }
@@ -3069,35 +3091,59 @@ async function loadLiveMatches() {
         }
     }
 
+    const liveCount = partidos.filter(p => p.enVivo).length;
     const countEl = document.getElementById('liveMatchesCount');
-    if (countEl) countEl.innerText = partidos.length;
+    if (countEl) countEl.innerText = liveCount;
 
     if (partidos.length === 0) {
-        container.innerHTML = '<div style="background:#0a0a0a; border-radius:20px; padding:40px; text-align:center; border:1px solid #333; grid-column:1/-1;">📭 No hay partidos en vivo en este momento.<br><small>Los partidos solo aparecen cuando están en curso.</small></div>';
+        container.innerHTML = '<div style="background:#0a0a0a; border-radius:20px; padding:40px; text-align:center; border:1px solid #333; grid-column:1/-1;">📭 No hay partidos hoy.<br><small>Intenta más tarde o cambia el deporte.</small></div>';
         return;
     }
+
+    partidos.sort((a, b) => {
+        if (a.enVivo && !b.enVivo) return -1;
+        if (!a.enVivo && b.enVivo) return 1;
+        return (a.hora || '').localeCompare(b.hora || '');
+    });
 
     container.innerHTML = '';
     
     for (const m of partidos) {
+        const badge = m.enVivo
+            ? `<span class="live-badge">🔴 EN VIVO</span>`
+            : `<span style="background:#1a3a5c; color:#4db8ff; padding:3px 12px; border-radius:20px; font-size:11px; font-weight:bold;">🕐 PRÓXIMO</span>`;
+
+        const horaInfo = m.hora ? `<span style="color:#00ff88; font-weight:bold; font-size:13px;">⏰ ${m.hora}</span>` : '';
+        const ligaInfo = `<span style="color:#aaa; font-size:12px;">🏆 ${escapeAttr(m.liga || m.sportName)}</span>`;
+
+        const periodoInfo = m.enVivo && m.tiempo
+            ? `<span class="live-period">${m.sportIcon} ${m.tiempo}</span>`
+            : `<span class="live-period">${m.sportIcon} ${m.liga || m.sportName}</span>`;
+
+        const scoreStyle = m.enVivo ? 'color:#00ff88;' : 'color:#555;';
+
         container.innerHTML += `
-            <div class="live-match-card" onclick="prepareBetFromLiveMatch('${escapeAttr(m.local.name)}','${escapeAttr(m.away.name)}','${m.sport}')">
+            <div class="live-match-card" onclick="prepareBetFromLiveMatch('${escapeAttr(m.local.name)}','${escapeAttr(m.away.name)}','${m.sport}')" style="border-color: ${m.enVivo ? '#ff4444' : '#1a3a5c'};">
                 <div class="live-match-header">
-                    <span class="live-badge">🔴 EN VIVO</span>
-                    <span class="live-period">${m.sportIcon} ${m.sportName} | ${m.tiempo}</span>
+                    ${badge}
+                    ${periodoInfo}
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin: 8px 0 12px; flex-wrap:wrap; gap:6px;">
+                    ${ligaInfo}
+                    ${horaInfo}
                 </div>
                 <div class="live-match-teams">
                     <div class="live-team">
                         <img class="live-team-logo" src="${m.local.logo}" onerror="this.style.display='none'">
                         <div class="live-team-name">${escapeAttr(m.local.name)}</div>
-                        <div class="live-team-score">${m.local.score}</div>
+                        <div class="live-team-score" style="${scoreStyle}">${m.local.score}</div>
                         ${m.sport === 'tenis' && m.sets ? `<div style="font-size: 11px; color: #aaa; margin-top: 5px;">${m.sets.substring(0, 30)}</div>` : ''}
                     </div>
                     <div class="live-vs">VS</div>
                     <div class="live-team">
                         <img class="live-team-logo" src="${m.away.logo}" onerror="this.style.display='none'">
                         <div class="live-team-name">${escapeAttr(m.away.name)}</div>
-                        <div class="live-team-score">${m.away.score}</div>
+                        <div class="live-team-score" style="${scoreStyle}">${m.away.score}</div>
                     </div>
                 </div>
                 <button class="live-bet-button" onclick="event.stopPropagation(); createBetFromLiveMatch('${escapeAttr(m.local.name)}','${escapeAttr(m.away.name)}','${m.sport}')">
