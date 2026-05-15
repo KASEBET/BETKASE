@@ -2203,76 +2203,69 @@ function updateStatsPanel(bets) {
         <div class="summary-item"><div class="value">${s.avgOdds}</div><div class="label">💰 Avg Odds</div></div>
     `;
 }
-// FUNCIÓN PARA OBTENER ESTADÍSTICAS EN VIVO DESDE ESPN
-// FUNCIÓN PARA OBTENER ESTADÍSTICAS EN VIVO DESDE EL SCOREBOARD
+// FUNCIÓN PARA OBTENER ESTADÍSTICAS EN VIVO DESDE ESPN (summary endpoint)
 async function fetchLiveMatchStats(leagueSlug, eventId) {
     try {
-        // Usar la API de scoreboard que ya funciona
-        const dp = getESPNDateParam(0);
-        const scoreboardUrl = `https://site.api.espn.com/apis/site/v2/sports/soccer/${leagueSlug}/scoreboard?dates=${dp}`;
-        
-        const response = await fetch(scoreboardUrl);
-        if (!response.ok) return null;
-        
-        const data = await response.json();
-        
-        // Buscar el evento específico
-        const event = data.events?.find(e => e.id === eventId);
-        if (!event) return null;
-        
-        const competition = event.competitions?.[0];
-        if (!competition) return null;
-        
-        const competitors = competition.competitors || [];
-        if (competitors.length < 2) return null;
-        
-        // Extraer estadísticas del competition
-        let stats = { 
-            goalsLocal: 0, goalsAway: 0, 
-            yellowLocal: 0, yellowAway: 0, 
-            redLocal: 0, redAway: 0, 
+        const summaryUrl = `https://site.api.espn.com/apis/site/v2/sports/soccer/${leagueSlug}/summary?event=${eventId}`;
+        const data = await fetchESPN(summaryUrl);
+        if (!data) return null;
+
+        let stats = {
+            goalsLocal: 0, goalsAway: 0,
+            yellowLocal: 0, yellowAway: 0,
+            redLocal: 0, redAway: 0,
             cornersLocal: 0, cornersAway: 0,
-            shotsLocal: 0, shotsAway: 0, 
+            shotsLocal: 0, shotsAway: 0,
             shotsOnTargetLocal: 0, shotsOnTargetAway: 0,
-            possessionLocal: 50, possessionAway: 50
+            possessionLocal: 0, possessionAway: 0,
+            foulsLocal: 0, foulsAway: 0
         };
-        
-        // GOLES
-        stats.goalsLocal = parseInt(competitors[0]?.score) || 0;
-        stats.goalsAway = parseInt(competitors[1]?.score) || 0;
-        
-        // ESTADÍSTICAS DEL PARTIDO (si están disponibles)
-        if (competition.statistics) {
-            for (const stat of competition.statistics) {
-                const name = stat.name?.toLowerCase() || '';
-                const homeValue = parseInt(stat.displayValue?.split('-')?.[0]?.trim()) || 0;
-                const awayValue = parseInt(stat.displayValue?.split('-')?.[1]?.trim()) || 0;
-                
-                if (name.includes('corner') || name.includes('córner')) {
-                    stats.cornersLocal = homeValue;
-                    stats.cornersAway = awayValue;
-                } else if (name.includes('yellow') || name.includes('amarilla')) {
-                    stats.yellowLocal = homeValue;
-                    stats.yellowAway = awayValue;
-                } else if (name.includes('red') || name.includes('roja')) {
-                    stats.redLocal = homeValue;
-                    stats.redAway = awayValue;
-                } else if (name.includes('shot') && name.includes('on target')) {
-                    stats.shotsOnTargetLocal = homeValue;
-                    stats.shotsOnTargetAway = awayValue;
-                } else if (name.includes('shot') || name.includes('remate')) {
-                    stats.shotsLocal = homeValue;
-                    stats.shotsAway = awayValue;
-                } else if (name.includes('possession') || name.includes('posesión')) {
-                    stats.possessionLocal = homeValue;
-                    stats.possessionAway = awayValue;
-                }
-            }
+
+        // Scores from header
+        const headerComps = (data.header?.competitions?.[0] || data.gamepackageJSON?.header?.competitions?.[0])?.competitors;
+        if (headerComps && headerComps.length >= 2) {
+            stats.goalsLocal = parseInt(headerComps[0]?.score) || 0;
+            stats.goalsAway  = parseInt(headerComps[1]?.score) || 0;
         }
-        
+
+        // Detailed stats from boxscore
+        const teams = data.boxscore?.teams;
+        if (teams && teams.length >= 2) {
+            const parseVal = (arr, ...names) => {
+                for (const n of names) {
+                    const s = arr.find(x => x.name === n || (x.label || '').toLowerCase().includes(n.toLowerCase()));
+                    if (s) return parseFloat(s.displayValue) || parseInt(s.displayValue) || 0;
+                }
+                return 0;
+            };
+            const homeStats = teams[0]?.statistics || [];
+            const awayStats = teams[1]?.statistics || [];
+
+            stats.cornersLocal        = parseVal(homeStats, 'cornerKicks', 'corners');
+            stats.cornersAway         = parseVal(awayStats, 'cornerKicks', 'corners');
+            stats.yellowLocal         = parseVal(homeStats, 'yellowCards', 'yellow');
+            stats.yellowAway          = parseVal(awayStats, 'yellowCards', 'yellow');
+            stats.redLocal            = parseVal(homeStats, 'redCards', 'red');
+            stats.redAway             = parseVal(awayStats, 'redCards', 'red');
+            stats.shotsLocal          = parseVal(homeStats, 'shotsTotal', 'totalShots', 'shots');
+            stats.shotsAway           = parseVal(awayStats, 'shotsTotal', 'totalShots', 'shots');
+            stats.shotsOnTargetLocal  = parseVal(homeStats, 'shotsOnTarget', 'onTarget');
+            stats.shotsOnTargetAway   = parseVal(awayStats, 'shotsOnTarget', 'onTarget');
+            stats.possessionLocal     = parseVal(homeStats, 'possessionPct', 'possession');
+            stats.possessionAway      = parseVal(awayStats, 'possessionPct', 'possession');
+            stats.foulsLocal          = parseVal(homeStats, 'foulsCommitted', 'fouls');
+            stats.foulsAway           = parseVal(awayStats, 'foulsCommitted', 'fouls');
+
+            // Complement possession if only one side returned
+            if (stats.possessionLocal > 0 && stats.possessionAway === 0)
+                stats.possessionAway = 100 - stats.possessionLocal;
+            if (stats.possessionAway > 0 && stats.possessionLocal === 0)
+                stats.possessionLocal = 100 - stats.possessionAway;
+        }
+
         return stats;
     } catch (error) {
-        console.warn('Error fetching live stats from scoreboard:', error);
+        console.warn('Error fetching live stats:', error);
         return null;
     }
 }
@@ -3467,6 +3460,7 @@ async function getSoccerLiveMatches(dateParam) {
                         sportIcon: '⚽',
                         sportName: league.name,
                         liga: league.name,
+                        ligaSlug: (league.url.match(/\/soccer\/([^\/]+)\/scoreboard/) || [])[1] || 'eng.1',
                         hora: dt.hora,
                         dia: dt.dia,
                         fecha: dt.fecha,
@@ -3733,10 +3727,37 @@ async function loadLiveMatches() {
                         <div class="live-team-score" style="${scoreStyle}">${m.away.score}</div>
                     </div>
                 </div>
+                <div id="inline-stats-${m.id}" class="live-stats" style="display:none;"></div>
                 ${verStatsBtn}
                 ${crearApuestaBtn}
             </div>
         `;
+    }
+
+    // After rendering, load inline stats for live matches asynchronously
+    for (const m of partidos) {
+        if (!m.enVivo || m.sport !== 'futbol') continue;
+        (async () => {
+            try {
+                const el = document.getElementById(`inline-stats-${m.id}`);
+                if (!el) return;
+                const stats = await fetchLiveMatchStats(m.ligaSlug || 'eng.1', m.id);
+                if (!stats) return;
+                const rows = [
+                    ['🎯', 'Corners', stats.cornersLocal, stats.cornersAway],
+                    ['🟨', 'Amarillas', stats.yellowLocal, stats.yellowAway],
+                    ['🟥', 'Rojas', stats.redLocal, stats.redAway],
+                    ['⚠️', 'Faltas', stats.foulsLocal, stats.foulsAway],
+                    ['💥', 'Remates', stats.shotsLocal, stats.shotsAway],
+                    ['🎯', 'A Puerta', stats.shotsOnTargetLocal, stats.shotsOnTargetAway],
+                ].filter(([,, l, a]) => l > 0 || a > 0);
+                if (rows.length === 0) return;
+                el.innerHTML = rows.map(([icon, label, l, a]) =>
+                    `<div class="live-stats-row"><span>${icon} ${label}</span><span class="stat-value">${l} - ${a}</span></div>`
+                ).join('');
+                el.style.display = 'block';
+            } catch(e) {}
+        })();
     }
 }
 // Iniciar la actualización automática cada 30 segundos
@@ -3749,34 +3770,14 @@ function startLiveMatchesAutoRefresh() {
 
 // Función para ver estadísticas en vivo sin necesidad de apuesta
 async function viewLiveStats(eventId, sport, matchName) {
+    // Use the stored ligaSlug from the match data for accurate league routing
     let leagueSlug = 'eng.1';
-    
-    // Determinar la liga según el deporte
-    if (sport === 'futbol') {
-        // Detectar liga por el nombre del partido
-        const lowerMatch = matchName.toLowerCase();
-        if (lowerMatch.includes('real madrid') || lowerMatch.includes('barcelona') || lowerMatch.includes('atletico') || lowerMatch.includes('athletic')) {
-            leagueSlug = 'esp.1';
-        } else if (lowerMatch.includes('bayern') || lowerMatch.includes('dortmund') || lowerMatch.includes('leipzig')) {
-            leagueSlug = 'ger.1';
-        } else if (lowerMatch.includes('juventus') || lowerMatch.includes('inter') || lowerMatch.includes('milan') || lowerMatch.includes('roma')) {
-            leagueSlug = 'ita.1';
-        } else if (lowerMatch.includes('psg') || lowerMatch.includes('marseille') || lowerMatch.includes('lyon')) {
-            leagueSlug = 'fra.1';
-        } else if (lowerMatch.includes('boca') || lowerMatch.includes('river') || lowerMatch.includes('racing')) {
-            leagueSlug = 'arg.1';
-        } else if (lowerMatch.includes('flamengo') || lowerMatch.includes('palmeiras') || lowerMatch.includes('corinthians')) {
-            leagueSlug = 'bra.1';
-        } else if (lowerMatch.includes('al') && (lowerMatch.includes('saudi') || lowerMatch.includes('riad'))) {
-            leagueSlug = 'ksa.1';
-        } else {
-            leagueSlug = 'eng.1';
-        }
-    } else if (sport === 'nba') {
-        leagueSlug = 'nba';
-    } else if (sport === 'tenis') {
-        leagueSlug = 'atp';
+    if (window._currentLivePartidos) {
+        const found = window._currentLivePartidos.find(m => m.id === eventId);
+        if (found && found.ligaSlug) leagueSlug = found.ligaSlug;
     }
+    if (sport === 'nba') leagueSlug = 'nba';
+    if (sport === 'tenis') leagueSlug = 'atp';
     
     // Mostrar modal de carga
     document.getElementById('statsModalTitle').innerHTML = `📊 ${matchName} - BUSCANDO DATOS...`;
@@ -3821,74 +3822,30 @@ async function viewLiveStats(eventId, sport, matchName) {
                     </div>
                 </div>`;
         
-        // Solo mostrar estadísticas adicionales si hay datos
-        if (liveStats.cornersLocal > 0 || liveStats.cornersAway > 0) {
-            statsHtml += `<div style="background:#1a1a2e; border-radius:10px; padding:10px; margin-bottom:10px;">
-                <div style="color:#aaa; font-size:12px; margin-bottom:5px;">🎯 CORNERES</div>
-                <div style="display:flex; justify-content:space-between;">
-                    <span style="font-size:18px; font-weight:bold;">${liveStats.cornersLocal || 0}</span>
-                    <span style="color:#888;">-</span>
-                    <span style="font-size:18px; font-weight:bold;">${liveStats.cornersAway || 0}</span>
-                </div>
+        // Mostrar todas las estadísticas siempre (aunque sean 0, confirma que el partido está activo)
+        const mkRow = (icon, label, vLocal, vAway, extra='') => `
+            <div style="background:#1a1a2e; border-radius:10px; padding:10px; margin-bottom:8px;">
+                <div style="color:#aaa; font-size:11px; margin-bottom:5px; text-transform:uppercase; letter-spacing:.5px;">${icon} ${label}</div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:20px; font-weight:bold; color:#fff;">${vLocal}</span>
+                    <span style="color:#555; font-size:14px;">—</span>
+                    <span style="font-size:20px; font-weight:bold; color:#fff;">${vAway}</span>
+                </div>${extra}
             </div>`;
-        }
-        
-        if (liveStats.yellowLocal > 0 || liveStats.yellowAway > 0) {
-            statsHtml += `<div style="background:#1a1a2e; border-radius:10px; padding:10px; margin-bottom:10px;">
-                <div style="color:#aaa; font-size:12px; margin-bottom:5px;">🟨 TARJETAS AMARILLAS</div>
-                <div style="display:flex; justify-content:space-between;">
-                    <span style="font-size:18px; font-weight:bold;">${liveStats.yellowLocal || 0}</span>
-                    <span style="color:#888;">-</span>
-                    <span style="font-size:18px; font-weight:bold;">${liveStats.yellowAway || 0}</span>
-                </div>
-            </div>`;
-        }
-        
-        if (liveStats.redLocal > 0 || liveStats.redAway > 0) {
-            statsHtml += `<div style="background:#1a1a2e; border-radius:10px; padding:10px; margin-bottom:10px;">
-                <div style="color:#aaa; font-size:12px; margin-bottom:5px;">🟥 TARJETAS ROJAS</div>
-                <div style="display:flex; justify-content:space-between;">
-                    <span style="font-size:18px; font-weight:bold;">${liveStats.redLocal || 0}</span>
-                    <span style="color:#888;">-</span>
-                    <span style="font-size:18px; font-weight:bold;">${liveStats.redAway || 0}</span>
-                </div>
-            </div>`;
-        }
-        
-        if (liveStats.shotsLocal > 0 || liveStats.shotsAway > 0) {
-            statsHtml += `<div style="background:#1a1a2e; border-radius:10px; padding:10px; margin-bottom:10px;">
-                <div style="color:#aaa; font-size:12px; margin-bottom:5px;">💥 REMATES TOTALES</div>
-                <div style="display:flex; justify-content:space-between;">
-                    <span style="font-size:18px; font-weight:bold;">${liveStats.shotsLocal || 0}</span>
-                    <span style="color:#888;">-</span>
-                    <span style="font-size:18px; font-weight:bold;">${liveStats.shotsAway || 0}</span>
-                </div>
-            </div>`;
-        }
-        
-        if (liveStats.shotsOnTargetLocal > 0 || liveStats.shotsOnTargetAway > 0) {
-            statsHtml += `<div style="background:#1a1a2e; border-radius:10px; padding:10px; margin-bottom:10px;">
-                <div style="color:#aaa; font-size:12px; margin-bottom:5px;">🎯 REMATES A PUERTA</div>
-                <div style="display:flex; justify-content:space-between;">
-                    <span style="font-size:18px; font-weight:bold;">${liveStats.shotsOnTargetLocal || 0}</span>
-                    <span style="color:#888;">-</span>
-                    <span style="font-size:18px; font-weight:bold;">${liveStats.shotsOnTargetAway || 0}</span>
-                </div>
-            </div>`;
-        }
-        
-        if (liveStats.possessionLocal && liveStats.possessionLocal > 0) {
-            statsHtml += `<div style="background:#1a1a2e; border-radius:10px; padding:10px;">
-                <div style="color:#aaa; font-size:12px; margin-bottom:5px;">📊 POSESIÓN</div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                    <span style="font-weight:bold;">${liveStats.possessionLocal}%</span>
-                    <span style="color:#888;">-</span>
-                    <span style="font-weight:bold;">${liveStats.possessionAway}%</span>
-                </div>
-                <div style="background:#333; border-radius:10px; overflow:hidden;">
-                    <div style="background:#00ff88; width:${liveStats.possessionLocal}%; height:6px;"></div>
-                </div>
-            </div>`;
+
+        statsHtml += mkRow('🎯', 'Corneres', liveStats.cornersLocal || 0, liveStats.cornersAway || 0);
+        statsHtml += mkRow('🟨', 'Tarjetas Amarillas', liveStats.yellowLocal || 0, liveStats.yellowAway || 0);
+        statsHtml += mkRow('🟥', 'Tarjetas Rojas', liveStats.redLocal || 0, liveStats.redAway || 0);
+        statsHtml += mkRow('⚠️', 'Faltas Cometidas', liveStats.foulsLocal || 0, liveStats.foulsAway || 0);
+        statsHtml += mkRow('💥', 'Remates Totales', liveStats.shotsLocal || 0, liveStats.shotsAway || 0);
+        statsHtml += mkRow('🎯', 'Remates a Puerta', liveStats.shotsOnTargetLocal || 0, liveStats.shotsOnTargetAway || 0);
+        if (liveStats.possessionLocal > 0 || liveStats.possessionAway > 0) {
+            const posL = liveStats.possessionLocal || 0;
+            const posA = liveStats.possessionAway || 0;
+            statsHtml += mkRow('📊', 'Posesión',
+                posL + '%', posA + '%',
+                `<div style="background:#333; border-radius:10px; overflow:hidden; margin-top:6px;"><div style="background:linear-gradient(90deg,#00ff88,#00cc66); width:${posL}%; height:5px;"></div></div>`
+            );
         }
         
         statsHtml += `
