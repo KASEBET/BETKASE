@@ -1197,6 +1197,13 @@ footer {
                 <label>Contraseña</label>
                 <input type="password" id="password" placeholder="********">
             </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+                <label style="display:flex; align-items:center; gap:7px; cursor:pointer; color:#aaa; font-size:13px;">
+                    <input type="checkbox" id="rememberMe" style="accent-color:#00ff88; width:15px; height:15px;">
+                    Recordar mi correo
+                </label>
+                <a href="#" onclick="forgotPassword(); return false;" style="color:#00ff88; font-size:13px; text-decoration:none;">¿Olvidaste tu contraseña?</a>
+            </div>
             <div class="login-buttons">
                 <button class="btn btn-green" onclick="register()">Registrarse</button>
                 <button class="btn btn-green" onclick="login()">Ingresar</button>
@@ -2739,15 +2746,49 @@ function register() {
 function login() {
     const e = document.getElementById('email').value;
     const p = document.getElementById('password').value;
+    const remember = document.getElementById('rememberMe')?.checked;
     if (!e || !p) return alert('Completa campos');
 
-    auth.signInWithEmailAndPassword(e, p)
-        .then(() => {
-            alert('✅ Sesión iniciada correctamente');
-            location.reload();
-        })
-        .catch(e => alert('❌ Error: ' + e.message));
+    if (remember) {
+        localStorage.setItem('bk_savedEmail', e);
+        localStorage.setItem('bk_rememberMe', '1');
+    } else {
+        localStorage.removeItem('bk_savedEmail');
+        localStorage.removeItem('bk_rememberMe');
+    }
+
+    const persistence = remember
+        ? firebase.auth.Auth.Persistence.LOCAL
+        : firebase.auth.Auth.Persistence.SESSION;
+
+    auth.setPersistence(persistence)
+        .then(() => auth.signInWithEmailAndPassword(e, p))
+        .then(() => { location.reload(); })
+        .catch(err => alert('❌ Error: ' + err.message));
 }
+
+function forgotPassword() {
+    const emailEl = document.getElementById('email');
+    const e = emailEl ? emailEl.value.trim() : '';
+    const target = e || prompt('Ingresa tu correo para restablecer la contraseña:');
+    if (!target) return;
+    auth.sendPasswordResetEmail(target)
+        .then(() => alert('✅ Correo de recuperación enviado a ' + target + '.\nRevisa tu bandeja de entrada.'))
+        .catch(err => alert('❌ Error: ' + err.message));
+}
+
+// Restaurar correo guardado al cargar
+(function() {
+    if (localStorage.getItem('bk_rememberMe') === '1') {
+        const saved = localStorage.getItem('bk_savedEmail');
+        if (saved) {
+            const el = document.getElementById('email');
+            if (el) el.value = saved;
+            const cb = document.getElementById('rememberMe');
+            if (cb) cb.checked = true;
+        }
+    }
+})();
 
 function logout() {
     auth.signOut()
@@ -3224,9 +3265,11 @@ async function loadLiveMatches() {
     });
 
     const isAdminCard = auth.currentUser?.email === ADMIN_EMAIL;
+    window._currentLivePartidos = partidos;
     container.innerHTML = '';
     
-    for (const m of partidos) {
+    for (let _mi = 0; _mi < partidos.length; _mi++) {
+    const m = partidos[_mi];
         const badge = m.enVivo
             ? `<span class="live-badge">🔴 EN VIVO</span>`
             : `<span style="background:#1a3a5c; color:#4db8ff; padding:3px 12px; border-radius:20px; font-size:11px; font-weight:bold;">🕐 PRÓXIMO</span>`;
@@ -3241,11 +3284,11 @@ async function loadLiveMatches() {
 
         const scoreStyle = m.enVivo ? 'color:#00ff88;' : 'color:#444;';
         const crearApuestaBtn = isAdminCard
-            ? `<button class="live-bet-button" onclick="event.stopPropagation(); createBetFromLiveMatch('${escapeAttr(m.local.name)}','${escapeAttr(m.away.name)}','${m.sport}')">🎲 Crear Apuesta para este Partido</button>`
+            ? `<button class="live-bet-button" onclick="event.stopPropagation(); createBetFromLiveMatch(${_mi})">🎲 Crear Apuesta para este Partido</button>`
             : '';
 
         container.innerHTML += `
-            <div class="live-match-card" onclick="prepareBetFromLiveMatch('${escapeAttr(m.local.name)}','${escapeAttr(m.away.name)}','${m.sport}')" style="border-color:${m.enVivo ? '#ff4444' : '#1a3a5c'};">
+            <div class="live-match-card" style="border-color:${m.enVivo ? '#ff4444' : '#1a3a5c'};">
                 <div class="live-match-header">
                     ${badge}
                     ${periodoInfo}
@@ -3285,41 +3328,61 @@ function startLiveMatchesAutoRefresh() {
 // Llamar a esta función cuando se carga la página o cambia el deporte
 startLiveMatchesAutoRefresh();
 
-function prepareBetFromLiveMatch(localTeam, awayTeam, sport) {
-    if (sport !== currentSportFilter) {
-        const sportMap = { futbol: 'futbol', tenis: 'tenis', nba: 'nba' };
-        const btnSport = sportMap[sport];
-        if (btnSport) {
-            const btn = document.querySelector(`.sport-btn[onclick*="${btnSport}"]`);
-            if (btn) btn.click();
-        }
+async function _ensureTeamInSelect(sel, teamName, teamLogo, sport) {
+    for (let i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].text === teamName) { sel.selectedIndex = i; return; }
     }
-    setTimeout(() => {
-        const localSel = document.getElementById('localTeam');
-        const awaySel = document.getElementById('awayTeam');
-        for (let i = 0; i < localSel.options.length; i++) {
-            if (localSel.options[i].text === localTeam) { localSel.selectedIndex = i; break; }
+    // Team not found — auto-create it
+    const existsInData = sportsData[sport] && sportsData[sport].teams.some(t => t.name === teamName);
+    const existsCustom = customTeams && customTeams.some(t => t.name === teamName && t.sport === sport);
+    if (!existsInData && !existsCustom) {
+        const newTeam = { name: teamName, logo: teamLogo || '', sport: sport, createdAt: Date.now(), autoCreated: true };
+        try {
+            const docRef = await db.collection('teams').add(newTeam);
+            if (!customTeams) customTeams = [];
+            customTeams.push({ id: docRef.id, ...newTeam });
+            if (sportsData[sport]) sportsData[sport].teams.push({ name: teamName, logo: teamLogo || '' });
+        } catch(e) {
+            if (!customTeams) customTeams = [];
+            customTeams.push({ ...newTeam });
+            if (sportsData[sport]) sportsData[sport].teams.push({ name: teamName, logo: teamLogo || '' });
         }
-        for (let i = 0; i < awaySel.options.length; i++) {
-            if (awaySel.options[i].text === awayTeam) { awaySel.selectedIndex = i; break; }
-        }
-        updateMatch();
-        const adminPanel = document.getElementById('adminPanel');
-        if (adminPanel && adminPanel.style.display !== 'none') {
-            adminPanel.scrollIntoView({ behavior: 'smooth' });
-            document.getElementById('prediction').focus();
-        }
-    }, 300);
+        updateTeamSelects();
+    }
+    for (let i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].text === teamName) { sel.selectedIndex = i; return; }
+    }
 }
 
-function createBetFromLiveMatch(localTeam, awayTeam, sport) {
-    prepareBetFromLiveMatch(localTeam, awayTeam, sport);
-    alert('✅ Partido "' + localTeam + ' vs ' + awayTeam + '" seleccionado.\n\nCompleta el pronóstico y la cuota en el panel de administración.');
+async function prepareBetFromLiveMatch(localTeam, awayTeam, sport, localLogo, awayLogo) {
+    // Switch to correct sport filter first
+    if (sport !== currentSportFilter) {
+        const btn = document.querySelector(`.sport-btn[onclick*="${sport}"]`);
+        if (btn) btn.click();
+        await new Promise(r => setTimeout(r, 350));
+    }
+    // Ensure admin panel is visible
+    const adminPanel = document.getElementById('adminPanel');
+    if (!adminPanel || adminPanel.style.display === 'none') return;
+
+    const localSel = document.getElementById('localTeam');
+    const awaySel = document.getElementById('awayTeam');
+    await _ensureTeamInSelect(localSel, localTeam, localLogo || '', sport);
+    await _ensureTeamInSelect(awaySel, awayTeam, awayLogo || '', sport);
+    updateMatch();
+    adminPanel.scrollIntoView({ behavior: 'smooth' });
+    setTimeout(() => document.getElementById('prediction').focus(), 400);
+}
+
+async function createBetFromLiveMatch(idx) {
+    const m = (window._currentLivePartidos || [])[idx];
+    if (!m) return;
+    await prepareBetFromLiveMatch(m.local.name, m.away.name, m.sport, m.local.logo, m.away.logo);
 }
 
 function refreshLiveMatches() { loadLiveMatches(); }
 
-window.register = register; window.login = login; window.logout = logout;
+window.register = register; window.login = login; window.logout = logout; window.forgotPassword = forgotPassword;
 window.publishBet = publishBet; window.editBet = editBet; window.deleteBet = deleteBet;
 window.updateMatch = updateMatch; window.showPlans = showPlans; window.selectPlan = selectPlan;
 window.closePaymentModal = closePaymentModal; window.saveCard = saveCard; window.deleteCard = deleteCard;
