@@ -2900,63 +2900,117 @@ async function getTennisLiveMatches() {
     
     for (const league of ['atp', 'wta']) {
         try {
-            // Usar HTTPS
-            const siteData = await fetchESPN(`https://site.api.espn.com/apis/site/v2/sports/tennis/${league}/scoreboard`);
-            if (!siteData?.events) continue;
+            // Obtener scoreboard directamente
+            const scoreboardUrl = `https://site.api.espn.com/apis/site/v2/sports/tennis/${league}/scoreboard`;
+            const scoreboardData = await fetchESPN(scoreboardUrl);
             
-            for (const ev of siteData.events) {
-                // Asegurar HTTPS en las URLs de referencia
-                const compListRef = `https://sports.core.api.espn.com/v2/sports/tennis/leagues/${league}/events/${ev.id}/competitions?limit=200&lang=en&region=us`;
-                const compList = await fetchESPN(compListRef);
-                if (!compList?.items?.length) continue;
+            if (!scoreboardData?.events) continue;
+            
+            for (const event of scoreboardData.events) {
+                const status = event.status?.type?.state || '';
+                const enVivo = status === 'in';
+                const finalizado = status === 'post' || status === 'closed';
                 
-                const compPromises = compList.items.map(item => {
-                    let ref = (item.$ref || '').split('?')[0];
-                    if (ref) {
-                        ref = ref.replace(/^http:\/\//i, 'https://');
-                        return fetchESPN(ref + '?lang=en&region=us');
+                if (!enVivo && !finalizado) continue;
+                
+                const comps = event.competitions?.[0]?.competitors || [];
+                if (comps.length < 2) continue;
+                
+                // Obtener nombres
+                const localName = comps[0].athlete?.displayName || comps[0].team?.displayName || comps[0].name || 'Local';
+                const awayName = comps[1].athlete?.displayName || comps[1].team?.displayName || comps[1].name || 'Visitante';
+                
+                // Obtener marcador - puede estar en diferentes lugares
+                let localScore = '-';
+                let awayScore = '-';
+                let setsInfo = '';
+                
+                // Buscar en el status
+                if (event.status?.type?.shortDetail) {
+                    const detail = event.status.type.shortDetail;
+                    // Formato típico: "6-4, 3-6, 6-2"
+                    if (detail.includes(',') || detail.includes('-')) {
+                        setsInfo = detail;
+                        // Extraer set actual si existe
+                        const currentSetMatch = detail.match(/^[0-9]+-[0-9]+/);
+                        if (currentSetMatch) {
+                            const [localSet, awaySet] = currentSetMatch[0].split('-');
+                            localScore = localSet;
+                            awayScore = awaySet;
+                        }
                     }
-                    return Promise.resolve(null);
-                });
-                const allComps = await Promise.all(compPromises);
-                const recentComps = allComps.filter(c => {
-                    if (!c?.date) return false;
-                    const matchTime = new Date(c.date).getTime();
-                    return Math.abs(matchTime - now) < window24h;
-                });
-                if (!recentComps.length) continue;
-                
-                const statusPromises = recentComps.map(c => {
-                    let ref = (c.status?.$ref || '').split('?')[0];
-                    if (ref) {
-                        ref = ref.replace(/^http:\/\//i, 'https://');
-                        return fetchESPN(ref + '?lang=en&region=us');
-                    }
-                    return Promise.resolve(null);
-                });
-                const statuses = await Promise.all(statusPromises);
-                
-                for (let i = 0; i < recentComps.length; i++) {
-                    const comp = recentComps[i];
-                    const status = statuses[i];
-                    if (!status?.type) continue;
-                    if (status.type.state !== 'in') continue;
-                    const c0 = comp.competitors?.[0];
-                    const c1 = comp.competitors?.[1];
-                    if (!c0 || !c1) continue;
-                    
-                    results.push({
-                        id: comp.id,
-                        sport: 'tenis',
-                        sportIcon: '🎾',
-                        sportName: league === 'atp' ? 'ATP' : 'WTA',
-                        local: { name: c0.name || '?', logo: '', score: c0.score || '-' },
-                        away:  { name: c1.name || '?', logo: '', score: c1.score || '-' },
-                        periodo: status.period || 0,
-                        tiempo: status.type.shortDetail || status.type.description || '',
-                        estadisticas: null
-                    });
                 }
+                
+                // Intentar obtener marcador desde summary
+                let detailedStats = null;
+                let sets = [];
+                
+                try {
+                    const summaryUrl = `https://site.api.espn.com/apis/site/v2/sports/tennis/${league}/summary?event=${event.id}`;
+                    const summaryData = await fetchESPN(summaryUrl);
+                    
+                    if (summaryData?.boxscore?.players) {
+                        // Buscar jugadores
+                        for (const player of summaryData.boxscore.players) {
+                            if (player.athlete?.displayName === localName) {
+                                localScore = player.stats?.totalScore || player.score || localScore;
+                                // Obtener sets individuales
+                                if (player.stats?.games) {
+                                    // Para tenis, los sets pueden estar en games
+                                }
+                            }
+                            if (player.athlete?.displayName === awayName) {
+                                awayScore = player.stats?.totalScore || player.score || awayScore;
+                            }
+                        }
+                    }
+                    
+                    // Obtener estadísticas
+                    if (summaryData?.boxscore?.statistics) {
+                        detailedStats = { tiros: { local: 0, away: 0 }, tirosAlArco: { local: 0, away: 0 }, corners: { local: 0, away: 0 }, tarjetasAmarillas: { local: 0, away: 0 }, tarjetasRojas: { local: 0, away: 0 } };
+                        for (const stat of summaryData.boxscore.statistics) {
+                            const v = (stat.displayValue || '').split('-');
+                            const l = parseInt(v[0]) || 0, a = parseInt(v[1]) || 0;
+                            if (stat.name === 'aces') { detailedStats.tiros.local = l; detailedStats.tiros.away = a; }
+                            if (stat.name === 'doubleFaults') { detailedStats.tarjetasAmarillas.local = l; detailedStats.tarjetasAmarillas.away = a; }
+                        }
+                    }
+                } catch(e) { console.warn('Error obteniendo summary:', e); }
+                
+                // Obtener marcador desde el status si no lo tenemos
+                if (localScore === '-' && comps[0].score) {
+                    localScore = comps[0].score;
+                }
+                if (awayScore === '-' && comps[1].score) {
+                    awayScore = comps[1].score;
+                }
+                
+                // También intentar obtener de linescores
+                if (comps[0].linescores && comps[0].linescores.length > 0) {
+                    const localSets = comps[0].linescores.map(ls => ls.displayValue || ls.value || '0').join(', ');
+                    const awaySets = comps[1].linescores.map(ls => ls.displayValue || ls.value || '0').join(', ');
+                    if (localSets !== awaySets) {
+                        setsInfo = `${localSets} - ${awaySets}`;
+                    }
+                }
+                
+                const periodo = event.status?.period || 0;
+                const tiempo = event.status?.displayClock || (enVivo ? 'En juego' : (finalizado ? 'Finalizado' : event.status?.type?.description || ''));
+                
+                results.push({
+                    id: event.id,
+                    sport: 'tenis',
+                    sportIcon: '🎾',
+                    sportName: league === 'atp' ? 'ATP' : 'WTA',
+                    local: { name: localName, logo: '', score: localScore },
+                    away: { name: awayName, logo: '', score: awayScore },
+                    periodo: periodo,
+                    tiempo: tiempo,
+                    sets: setsInfo,
+                    estadisticas: detailedStats,
+                    enVivo: enVivo,
+                    finalizado: finalizado
+                });
             }
         } catch(e) { 
             console.warn(`Error en tenis/${league}:`, e.message);
@@ -2972,7 +3026,10 @@ async function loadLiveMatches() {
     const deportes = (currentSportFilter === 'futbol' || currentSportFilter === 'nba' || currentSportFilter === 'tenis')
         ? [currentSportFilter] : ['futbol', 'nba', 'tenis'];
     let partidos = [];
-    for (const dep of deportes) { partidos.push(...await getLiveMatchesForSport(dep)); }
+    for (const dep of deportes) { 
+        const matches = await getLiveMatchesForSport(dep);
+        partidos.push(...matches);
+    }
 
     const countEl = document.getElementById('liveMatchesCount');
     if (countEl) countEl.innerText = partidos.length;
@@ -2983,44 +3040,54 @@ async function loadLiveMatches() {
     }
 
     container.innerHTML = '';
+    
     for (const m of partidos) {
-        const s = m.estadisticas;
-        const statsHtml = s ? `
+        const statsHtml = m.estadisticas ? `
             <div class="live-stats">
-                <div class="live-stats-row"><span>💥 Remates:</span><span><span class="stat-value">${s.tiros.local}</span> - <span class="stat-value">${s.tiros.away}</span></span></div>
-                <div class="live-stats-row"><span>🎯 A puerta:</span><span><span class="stat-value">${s.tirosAlArco.local}</span> - <span class="stat-value">${s.tirosAlArco.away}</span></span></div>
-                <div class="live-stats-row"><span>🟨 Amarillas:</span><span><span class="stat-value">${s.tarjetasAmarillas.local}</span> - <span class="stat-value">${s.tarjetasAmarillas.away}</span></span></div>
-                <div class="live-stats-row"><span>🟥 Rojas:</span><span><span class="stat-value">${s.tarjetasRojas.local}</span> - <span class="stat-value">${s.tarjetasRojas.away}</span></span></div>
-                <div class="live-stats-row"><span>🎯 Corners:</span><span><span class="stat-value">${s.corners.local}</span> - <span class="stat-value">${s.corners.away}</span></span></div>
-            </div>` : '<div class="live-stats" style="text-align:center; color:#666; padding:15px;">📊 Estadísticas no disponibles</div>';
+                <div class="live-stats-row"><span>💥 Remates:</span><span><span class="stat-value">${m.estadisticas.tiros.local}</span> - <span class="stat-value">${m.estadisticas.tiros.away}</span></span></div>
+                <div class="live-stats-row"><span>🎯 A puerta:</span><span><span class="stat-value">${m.estadisticas.tirosAlArco.local}</span> - <span class="stat-value">${m.estadisticas.tirosAlArco.away}</span></span></div>
+                <div class="live-stats-row"><span>🟨 Amarillas:</span><span><span class="stat-value">${m.estadisticas.tarjetasAmarillas.local}</span> - <span class="stat-value">${m.estadisticas.tarjetasAmarillas.away}</span></span></div>
+                <div class="live-stats-row"><span>🟥 Rojas:</span><span><span class="stat-value">${m.estadisticas.tarjetasRojas.local}</span> - <span class="stat-value">${m.estadisticas.tarjetasRojas.away}</span></span></div>
+                <div class="live-stats-row"><span>🎯 Corners:</span><span><span class="stat-value">${m.estadisticas.corners.local}</span> - <span class="stat-value">${m.estadisticas.corners.away}</span></span></div>
+            </div>
+        ` : '<div class="live-stats" style="text-align:center; color:#666; padding:15px;">📊 Estadísticas no disponibles</div>';
+        
+        const tennisStatsHtml = (m.sport === 'tenis' && m.estadisticas) ? `
+            <div class="live-stats">
+                <div class="live-stats-row"><span>🎾 Aces:</span><span><span class="stat-value">${m.estadisticas.tiros.local}</span> - <span class="stat-value">${m.estadisticas.tiros.away}</span></span></div>
+                <div class="live-stats-row"><span>❌ Dobles Faltas:</span><span><span class="stat-value">${m.estadisticas.tarjetasAmarillas.local}</span> - <span class="stat-value">${m.estadisticas.tarjetasAmarillas.away}</span></span></div>
+            </div>
+        ` : null;
+        
+        const displayStats = m.sport === 'tenis' ? (tennisStatsHtml || statsHtml) : statsHtml;
 
         container.innerHTML += `
             <div class="live-match-card" onclick="prepareBetFromLiveMatch('${escapeAttr(m.local.name)}','${escapeAttr(m.away.name)}','${m.sport}')">
                 <div class="live-match-header">
-                    <span class="live-badge">🔴 EN VIVO</span>
-                    <span class="live-period">${m.sportIcon} ${m.sportName} | ${m.periodo}° ${m.sport === 'futbol' ? 'Tiempo' : m.sport === 'nba' ? 'Cuarto' : 'Set'} - ${m.tiempo}</span>
+                    <span class="live-badge">${m.enVivo ? '🔴 EN VIVO' : (m.finalizado ? '✅ FINALIZADO' : '📋 PROGRAMADO')}</span>
+                    <span class="live-period">${m.sportIcon} ${m.sportName} | ${m.periodo > 0 ? m.periodo + '° ' : ''}${m.tiempo}</span>
                 </div>
                 <div class="live-match-teams">
                     <div class="live-team">
                         <img class="live-team-logo" src="${m.local.logo}" onerror="this.style.display='none'">
-                        <div class="live-team-name">${m.local.name}</div>
-                        <div class="live-team-score">${m.local.score}</div>
+                        <div class="live-team-name">${escapeAttr(m.local.name)}</div>
+                        ${m.sport === 'tenis' ? `<div class="live-team-score">${m.local.score}</div>${m.sets ? `<div style="font-size: 11px; color: #aaa; margin-top: 5px;">${m.sets.split(',')[0]} | ${m.sets.split(',')[1] || ''}</div>` : ''}` : `<div class="live-team-score">${m.local.score}</div>`}
                     </div>
                     <div class="live-vs">VS</div>
                     <div class="live-team">
                         <img class="live-team-logo" src="${m.away.logo}" onerror="this.style.display='none'">
-                        <div class="live-team-name">${m.away.name}</div>
-                        <div class="live-team-score">${m.away.score}</div>
+                        <div class="live-team-name">${escapeAttr(m.away.name)}</div>
+                        ${m.sport === 'tenis' ? `<div class="live-team-score">${m.away.score}</div>` : `<div class="live-team-score">${m.away.score}</div>`}
                     </div>
                 </div>
-                ${statsHtml}
+                ${displayStats}
                 <button class="live-bet-button" onclick="event.stopPropagation(); createBetFromLiveMatch('${escapeAttr(m.local.name)}','${escapeAttr(m.away.name)}','${m.sport}')">
                     🎲 Crear Apuesta para este Partido
                 </button>
-            </div>`;
+            </div>
+        `;
     }
 }
-
 function prepareBetFromLiveMatch(localTeam, awayTeam, sport) {
     if (sport !== currentSportFilter) {
         const btn = document.querySelector('.sport-btn[onclick*=\''+sport+'\']');
