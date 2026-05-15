@@ -2958,8 +2958,6 @@ async function getNBALiveMatches() {
 
 async function getTennisLiveMatches() {
     const results = [];
-    
-    // Para tenis, la estructura es diferente: los partidos están dentro de leagues[].events[].competitions
     const tours = [
         { name: 'ATP', url: 'https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard' },
         { name: 'WTA', url: 'https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard' }
@@ -2968,74 +2966,73 @@ async function getTennisLiveMatches() {
     for (const tour of tours) {
         try {
             const data = await fetchESPN(tour.url);
-            if (!data || !data.leagues) continue;
+            if (!data || !data.events || data.events.length === 0) continue;
             
-            for (const league of data.leagues) {
-                if (!league.events) continue;
+            for (const ev of data.events) {
+                const state = ev.status?.type?.state || '';
+                if (state !== 'in') continue;
                 
-                for (const evento of league.events) {
-                    if (!evento.competitions) continue;
-                    
-                    for (const comp of evento.competitions) {
-                        const status = comp.status?.type?.state || '';
-                        // Buscar partidos EN VIVO (state === 'in')
-                        if (status !== 'in') continue;
-                        
-                        const competitors = comp.competitors || [];
-                        if (competitors.length < 2) continue;
-                        
-                        // Obtener datos de los jugadores
-                        const localData = competitors[0];
-                        const awayData = competitors[1];
-                        
-                        const localName = localData.athlete?.displayName || localData.team?.displayName || localData.name || 'Jugador 1';
-                        const awayName = awayData.athlete?.displayName || awayData.team?.displayName || awayData.name || 'Jugador 2';
-                        
-                        let localScore = '0';
-                        let awayScore = '0';
-                        let setsInfo = '';
-                        
-                        // Procesar puntuación de sets para tenis
-                        if (localData.linescores && localData.linescores.length > 0) {
-                            const localSets = localData.linescores.map(ls => ls.displayValue || ls.value || '0').join(', ');
-                            const awaySets = awayData.linescores.map(ls => ls.displayValue || ls.value || '0').join(', ');
-                            localScore = localData.linescores.filter(ls => parseInt(ls.displayValue || ls.value || '0') > parseInt(ls.opponent?.value || '0')).length;
-                            awayScore = awayData.linescores.filter(ls => parseInt(ls.displayValue || ls.value || '0') > parseInt(ls.opponent?.value || '0')).length;
-                            setsInfo = `${localSets} - ${awaySets}`;
-                        } else if (localData.score && awayData.score) {
-                            localScore = localData.score;
-                            awayScore = awayData.score;
-                        }
-                        
-                        const periodo = comp.status?.period || 0;
-                        let tiempo = comp.status?.displayClock || '';
-                        if (!tiempo) {
-                            tiempo = `Set ${periodo} en juego`;
-                        }
-                        
-                        results.push({
-                            id: comp.id || evento.id,
-                            sport: 'tenis',
-                            sportIcon: '🎾',
-                            sportName: tour.name,
-                            local: { 
-                                name: localName, 
-                                logo: localData.athlete?.flag?.href || localData.team?.logo || '', 
-                                score: localScore.toString() 
-                            },
-                            away: { 
-                                name: awayName, 
-                                logo: awayData.athlete?.flag?.href || awayData.team?.logo || '', 
-                                score: awayScore.toString() 
-                            },
-                            periodo: periodo,
-                            tiempo: tiempo,
-                            sets: setsInfo,
-                            enVivo: true,
-                            finalizado: false
-                        });
-                    }
+                const comp = ev.competitions?.[0];
+                if (!comp) continue;
+                const competitors = comp.competitors || [];
+                if (competitors.length < 2) continue;
+                
+                const localData = competitors[0];
+                const awayData = competitors[1];
+                
+                const localName = localData.athlete?.displayName || localData.team?.displayName || localData.displayName || 'Jugador 1';
+                const awayName = awayData.athlete?.displayName || awayData.team?.displayName || awayData.displayName || 'Jugador 2';
+                
+                let localScore = '0';
+                let awayScore = '0';
+                let setsInfo = '';
+                
+                if (localData.linescores && localData.linescores.length > 0) {
+                    const localSets = localData.linescores.map(ls => ls.displayValue || ls.value || '0').join(', ');
+                    const awaySets = awayData.linescores ? awayData.linescores.map(ls => ls.displayValue || ls.value || '0').join(', ') : '';
+                    localScore = localData.linescores.filter((ls, i) => {
+                        const lv = parseInt(ls.displayValue || ls.value || '0');
+                        const av = awayData.linescores?.[i] ? parseInt(awayData.linescores[i].displayValue || awayData.linescores[i].value || '0') : 0;
+                        return lv > av;
+                    }).length;
+                    awayScore = awayData.linescores ? awayData.linescores.filter((ls, i) => {
+                        const av = parseInt(ls.displayValue || ls.value || '0');
+                        const lv = localData.linescores?.[i] ? parseInt(localData.linescores[i].displayValue || localData.linescores[i].value || '0') : 0;
+                        return av > lv;
+                    }).length : 0;
+                    setsInfo = `${localSets} - ${awaySets}`;
+                } else {
+                    localScore = localData.score || '0';
+                    awayScore = awayData.score || '0';
                 }
+                
+                const periodo = ev.status?.period || comp.status?.period || 0;
+                let tiempo = ev.status?.displayClock || comp.status?.displayClock || '';
+                if (!tiempo) {
+                    tiempo = periodo > 0 ? `Set ${periodo} en juego` : 'En vivo';
+                }
+                
+                results.push({
+                    id: ev.id,
+                    sport: 'tenis',
+                    sportIcon: '🎾',
+                    sportName: tour.name,
+                    local: {
+                        name: localName,
+                        logo: localData.athlete?.flag?.href || localData.athlete?.headshot?.href || '',
+                        score: localScore.toString()
+                    },
+                    away: {
+                        name: awayName,
+                        logo: awayData.athlete?.flag?.href || awayData.athlete?.headshot?.href || '',
+                        score: awayScore.toString()
+                    },
+                    periodo: periodo,
+                    tiempo: tiempo,
+                    sets: setsInfo,
+                    enVivo: true,
+                    finalizado: false
+                });
             }
         } catch(e) { 
             console.warn(`Error en ${tour.name}:`, e.message);
