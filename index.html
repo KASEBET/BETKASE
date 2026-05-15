@@ -2844,6 +2844,7 @@ async function getMatchStatisticsLive(eventId, sport) {
 }
 
 async function getLiveMatchesForSport(sport) {
+    if (sport === 'tenis') return await getTennisLiveMatches();
     const config = espnLiveConfig[sport];
     if (!config) return [];
     let all = [];
@@ -2851,8 +2852,8 @@ async function getLiveMatchesForSport(sport) {
         const data = await fetchESPN(url);
         if (!data || !data.events) continue;
         for (const ev of data.events) {
-            const statusDesc = ev.status?.type?.description || '';
-            if (statusDesc !== 'In Progress' && statusDesc !== 'Live') continue;
+            const state = ev.status?.type?.state || '';
+            if (state !== 'in') continue;
             const comps = ev.competitions?.[0]?.competitors || [];
             if (comps.length < 2) continue;
             const estadisticas = await getMatchStatisticsLive(ev.id, sport);
@@ -2861,12 +2862,67 @@ async function getLiveMatchesForSport(sport) {
                 local: { name: comps[0].team?.displayName || comps[0].team?.name || 'Local', logo: comps[0].team?.logo || '', score: comps[0].score || '0' },
                 away:  { name: comps[1].team?.displayName || comps[1].team?.name || 'Visitante', logo: comps[1].team?.logo || '', score: comps[1].score || '0' },
                 periodo: ev.status?.period || 0,
-                tiempo: ev.status?.displayClock || '',
+                tiempo: ev.status?.displayClock || ev.status?.type?.description || '',
                 estadisticas
             });
         }
     }
     return all;
+}
+
+async function getTennisLiveMatches() {
+    const results = [];
+    const now = Date.now();
+    const window24h = 24 * 60 * 60 * 1000;
+    for (const league of ['atp', 'wta']) {
+        try {
+            const siteData = await fetchESPN(`https://site.api.espn.com/apis/site/v2/sports/tennis/${league}/scoreboard`);
+            if (!siteData?.events) continue;
+            for (const ev of siteData.events) {
+                const compList = await fetchESPN(
+                    `https://sports.core.api.espn.com/v2/sports/tennis/leagues/${league}/events/${ev.id}/competitions?limit=200&lang=en&region=us`
+                );
+                if (!compList?.items?.length) continue;
+                const compPromises = compList.items.map(item => {
+                    const ref = (item.$ref || '').split('?')[0];
+                    return ref ? fetchESPN(ref + '?lang=en&region=us') : Promise.resolve(null);
+                });
+                const allComps = await Promise.all(compPromises);
+                const recentComps = allComps.filter(c => {
+                    if (!c?.date) return false;
+                    const matchTime = new Date(c.date).getTime();
+                    return Math.abs(matchTime - now) < window24h;
+                });
+                if (!recentComps.length) continue;
+                const statusPromises = recentComps.map(c => {
+                    const ref = (c.status?.$ref || '').split('?')[0];
+                    return ref ? fetchESPN(ref + '?lang=en&region=us') : Promise.resolve(null);
+                });
+                const statuses = await Promise.all(statusPromises);
+                for (let i = 0; i < recentComps.length; i++) {
+                    const comp = recentComps[i];
+                    const status = statuses[i];
+                    if (!status?.type) continue;
+                    if (status.type.state !== 'in') continue;
+                    const c0 = comp.competitors?.[0];
+                    const c1 = comp.competitors?.[1];
+                    if (!c0 || !c1) continue;
+                    results.push({
+                        id: comp.id,
+                        sport: 'tenis',
+                        sportIcon: '🎾',
+                        sportName: league === 'atp' ? 'ATP' : 'WTA',
+                        local: { name: c0.name || '?', logo: '', score: c0.score || '-' },
+                        away:  { name: c1.name || '?', logo: '', score: c1.score || '-' },
+                        periodo: status.period || 0,
+                        tiempo: status.type.shortDetail || status.type.description || '',
+                        estadisticas: null
+                    });
+                }
+            }
+        } catch(e) { /* silent fail por liga */ }
+    }
+    return results;
 }
 
 async function loadLiveMatches() {
