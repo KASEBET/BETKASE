@@ -3155,13 +3155,7 @@ function createBetFromLiveMatch(localTeam, awayTeam, sport) {
 }
 
 function refreshLiveMatches() { loadLiveMatches(); }
-
-let liveMatchesInterval = null;
-function startLiveMatchesAutoRefresh() {
-    if (liveMatchesInterval) clearInterval(liveMatchesInterval);
-    loadLiveMatches();
-    liveMatchesInterval = setInterval(loadLiveMatches, 30000);
-}
+</script>
 window.register = register; window.login = login; window.logout = logout;
 window.publishBet = publishBet; window.editBet = editBet; window.deleteBet = deleteBet;
 window.updateMatch = updateMatch; window.showPlans = showPlans; window.selectPlan = selectPlan;
