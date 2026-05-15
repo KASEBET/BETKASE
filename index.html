@@ -2203,34 +2203,151 @@ function updateStatsPanel(bets) {
         <div class="summary-item"><div class="value">${s.avgOdds}</div><div class="label">💰 Avg Odds</div></div>
     `;
 }
-
-/* ── ESTADÍSTICAS DEL PARTIDO ── */
-function openStatsModal(betId, matchName, statsJson) {
+// FUNCIÓN PARA OBTENER ESTADÍSTICAS EN VIVO DESDE ESPN
+async function fetchLiveMatchStats(leagueSlug, eventId) {
+    try {
+        // Estadísticas del partido desde la API de ESPN
+        const statsUrl = `https://sports.core.api.espn.com/v2/sports/soccer/leagues/${leagueSlug}/events/${eventId}/competitions/${eventId}/statistics`;
+        const situationUrl = `https://sports.core.api.espn.com/v2/sports/soccer/leagues/${leagueSlug}/events/${eventId}/competitions/${eventId}/situation`;
+        
+        const [statsRes, situationRes] = await Promise.all([
+            fetch(statsUrl).catch(() => null),
+            fetch(situationUrl).catch(() => null)
+        ]);
+        
+        let stats = { goalsLocal: 0, goalsAway: 0, yellowLocal: 0, yellowAway: 0, 
+                      redLocal: 0, redAway: 0, cornersLocal: 0, cornersAway: 0,
+                      shotsLocal: 0, shotsAway: 0, shotsOnTargetLocal: 0, shotsOnTargetAway: 0 };
+        
+        // Procesar estadísticas si existen
+        if (statsRes && statsRes.ok) {
+            const statsData = await statsRes.json();
+            if (statsData.splits && statsData.splits.categories) {
+                for (const category of statsData.splits.categories) {
+                    const name = category.name?.toLowerCase() || '';
+                    const homeStats = category.stats?.find(s => s.type === 'home')?.value || 0;
+                    const awayStats = category.stats?.find(s => s.type === 'away')?.value || 0;
+                    
+                    if (name.includes('goal')) {
+                        stats.goalsLocal = homeStats;
+                        stats.goalsAway = awayStats;
+                    } else if (name.includes('corner')) {
+                        stats.cornersLocal = homeStats;
+                        stats.cornersAway = awayStats;
+                    } else if (name.includes('yellow')) {
+                        stats.yellowLocal = homeStats;
+                        stats.yellowAway = awayStats;
+                    } else if (name.includes('red')) {
+                        stats.redLocal = homeStats;
+                        stats.redAway = awayStats;
+                    } else if (name.includes('shot')) {
+                        if (name.includes('ontarget') || name.includes('on target')) {
+                            stats.shotsOnTargetLocal = homeStats;
+                            stats.shotsOnTargetAway = awayStats;
+                        } else {
+                            stats.shotsLocal = homeStats;
+                            stats.shotsAway = awayStats;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Procesar situación del partido (posesión, etc.)
+        if (situationRes && situationRes.ok) {
+            const situationData = await situationRes.json();
+            if (situationData.possession) {
+                stats.possessionLocal = situationData.possession;
+                stats.possessionAway = 100 - situationData.possession;
+            }
+        }
+        
+        return stats;
+    } catch (error) {
+        console.warn('Error fetching live stats:', error);
+        return null;
+    }
+}
+async function openStatsModal(betId, matchName, statsJson) {
     currentBetIdForStats = betId;
-    const currentStats = typeof statsJson === 'string' ? JSON.parse(statsJson) : statsJson;
-    document.getElementById('statsModalTitle').innerHTML = `📊 ${matchName}`;
+    
+    // Mostrar loading
+    document.getElementById('statsModalTitle').innerHTML = `📊 ${matchName} - Cargando estadísticas en vivo...`;
+    document.getElementById('statsModal').style.display = 'flex';
+    
+    // Intentar obtener estadísticas en vivo
+    const betDoc = await db.collection('bets').doc(betId).get();
+    const betData = betDoc.data();
+    
+    let liveStats = null;
+    
+    // Si es un partido en vivo, intentar obtener estadísticas reales
+    if (betData && betData.liveMatchId && betData.sport) {
+        let leagueSlug = 'eng.1'; // Por defecto
+        
+        // Determinar el slug de la liga según el deporte/liga
+        if (betData.sport === 'futbol') {
+            if (matchName.includes('Premier')) leagueSlug = 'eng.1';
+            else if (matchName.includes('La Liga')) leagueSlug = 'esp.1';
+            else if (matchName.includes('Bundesliga')) leagueSlug = 'ger.1';
+            else if (matchName.includes('Serie A')) leagueSlug = 'ita.1';
+            else if (matchName.includes('Ligue 1')) leagueSlug = 'fra.1';
+            else if (matchName.includes('Champions')) leagueSlug = 'uefa.champions';
+            else if (matchName.includes('Libertadores')) leagueSlug = 'conmebol.libertadores';
+            else leagueSlug = 'eng.1';
+        }
+        
+        liveStats = await fetchLiveMatchStats(leagueSlug, betData.liveMatchId);
+    }
+    
+    // Usar estadísticas en vivo o las guardadas manualmente
+    const currentStats = liveStats || (typeof statsJson === 'string' ? JSON.parse(statsJson) : statsJson) || {};
+    
+    document.getElementById('statsModalTitle').innerHTML = `📊 ${matchName} ${liveStats ? '(ESTADÍSTICAS EN VIVO)' : '(DATOS GUARDADOS)'}`;
+    
+    // Actualizar campos del formulario
     const fields = ['goalsLocal','goalsAway','yellowLocal','yellowAway','redLocal','redAway','cornersLocal','cornersAway','shotsLocal','shotsAway','shotsOnTargetLocal','shotsOnTargetAway'];
-    fields.forEach(f => { document.getElementById(f).value = currentStats?.[f] || 0; });
-
+    fields.forEach(f => { 
+        const input = document.getElementById(f);
+        if (input) input.value = currentStats[f] || 0;
+    });
+    
     const isAdmin = auth.currentUser?.email === ADMIN_EMAIL;
     fields.forEach(f => {
         const input = document.getElementById(f);
         if (input) input.disabled = !isAdmin;
     });
-
+    
+    // Mostrar estadísticas actuales
     const displayDiv = document.getElementById('statsDisplay');
-    if (currentStats && Object.keys(currentStats).length > 0) {
-        displayDiv.innerHTML = `<div style="background:#0c0c0c; border-radius:15px; padding:15px; margin-top:10px;"><h4 style="color:#00ff88; margin-bottom:10px;">📈 Estadísticas actuales:</h4><div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:14px; color:#aaa;"><div>⚽ Goles/Puntos: ${currentStats.goalsLocal||0} - ${currentStats.goalsAway||0}</div><div>🟨 Amarillas/Faltas: ${currentStats.yellowLocal||0} - ${currentStats.yellowAway||0}</div><div>🟥 Rojas/Técnicas: ${currentStats.redLocal||0} - ${currentStats.redAway||0}</div><div>🎯 Corners/Asistencias: ${currentStats.cornersLocal||0} - ${currentStats.cornersAway||0}</div><div>💥 Remates/Intentos: ${currentStats.shotsLocal||0} - ${currentStats.shotsAway||0}</div><div>🎯 A puerta/Precisión: ${currentStats.shotsOnTargetLocal||0} - ${currentStats.shotsOnTargetAway||0}</div></div></div>`;
+    const hasStats = Object.keys(currentStats).length > 0 && (currentStats.goalsLocal !== undefined);
+    
+    if (hasStats) {
+        let liveBadge = '';
+        if (liveStats) {
+            liveBadge = '<div style="background:#00ff88; color:black; padding:5px 10px; border-radius:10px; margin-bottom:10px; font-weight:bold;">🟢 ACTUALIZADO EN VIVO</div>';
+        }
+        
+        displayDiv.innerHTML = `${liveBadge}<div style="background:#0c0c0c; border-radius:15px; padding:15px; margin-top:10px;">
+            <h4 style="color:#00ff88; margin-bottom:10px;">📈 Estadísticas actuales:</h4>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:14px; color:#aaa;">
+                <div>⚽ Goles: ${currentStats.goalsLocal||0} - ${currentStats.goalsAway||0}</div>
+                <div>🎯 Corners: ${currentStats.cornersLocal||0} - ${currentStats.cornersAway||0}</div>
+                <div>🟨 Amarillas: ${currentStats.yellowLocal||0} - ${currentStats.yellowAway||0}</div>
+                <div>🟥 Rojas: ${currentStats.redLocal||0} - ${currentStats.redAway||0}</div>
+                <div>💥 Remates: ${currentStats.shotsLocal||0} - ${currentStats.shotsAway||0}</div>
+                <div>🎯 A puerta: ${currentStats.shotsOnTargetLocal||0} - ${currentStats.shotsOnTargetAway||0}</div>
+                ${currentStats.possessionLocal ? `<div>📊 Posesión: ${currentStats.possessionLocal}% - ${currentStats.possessionAway}%</div>` : ''}
+            </div>
+            ${!liveStats ? '<p style="margin-top:10px; font-size:11px; color:#ff8800;">⚠️ Estadísticas manuales. Conecta con ESPN para datos en vivo.</p>' : ''}
+        </div>`;
     } else {
-        displayDiv.innerHTML = '';
+        displayDiv.innerHTML = '<p>No hay estadísticas disponibles. Los datos en vivo se mostrarán automáticamente cuando el partido comience.</p>';
     }
-
+    
     const saveButton = document.querySelector('#statsForm .btn-green');
     if (saveButton) saveButton.style.display = isAdmin ? 'block' : 'none';
-
-    document.getElementById('statsModal').style.display = 'flex';
 }
-
 function closeStatsModal() {
     document.getElementById('statsModal').style.display = 'none';
     currentBetIdForStats = null;
@@ -2638,7 +2755,7 @@ function getAwayImage() {
 }
 
 /* ── APUESTAS ── */
-function publishBet() {
+function publishBet(liveMatchId = null) {
     const user = auth.currentUser;
     if (!user) return alert('Inicia sesión');
     const match = getMatchText();
@@ -2659,6 +2776,12 @@ function publishBet() {
         userId: user.uid,
         userEmail: user.email
     };
+    
+    // Guardar el ID del partido en vivo si existe
+    if (liveMatchId) {
+        data.liveMatchId = liveMatchId;
+    }
+    
     if (editingId) db.collection('bets').doc(editingId).update(data).then(() => { alert('Actualizada'); clearForm(); editingId = null; });
     else db.collection('bets').add(data).then(() => { alert('Publicada'); clearForm(); });
 }
@@ -3508,7 +3631,6 @@ async function getTennisLiveMatches(dateParam) {
     
     return results;
 }
-
 async function loadLiveMatches() {
     const container = document.getElementById('liveMatchesContainer');
     if (!container) return;
@@ -3557,7 +3679,7 @@ async function loadLiveMatches() {
     container.innerHTML = '';
     
     for (let _mi = 0; _mi < partidos.length; _mi++) {
-    const m = partidos[_mi];
+        const m = partidos[_mi];
         const badge = m.enVivo
             ? `<span class="live-badge">🔴 EN VIVO</span>`
             : `<span style="background:#1a3a5c; color:#4db8ff; padding:3px 12px; border-radius:20px; font-size:11px; font-weight:bold;">🕐 PRÓXIMO</span>`;
@@ -3571,6 +3693,10 @@ async function loadLiveMatches() {
             : `<span class="live-period">${m.sportIcon} ${escapeAttr(m.liga || m.sportName)}</span>`;
 
         const scoreStyle = m.enVivo ? 'color:#00ff88;' : 'color:#444;';
+        
+        // Botón para ver estadísticas EN VIVO (NUEVO)
+        const verStatsBtn = `<button class="live-bet-button" style="background:#0066cc; margin-top:10px;" onclick="event.stopPropagation(); viewLiveStats('${m.id}', '${m.sport}', '${escapeAttr(m.local.name)} vs ${escapeAttr(m.away.name)}')">📊 VER ESTADÍSTICAS EN VIVO</button>`;
+        
         const crearApuestaBtn = isAdminCard
             ? `<button class="live-bet-button" onclick="event.stopPropagation(); createBetFromLiveMatch(${_mi})">🎲 Crear Apuesta para este Partido</button>`
             : '';
@@ -3599,12 +3725,12 @@ async function loadLiveMatches() {
                         <div class="live-team-score" style="${scoreStyle}">${m.away.score}</div>
                     </div>
                 </div>
+                ${verStatsBtn}
                 ${crearApuestaBtn}
             </div>
         `;
     }
 }
-
 // Iniciar la actualización automática cada 30 segundos
 let liveMatchesInterval = null;
 function startLiveMatchesAutoRefresh() {
@@ -3613,6 +3739,129 @@ function startLiveMatchesAutoRefresh() {
     liveMatchesInterval = setInterval(loadLiveMatches, 30000);
 }
 
+// Función para ver estadísticas en vivo sin necesidad de apuesta
+async function viewLiveStats(eventId, sport, matchName) {
+    let leagueSlug = 'eng.1';
+    
+    // Determinar la liga según el deporte
+    if (sport === 'futbol') {
+        // Para fútbol, intentamos determinar la liga por el nombre del partido
+        // Por defecto usamos Premier League
+        if (matchName.toLowerCase().includes('real madrid') || matchName.toLowerCase().includes('barcelona') || matchName.toLowerCase().includes('atletico')) {
+            leagueSlug = 'esp.1';
+        } else if (matchName.toLowerCase().includes('bayern') || matchName.toLowerCase().includes('dortmund')) {
+            leagueSlug = 'ger.1';
+        } else if (matchName.toLowerCase().includes('juventus') || matchName.toLowerCase().includes('inter') || matchName.toLowerCase().includes('milan')) {
+            leagueSlug = 'ita.1';
+        } else if (matchName.toLowerCase().includes('psg') || matchName.toLowerCase().includes('marseille')) {
+            leagueSlug = 'fra.1';
+        } else if (matchName.toLowerCase().includes('boca') || matchName.toLowerCase().includes('river')) {
+            leagueSlug = 'arg.1';
+        } else if (matchName.toLowerCase().includes('flamengo') || matchName.toLowerCase().includes('palmeiras')) {
+            leagueSlug = 'bra.1';
+        } else {
+            leagueSlug = 'eng.1';
+        }
+    } else if (sport === 'nba') {
+        leagueSlug = 'nba';
+    } else if (sport === 'tenis') {
+        leagueSlug = 'atp';
+    }
+    
+    // Mostrar modal de carga
+    document.getElementById('statsModalTitle').innerHTML = `📊 ${matchName} - CARGANDO...`;
+    document.getElementById('statsModal').style.display = 'flex';
+    document.getElementById('statsDisplay').innerHTML = '<div style="text-align:center; padding:20px;"><div class="spinner" style="width:40px; height:40px;"></div><p>Cargando estadísticas en vivo...</p></div>';
+    
+    // Obtener estadísticas en vivo
+    const liveStats = await fetchLiveMatchStats(leagueSlug, eventId);
+    
+    if (liveStats && (liveStats.goalsLocal !== undefined)) {
+        // Actualizar campos del formulario
+        const fields = ['goalsLocal','goalsAway','yellowLocal','yellowAway','redLocal','redAway','cornersLocal','cornersAway','shotsLocal','shotsAway','shotsOnTargetLocal','shotsOnTargetAway'];
+        fields.forEach(f => { 
+            const input = document.getElementById(f);
+            if (input) input.value = liveStats[f] || 0;
+        });
+        
+        // Deshabilitar campos para usuarios normales (solo admin puede editar)
+        const isAdmin = auth.currentUser?.email === ADMIN_EMAIL;
+        fields.forEach(f => {
+            const input = document.getElementById(f);
+            if (input) input.disabled = !isAdmin;
+        });
+        
+        document.getElementById('statsModalTitle').innerHTML = `📊 ${matchName} (EN VIVO)`;
+        
+        // Mostrar estadísticas en formato bonito
+        document.getElementById('statsDisplay').innerHTML = `
+            <div style="background:#00ff8820; border-left: 4px solid #00ff88; padding:10px; margin-bottom:15px; border-radius:8px;">
+                🟢 <strong>ESTADÍSTICAS EN VIVO - Actualizado automáticamente</strong>
+            </div>
+            <div style="background:#0c0c0c; border-radius:15px; padding:15px;">
+                <div style="display:grid; grid-template-columns:1fr auto 1fr; gap:15px; margin-bottom:20px;">
+                    <div style="text-align:center;">
+                        <div style="font-size:14px; color:#aaa;">LOCAL</div>
+                        <div style="font-size:36px; font-weight:bold; color:#00ff88;">${liveStats.goalsLocal || 0}</div>
+                    </div>
+                    <div style="text-align:center; color:#00ff88; font-weight:bold; font-size:18px;">VS</div>
+                    <div style="text-align:center;">
+                        <div style="font-size:14px; color:#aaa;">VISITANTE</div>
+                        <div style="font-size:36px; font-weight:bold; color:#00ff88;">${liveStats.goalsAway || 0}</div>
+                    </div>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                    <div style="background:#0a0a0a; padding:10px; border-radius:10px;">
+                        <div style="color:#aaa; font-size:11px;">🎯 CORNERES</div>
+                        <div><strong>${liveStats.cornersLocal || 0}</strong> - <strong>${liveStats.cornersAway || 0}</strong></div>
+                    </div>
+                    <div style="background:#0a0a0a; padding:10px; border-radius:10px;">
+                        <div style="color:#aaa; font-size:11px;">🟨 AMARILLAS</div>
+                        <div><strong>${liveStats.yellowLocal || 0}</strong> - <strong>${liveStats.yellowAway || 0}</strong></div>
+                    </div>
+                    <div style="background:#0a0a0a; padding:10px; border-radius:10px;">
+                        <div style="color:#aaa; font-size:11px;">🟥 ROJAS</div>
+                        <div><strong>${liveStats.redLocal || 0}</strong> - <strong>${liveStats.redAway || 0}</strong></div>
+                    </div>
+                    <div style="background:#0a0a0a; padding:10px; border-radius:10px;">
+                        <div style="color:#aaa; font-size:11px;">💥 REMATES</div>
+                        <div><strong>${liveStats.shotsLocal || 0}</strong> - <strong>${liveStats.shotsAway || 0}</strong></div>
+                    </div>
+                    <div style="background:#0a0a0a; padding:10px; border-radius:10px; grid-column:span 2;">
+                        <div style="color:#aaa; font-size:11px;">🎯 REMATES A PUERTA</div>
+                        <div><strong>${liveStats.shotsOnTargetLocal || 0}</strong> - <strong>${liveStats.shotsOnTargetAway || 0}</strong></div>
+                    </div>
+                    ${liveStats.possessionLocal ? `<div style="background:#0a0a0a; padding:10px; border-radius:10px; grid-column:span 2;">
+                        <div style="color:#aaa; font-size:11px;">📊 POSESIÓN</div>
+                        <div><strong>${liveStats.possessionLocal}%</strong> - <strong>${liveStats.possessionAway}%</strong></div>
+                        <div style="margin-top:5px; background:#333; border-radius:10px; overflow:hidden;">
+                            <div style="background:#00ff88; width:${liveStats.possessionLocal}%; height:6px;"></div>
+                        </div>
+                    </div>` : ''}
+                </div>
+                <p style="margin-top:15px; font-size:11px; color:#888; text-align:center;">
+                    ⏱️ Actualizado en tiempo real | Datos proporcionados por ESPN
+                </p>
+            </div>
+        `;
+        
+        // Ocultar botón de guardar para usuarios no admin
+        const saveButton = document.querySelector('#statsForm .btn-green');
+        if (saveButton) {
+            const isAdmin = auth.currentUser?.email === ADMIN_EMAIL;
+            saveButton.style.display = isAdmin ? 'block' : 'none';
+        }
+    } else {
+        document.getElementById('statsDisplay').innerHTML = `
+            <div style="background:#ff444420; border-left: 4px solid #ff4444; padding:15px; border-radius:8px; text-align:center;">
+                <div style="font-size:48px; margin-bottom:10px;">⚠️</div>
+                <strong>No se pudieron cargar las estadísticas en vivo</strong><br>
+                <small style="color:#aaa;">El partido puede no haber comenzado o los datos no están disponibles.</small>
+            </div>
+        `;
+        document.getElementById('statsModalTitle').innerHTML = `📊 ${matchName}`;
+    }
+}
 // Llamar a esta función cuando se carga la página o cambia el deporte
 startLiveMatchesAutoRefresh();
 
