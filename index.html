@@ -2786,7 +2786,6 @@ loadTeams();
 loadPlans();
 loadTeamFilter();
 loadTeamsFromFirestore();
-startLiveMatchesAutoRefresh();
 
 /* ── EXPORTS GLOBALES ── */
 
@@ -2814,6 +2813,8 @@ const espnLiveConfig = {
         ]
     }
 };
+
+startLiveMatchesAutoRefresh();
 
 async function fetchESPN(url) {
     try {
