@@ -3205,24 +3205,147 @@ function buildLiveDayFilters() {
             📅 ${calActive ? calValue : 'Calendario'}
         </button>`;
 }
+// AÑADE ESTO ANTES de la función getSoccerLiveMatches()
 
+// Cache para evitar consultar siempre las mismas ligas
+const ligasCache = new Map();
+let ultimaConsultaGlobal = 0;
+const INTERVALO_CACHE = 30000; // 30 segundos
+
+async function getSoccerLiveMatches(dateParam) {
+    const ahora = Date.now();
+    
+    // Si hay caché y no ha pasado el intervalo, devolver caché
+    if (ligasCache.has(dateParam) && (ahora - ultimaConsultaGlobal) < INTERVALO_CACHE) {
+        console.log('📦 Usando caché de partidos');
+        return ligasCache.get(dateParam);
+    }
+    
+    const results = [];
+    const dp = dateParam || getESPNDateParam(0);
+    
+    // Tu array de leagues AQUÍ (el código de arriba)
+    const leagues = [ /* ... TODAS LAS LIGAS ... */ ];
+    
+    // Consultar en paralelo pero con límite de concurrencia
+    const CONCURRENCIA_MAXIMA = 5; // Máximo 5 consultas simultáneas
+    
+    for (let i = 0; i < leagues.length; i += CONCURRENCIA_MAXIMA) {
+        const batch = leagues.slice(i, i + CONCURRENCIA_MAXIMA);
+        const promises = batch.map(liga => fetchESPN(liga.url).then(data => {
+            if (data && data.events && data.events.length > 0) {
+                // Procesar partidos...
+                return data;
+            }
+            return null;
+        }));
+        
+        await Promise.all(promises);
+        
+        // Pequeña pausa entre lotes
+        await new Promise(r => setTimeout(r, 100));
+    }
+    
+    // Guardar en caché
+    ligasCache.set(dateParam, results);
+    ultimaConsultaGlobal = ahora;
+    
+    return results;
+}
 async function getSoccerLiveMatches(dateParam) {
     const results = [];
     const dp = dateParam || getESPNDateParam(0);
     const leagues = [
-        { name: 'Liga BetPlay', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/col.1/scoreboard?dates=${dp}` },
-        { name: 'Copa BetPlay', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/col.cup/scoreboard?dates=${dp}` },
-        { name: 'Copa Libertadores', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/conmebol.libertadores/scoreboard?dates=${dp}` },
-        { name: 'Copa Sudamericana', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/conmebol.sudamericana/scoreboard?dates=${dp}` },
-        { name: 'Copa América', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/conmebol.america/scoreboard?dates=${dp}` },
-        { name: 'Premier League', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=${dp}` },
-        { name: 'La Liga', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/esp.1/scoreboard?dates=${dp}` },
-        { name: 'Serie A', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/ita.1/scoreboard?dates=${dp}` },
-        { name: 'Bundesliga', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/ger.1/scoreboard?dates=${dp}` },
-        { name: 'Ligue 1', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/fra.1/scoreboard?dates=${dp}` },
-        { name: 'Champions League', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.champions/scoreboard?dates=${dp}` },
-        { name: 'Europa League', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.europa/scoreboard?dates=${dp}` }
-    ];
+    // 🌎 INTERNACIONALES
+    { name: '🏆 Mundial FIFA', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=${dp}` },
+    { name: '🏆 Mundial Femenino', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.wwc/scoreboard?dates=${dp}` },
+    { name: '🌍 Eliminatorias CONMEBOL', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.worldq.conmebol/scoreboard?dates=${dp}` },
+    { name: '🇪🇺 Eliminatorias UEFA', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.worldq.uefa/scoreboard?dates=${dp}` },
+    { name: '🏅 Juegos Olímpicos', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.olympics/scoreboard?dates=${dp}` },
+    
+    // 🏴󠁧󠁢󠁥󠁮󠁧󠁿 INGLATERRA (más divisiones)
+    { name: '🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=${dp}` },
+    { name: '🏴󠁧󠁢󠁥󠁮󠁧󠁿 Championship', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/eng.2/scoreboard?dates=${dp}` },
+    { name: '🏴󠁧󠁢󠁥󠁮󠁧󠁿 League One', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/eng.3/scoreboard?dates=${dp}` },
+    { name: '🏴󠁧󠁢󠁥󠁮󠁧󠁿 FA Cup', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/eng.fa/scoreboard?dates=${dp}` },
+    
+    // 🇪🇸 ESPAÑA
+    { name: '🇪🇸 La Liga', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/esp.1/scoreboard?dates=${dp}` },
+    { name: '🇪🇸 Copa del Rey', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/esp.copa_del_rey/scoreboard?dates=${dp}` },
+    
+    // 🇩🇪 ALEMANIA
+    { name: '🇩🇪 Bundesliga', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/ger.1/scoreboard?dates=${dp}` },
+    { name: '🇩🇪 DFB Pokal', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/ger.dfb_pokal/scoreboard?dates=${dp}` },
+    
+    // 🇮🇹 ITALIA
+    { name: '🇮🇹 Serie A', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/ita.1/scoreboard?dates=${dp}` },
+    { name: '🇮🇹 Coppa Italia', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/ita.coppa_italia/scoreboard?dates=${dp}` },
+    
+    // 🇫🇷 FRANCIA
+    { name: '🇫🇷 Ligue 1', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/fra.1/scoreboard?dates=${dp}` },
+    
+    // 🇵🇹🇳🇱🇧🇪 OTRAS EUROPA
+    { name: '🇵🇹 Primeira Liga', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/por.1/scoreboard?dates=${dp}` },
+    { name: '🇳🇱 Eredivisie', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/ned.1/scoreboard?dates=${dp}` },
+    { name: '🇧🇪 Pro League', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/bel.1/scoreboard?dates=${dp}` },
+    { name: '🇹🇷 Süper Lig', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/tur.1/scoreboard?dates=${dp}` },
+    { name: '🇬🇷 Super League', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/gre.1/scoreboard?dates=${dp}` },
+    { name: '🇦🇹 Bundesliga', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/aut.1/scoreboard?dates=${dp}` },
+    { name: '🇩🇰 Superliga', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/den.1/scoreboard?dates=${dp}` },
+    { name: '🇳🇴 Eliteserien', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/nor.1/scoreboard?dates=${dp}` },
+    { name: '🇸🇪 Allsvenskan', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/swe.1/scoreboard?dates=${dp}` },
+    
+    // 🏆 COPA EUROPEAS
+    { name: '🏆 Champions League', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.champions/scoreboard?dates=${dp}` },
+    { name: '🏆 Europa League', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.europa/scoreboard?dates=${dp}` },
+    { name: '🏆 Conference League', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.europa.conf/scoreboard?dates=${dp}` },
+    { name: '🏆 Supercopa UEFA', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.super_cup/scoreboard?dates=${dp}` },
+    
+    // 🇺🇸 USA / CONCACAF
+    { name: '🇺🇸 MLS', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/usa.1/scoreboard?dates=${dp}` },
+    { name: '🇺🇸 U.S. Open Cup', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/usa.open/scoreboard?dates=${dp}` },
+    { name: '🇺🇸 NWSL (Femenino)', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/usa.nwsl/scoreboard?dates=${dp}` },
+    { name: '🌎 Concacaf Champions Cup', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/concacaf.champions/scoreboard?dates=${dp}` },
+    { name: '🌎 Leagues Cup', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/concacaf.leagues.cup/scoreboard?dates=${dp}` },
+    
+    // 🇲🇽 MÉXICO
+    { name: '🇲🇽 Liga MX', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/mex.1/scoreboard?dates=${dp}` },
+    
+    // 🌎 SUDAMÉRICA
+    { name: '🏆 Copa Libertadores', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/conmebol.libertadores/scoreboard?dates=${dp}` },
+    { name: '🏆 Copa Sudamericana', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/conmebol.sudamericana/scoreboard?dates=${dp}` },
+    { name: '🏆 Copa América', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/conmebol.america/scoreboard?dates=${dp}` },
+    { name: '🇦🇷 Liga Profesional', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/arg.1/scoreboard?dates=${dp}` },
+    { name: '🇦🇷 Copa Argentina', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/arg.copa/scoreboard?dates=${dp}` },
+    { name: '🇧🇷 Brasileirão', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/bra.1/scoreboard?dates=${dp}` },
+    { name: '🇧🇷 Série B', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/bra.2/scoreboard?dates=${dp}` },
+    { name: '🇧🇷 Copa do Brasil', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/bra.copa_do_brazil/scoreboard?dates=${dp}` },
+    { name: '🇨🇱 Primera División', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/chi.1/scoreboard?dates=${dp}` },
+    { name: '🇵🇾 Primera División', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/par.1/scoreboard?dates=${dp}` },
+    { name: '🇵🇪 Liga 1', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/per.1/scoreboard?dates=${dp}` },
+    { name: '🇺🇾 Liga Uruguaya', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/uru.1/scoreboard?dates=${dp}` },
+    { name: '🇪🇨 LigaPro', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/ecu.1/scoreboard?dates=${dp}` },
+    { name: '🇨🇴 Liga BetPlay', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/col.1/scoreboard?dates=${dp}` },
+    { name: '🇨🇴 Copa BetPlay', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/col.cup/scoreboard?dates=${dp}` },
+    
+    // 🌍 ÁFRICA
+    { name: '🏆 Copa Africana', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/caf.nations/scoreboard?dates=${dp}` },
+    { name: '🇿🇦 Premiership', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/rsa.1/scoreboard?dates=${dp}` },
+    
+    // 🌏 ASIA / OCEANÍA
+    { name: '🏆 AFC Champions League', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/afc.champions/scoreboard?dates=${dp}` },
+    { name: '🏆 Asian Cup', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/afc.asian.cup/scoreboard?dates=${dp}` },
+    { name: '🇸🇦 Saudi Pro League', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/ksa.1/scoreboard?dates=${dp}` },
+    { name: '🇯🇵 J.League', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/jpn.1/scoreboard?dates=${dp}` },
+    { name: '🇨🇳 Super League', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/chn.1/scoreboard?dates=${dp}` },
+    { name: '🇦🇺 A-League', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/aus.1/scoreboard?dates=${dp}` },
+    
+    // 🏴󠁧󠁢󠁳󠁣󠁴󠁿 ESCOCIA
+    { name: '🏴󠁧󠁢󠁳󠁣󠁴󠁿 Premiership', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/sco.1/scoreboard?dates=${dp}` },
+    
+    // 🇷🇺 RUSIA
+    { name: '🇷🇺 Premier League', url: `https://site.api.espn.com/apis/site/v2/sports/soccer/rus.1/scoreboard?dates=${dp}` }
+];
     
     for (const league of leagues) {
         try {
