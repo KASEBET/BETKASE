@@ -2871,6 +2871,7 @@ const COL_TZ = 'America/Bogota';
 const DIAS_ES = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 const MESES_ES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 let currentLiveDayOffset = 0;
+let currentLiveDayCustomDate = null;
 
 function getESPNDateParam(offsetDays = 0) {
     const d = new Date();
@@ -2896,10 +2897,27 @@ function formatMatchDateTime(dateStr) {
 
 function setLiveDayFilter(offset) {
     currentLiveDayOffset = offset;
+    currentLiveDayCustomDate = null;
+    const cal = document.getElementById('liveDayCalendar');
+    if (cal) cal.value = '';
     document.querySelectorAll('.live-day-btn').forEach(b => {
-        b.style.background = parseInt(b.dataset.offset) === offset ? '#00ff88' : '#0c0c0c';
-        b.style.color = parseInt(b.dataset.offset) === offset ? 'black' : 'white';
-        b.style.borderColor = parseInt(b.dataset.offset) === offset ? '#00ff88' : '#333';
+        const isActive = parseInt(b.dataset.offset) === offset;
+        b.style.background = isActive ? '#00ff88' : '#0c0c0c';
+        b.style.color = isActive ? 'black' : 'white';
+        b.style.borderColor = isActive ? '#00ff88' : '#333';
+        b.classList.toggle('active', isActive);
+    });
+    loadLiveMatches();
+}
+
+function setLiveDayByCalendar(dateStr) {
+    if (!dateStr) return;
+    currentLiveDayCustomDate = dateStr.replace(/-/g, '');
+    document.querySelectorAll('.live-day-btn').forEach(b => {
+        b.style.background = '#0c0c0c';
+        b.style.color = 'white';
+        b.style.borderColor = '#333';
+        b.classList.remove('active');
     });
     loadLiveMatches();
 }
@@ -2907,12 +2925,20 @@ function setLiveDayFilter(offset) {
 function buildLiveDayFilters() {
     const container = document.getElementById('liveDayFilters');
     if (!container) return;
-    const labels = ['Ayer','Hoy','Mañana','+2 días','+3 días'];
-    const offsets = [-1, 0, 1, 2, 3];
-    container.innerHTML = offsets.map((off, i) => {
-        const active = off === currentLiveDayOffset;
-        return `<button class="live-day-btn date-btn ${active ? 'active' : ''}" data-offset="${off}" onclick="setLiveDayFilter(${off})" style="background:${active?'#00ff88':'#0c0c0c'}; color:${active?'black':'white'}; border-color:${active?'#00ff88':'#333'};">${labels[i]}</button>`;
+    const btns = [
+        { label: 'Ayer', offset: -1 },
+        { label: 'Hoy', offset: 0 }
+    ].map(({ label, offset }) => {
+        const active = currentLiveDayCustomDate === null && offset === currentLiveDayOffset;
+        return `<button class="live-day-btn date-btn${active ? ' active' : ''}" data-offset="${offset}" onclick="setLiveDayFilter(${offset})" style="background:${active?'#00ff88':'#0c0c0c'}; color:${active?'black':'white'}; border-color:${active?'#00ff88':'#333'};">${label}</button>`;
     }).join('');
+    const calActive = currentLiveDayCustomDate !== null;
+    container.innerHTML = btns + `<label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+        <input id="liveDayCalendar" type="date" onchange="setLiveDayByCalendar(this.value)"
+            style="background:${calActive?'#00ff88':'#0c0c0c'}; color:${calActive?'black':'white'}; border:1px solid ${calActive?'#00ff88':'#333'}; border-radius:20px; padding:5px 14px; font-size:13px; font-weight:bold; cursor:pointer; outline:none;"
+            ${currentLiveDayCustomDate ? `value="${currentLiveDayCustomDate.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3')}"` : ''}>
+        <span style="color:${calActive?'#00ff88':'#aaa'}; font-size:13px; pointer-events:none;">📅 Fecha</span>
+    </label>`;
 }
 
 async function getSoccerLiveMatches(dateParam) {
@@ -3131,7 +3157,7 @@ async function loadLiveMatches() {
 
     buildLiveDayFilters();
 
-    const dp = getESPNDateParam(currentLiveDayOffset);
+    const dp = currentLiveDayCustomDate || getESPNDateParam(currentLiveDayOffset);
     container.innerHTML = '<div style="background:#0a0a0a; border-radius:20px; padding:40px; text-align:center; border:1px solid #333; grid-column:1/-1;">🔍 Buscando partidos...</div>';
 
     let deportes = [];
@@ -3155,7 +3181,9 @@ async function loadLiveMatches() {
     if (countEl) countEl.innerText = liveCount;
 
     if (partidos.length === 0) {
-        const dayLabel = ['Ayer','Hoy','Mañana','+2 días','+3 días'][currentLiveDayOffset + 1] || '';
+        const dayLabel = currentLiveDayCustomDate
+            ? currentLiveDayCustomDate.replace(/(\d{4})(\d{2})(\d{2})/, '$3/$2/$1')
+            : (currentLiveDayOffset === -1 ? 'Ayer' : 'Hoy');
         container.innerHTML = `<div style="background:#0a0a0a; border-radius:20px; padding:40px; text-align:center; border:1px solid #333; grid-column:1/-1;">📭 No hay partidos para ${dayLabel}.<br><small>Prueba con otro día o deporte.</small></div>`;
         return;
     }
@@ -3283,6 +3311,7 @@ window.loadAllUsers = loadAllUsers; window.makeAdmin = makeAdmin; window.removeA
 window.showAdminSection = showAdminSection;
 window.setSportFilter = setSportFilter;
 window.setLiveDayFilter = setLiveDayFilter;
+window.setLiveDayByCalendar = setLiveDayByCalendar;
 window.buildLiveDayFilters = buildLiveDayFilters;
 window.setAdminSport = setAdminSport;
 window.addNewTeam = addNewTeam;
