@@ -2818,29 +2818,52 @@ startLiveMatchesAutoRefresh();
 
 async function fetchESPN(url) {
     try {
-        const res = await fetch(url);
+        // FORZAR HTTPS - reemplazar http:// por https://
+        const secureUrl = url.replace(/^http:\/\//i, 'https://');
+        console.log('Fetching:', secureUrl);
+        const res = await fetch(secureUrl);
         if (!res.ok) throw new Error('HTTP ' + res.status);
         return await res.json();
-    } catch (e) { return null; }
+    } catch (e) { 
+        console.warn('Error fetching:', url, e.message);
+        return null; 
+    }
 }
 
 async function getMatchStatisticsLive(eventId, sport) {
     try {
-        const paths = { futbol: 'soccer/eng.1', nba: 'basketball/nba', tenis: 'tennis/atp' };
-        const data = await fetchESPN('https://site.api.espn.com/apis/site/v2/sports/' + (paths[sport] || 'soccer/eng.1') + '/summary?event=' + eventId);
+        const paths = { 
+            futbol: 'soccer/eng.1', 
+            nba: 'basketball/nba', 
+            tenis: 'tennis/atp' 
+        };
+        // Usar HTTPS
+        const url = `https://site.api.espn.com/apis/site/v2/sports/${paths[sport] || 'soccer/eng.1'}/summary?event=${eventId}`;
+        const data = await fetchESPN(url);
         if (!data || !data.boxscore) return null;
-        let stats = { tiros:{local:0,away:0}, tirosAlArco:{local:0,away:0}, corners:{local:0,away:0}, tarjetasAmarillas:{local:0,away:0}, tarjetasRojas:{local:0,away:0} };
+        
+        let stats = { 
+            tiros: { local: 0, away: 0 }, 
+            tirosAlArco: { local: 0, away: 0 }, 
+            corners: { local: 0, away: 0 }, 
+            tarjetasAmarillas: { local: 0, away: 0 }, 
+            tarjetasRojas: { local: 0, away: 0 } 
+        };
+        
         for (const stat of (data.boxscore.statistics || [])) {
             const v = (stat.displayValue || '').split('-');
-            const l = parseInt(v[0])||0, a = parseInt(v[1])||0;
-            if (stat.name === 'totalShots')  { stats.tiros.local=l; stats.tiros.away=a; }
-            if (stat.name === 'shotsOnGoal') { stats.tirosAlArco.local=l; stats.tirosAlArco.away=a; }
-            if (stat.name === 'cornerKicks') { stats.corners.local=l; stats.corners.away=a; }
-            if (stat.name === 'yellowCards') { stats.tarjetasAmarillas.local=l; stats.tarjetasAmarillas.away=a; }
-            if (stat.name === 'redCards')    { stats.tarjetasRojas.local=l; stats.tarjetasRojas.away=a; }
+            const l = parseInt(v[0]) || 0, a = parseInt(v[1]) || 0;
+            if (stat.name === 'totalShots') { stats.tiros.local = l; stats.tiros.away = a; }
+            if (stat.name === 'shotsOnGoal') { stats.tirosAlArco.local = l; stats.tirosAlArco.away = a; }
+            if (stat.name === 'cornerKicks') { stats.corners.local = l; stats.corners.away = a; }
+            if (stat.name === 'yellowCards') { stats.tarjetasAmarillas.local = l; stats.tarjetasAmarillas.away = a; }
+            if (stat.name === 'redCards') { stats.tarjetasRojas.local = l; stats.tarjetasRojas.away = a; }
         }
         return stats;
-    } catch(e) { return null; }
+    } catch (e) { 
+        console.warn('Error obteniendo estadísticas:', e.message);
+        return null; 
+    }
 }
 
 async function getLiveMatchesForSport(sport) {
@@ -2874,18 +2897,26 @@ async function getTennisLiveMatches() {
     const results = [];
     const now = Date.now();
     const window24h = 24 * 60 * 60 * 1000;
+    
     for (const league of ['atp', 'wta']) {
         try {
+            // Usar HTTPS
             const siteData = await fetchESPN(`https://site.api.espn.com/apis/site/v2/sports/tennis/${league}/scoreboard`);
             if (!siteData?.events) continue;
+            
             for (const ev of siteData.events) {
-                const compList = await fetchESPN(
-                    `https://sports.core.api.espn.com/v2/sports/tennis/leagues/${league}/events/${ev.id}/competitions?limit=200&lang=en&region=us`
-                );
+                // Asegurar HTTPS en las URLs de referencia
+                const compListRef = `https://sports.core.api.espn.com/v2/sports/tennis/leagues/${league}/events/${ev.id}/competitions?limit=200&lang=en&region=us`;
+                const compList = await fetchESPN(compListRef);
                 if (!compList?.items?.length) continue;
+                
                 const compPromises = compList.items.map(item => {
-                    const ref = (item.$ref || '').split('?')[0];
-                    return ref ? fetchESPN(ref + '?lang=en&region=us') : Promise.resolve(null);
+                    let ref = (item.$ref || '').split('?')[0];
+                    if (ref) {
+                        ref = ref.replace(/^http:\/\//i, 'https://');
+                        return fetchESPN(ref + '?lang=en&region=us');
+                    }
+                    return Promise.resolve(null);
                 });
                 const allComps = await Promise.all(compPromises);
                 const recentComps = allComps.filter(c => {
@@ -2894,11 +2925,17 @@ async function getTennisLiveMatches() {
                     return Math.abs(matchTime - now) < window24h;
                 });
                 if (!recentComps.length) continue;
+                
                 const statusPromises = recentComps.map(c => {
-                    const ref = (c.status?.$ref || '').split('?')[0];
-                    return ref ? fetchESPN(ref + '?lang=en&region=us') : Promise.resolve(null);
+                    let ref = (c.status?.$ref || '').split('?')[0];
+                    if (ref) {
+                        ref = ref.replace(/^http:\/\//i, 'https://');
+                        return fetchESPN(ref + '?lang=en&region=us');
+                    }
+                    return Promise.resolve(null);
                 });
                 const statuses = await Promise.all(statusPromises);
+                
                 for (let i = 0; i < recentComps.length; i++) {
                     const comp = recentComps[i];
                     const status = statuses[i];
@@ -2907,6 +2944,7 @@ async function getTennisLiveMatches() {
                     const c0 = comp.competitors?.[0];
                     const c1 = comp.competitors?.[1];
                     if (!c0 || !c1) continue;
+                    
                     results.push({
                         id: comp.id,
                         sport: 'tenis',
@@ -2920,11 +2958,12 @@ async function getTennisLiveMatches() {
                     });
                 }
             }
-        } catch(e) { /* silent fail por liga */ }
+        } catch(e) { 
+            console.warn(`Error en tenis/${league}:`, e.message);
+        }
     }
     return results;
 }
-
 async function loadLiveMatches() {
     const container = document.getElementById('liveMatchesContainer');
     if (!container) return;
