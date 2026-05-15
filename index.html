@@ -2587,6 +2587,7 @@ function loadBets() {
         container.innerHTML = '';
         if (snap.empty) { container.innerHTML = '<p>No hay apuestas</p>'; return; }
 
+        window._freeShownToday = 0;
         let betsArray = [];
         for (const doc of snap.docs) {
             const b = doc.data();
@@ -2643,6 +2644,30 @@ function loadBets() {
             let displayPrediction = b.prediction;
             if (b.type === 'premium' && !auth.currentUser && !showResult) displayPrediction = '🔒 Contenido Premium - Hazte premium para ver';
             else if (b.type === 'premium' && !auth.currentUser && showResult) displayPrediction = '🔒 Inicia sesión para ver el pronóstico';
+
+            // Gratis: solo 1 visible por día para visitantes
+            if (b.type === 'gratis' && !auth.currentUser) {
+                const todayStr = new Date().toDateString();
+                const betDateStr = new Date(b.createdAt).toDateString();
+                const isTodayBet = betDateStr === todayStr;
+                if (isTodayBet) {
+                    if (!window._freeShownToday) window._freeShownToday = 0;
+                    if (window._freeShownToday >= 1) {
+                        container.innerHTML += `
+                        <div class="bet-card" style="text-align:center; filter:blur(0); position:relative; overflow:hidden;">
+                            <div style="position:absolute; inset:0; background:rgba(0,0,0,0.65); backdrop-filter:blur(4px); z-index:1; border-radius:16px;"></div>
+                            <div style="position:relative; z-index:2; padding:30px 20px;">
+                                <div style="font-size:36px; margin-bottom:10px;">🔒</div>
+                                <div style="font-size:16px; font-weight:bold; color:#fff; margin-bottom:8px;">Apuesta Gratis bloqueada</div>
+                                <div style="color:#aaa; font-size:13px; margin-bottom:20px;">Inicia sesión para ver esta apuesta gratis</div>
+                                <button onclick="document.getElementById('loginBox').scrollIntoView({behavior:'smooth'})" style="background:#00ff88; border:none; padding:10px 24px; border-radius:20px; cursor:pointer; font-weight:bold; color:black;">Iniciar Sesión</button>
+                            </div>
+                        </div>`;
+                        continue;
+                    }
+                    window._freeShownToday++;
+                }
+            }
 
             const parts = b.match ? b.match.split(' vs ') : [];
             const localLogo = (parts[0] ? getTeamCurrentLogo(parts[0]) : '') || b.image || '';
@@ -2926,19 +2951,23 @@ function buildLiveDayFilters() {
     const container = document.getElementById('liveDayFilters');
     if (!container) return;
     const btns = [
-        { label: 'Ayer', offset: -1 },
-        { label: 'Hoy', offset: 0 }
+        { label: 'Hoy', offset: 0 },
+        { label: 'Mañana', offset: 1 }
     ].map(({ label, offset }) => {
         const active = currentLiveDayCustomDate === null && offset === currentLiveDayOffset;
         return `<button class="live-day-btn date-btn${active ? ' active' : ''}" data-offset="${offset}" onclick="setLiveDayFilter(${offset})" style="background:${active?'#00ff88':'#0c0c0c'}; color:${active?'black':'white'}; border-color:${active?'#00ff88':'#333'};">${label}</button>`;
     }).join('');
     const calActive = currentLiveDayCustomDate !== null;
-    container.innerHTML = btns + `<label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+    const calValue = currentLiveDayCustomDate ? currentLiveDayCustomDate.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3') : '';
+    container.innerHTML = btns + `
         <input id="liveDayCalendar" type="date" onchange="setLiveDayByCalendar(this.value)"
-            style="background:${calActive?'#00ff88':'#0c0c0c'}; color:${calActive?'black':'white'}; border:1px solid ${calActive?'#00ff88':'#333'}; border-radius:20px; padding:5px 14px; font-size:13px; font-weight:bold; cursor:pointer; outline:none;"
-            ${currentLiveDayCustomDate ? `value="${currentLiveDayCustomDate.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3')}"` : ''}>
-        <span style="color:${calActive?'#00ff88':'#aaa'}; font-size:13px; pointer-events:none;">📅 Fecha</span>
-    </label>`;
+            style="position:absolute; opacity:0; pointer-events:none; width:0; height:0;"
+            ${calValue ? `value="${calValue}"` : ''}>
+        <button onclick="(function(){ var i=document.getElementById('liveDayCalendar'); if(i.showPicker) i.showPicker(); else i.click(); })()"
+            class="date-btn${calActive ? ' active' : ''}"
+            style="background:${calActive?'#00ff88':'#0c0c0c'}; color:${calActive?'black':'white'}; border-color:${calActive?'#00ff88':'#333'}; display:flex; align-items:center; gap:6px;">
+            📅 ${calActive ? calValue : 'Calendario'}
+        </button>`;
 }
 
 async function getSoccerLiveMatches(dateParam) {
@@ -3194,6 +3223,7 @@ async function loadLiveMatches() {
         return (a.timestamp || 0) - (b.timestamp || 0);
     });
 
+    const isAdminCard = auth.currentUser?.email === ADMIN_EMAIL;
     container.innerHTML = '';
     
     for (const m of partidos) {
@@ -3210,6 +3240,9 @@ async function loadLiveMatches() {
             : `<span class="live-period">${m.sportIcon} ${escapeAttr(m.liga || m.sportName)}</span>`;
 
         const scoreStyle = m.enVivo ? 'color:#00ff88;' : 'color:#444;';
+        const crearApuestaBtn = isAdminCard
+            ? `<button class="live-bet-button" onclick="event.stopPropagation(); createBetFromLiveMatch('${escapeAttr(m.local.name)}','${escapeAttr(m.away.name)}','${m.sport}')">🎲 Crear Apuesta para este Partido</button>`
+            : '';
 
         container.innerHTML += `
             <div class="live-match-card" onclick="prepareBetFromLiveMatch('${escapeAttr(m.local.name)}','${escapeAttr(m.away.name)}','${m.sport}')" style="border-color:${m.enVivo ? '#ff4444' : '#1a3a5c'};">
@@ -3235,9 +3268,7 @@ async function loadLiveMatches() {
                         <div class="live-team-score" style="${scoreStyle}">${m.away.score}</div>
                     </div>
                 </div>
-                <button class="live-bet-button" onclick="event.stopPropagation(); createBetFromLiveMatch('${escapeAttr(m.local.name)}','${escapeAttr(m.away.name)}','${m.sport}')">
-                    🎲 Crear Apuesta para este Partido
-                </button>
+                ${crearApuestaBtn}
             </div>
         `;
     }
