@@ -2699,7 +2699,7 @@ function getTeamCurrentLogo(teamName) {
 }
 
 /* ── CARGAR APUESTAS ── */
-ffunction loadBets() {
+function loadBets() {
     if (betsUnsubscribe) betsUnsubscribe();
     betsUnsubscribe = db.collection('bets').orderBy('createdAt', 'desc').onSnapshot(async snap => {
         const container = document.getElementById('bets');
