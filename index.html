@@ -2241,8 +2241,8 @@ async function fetchLiveMatchStats(leagueSlug, eventId) {
             const homeStats = teams[0]?.statistics || [];
             const awayStats = teams[1]?.statistics || [];
 
-            stats.cornersLocal        = parseVal(homeStats, 'cornerKicks', 'corners');
-            stats.cornersAway         = parseVal(awayStats, 'cornerKicks', 'corners');
+            stats.cornersLocal        = parseVal(homeStats, 'cornerKicks', 'corners', 'corner');
+            stats.cornersAway         = parseVal(awayStats, 'cornerKicks', 'corners', 'corner');
             stats.yellowLocal         = parseVal(homeStats, 'yellowCards', 'yellow');
             stats.yellowAway          = parseVal(awayStats, 'yellowCards', 'yellow');
             stats.redLocal            = parseVal(homeStats, 'redCards', 'red');
@@ -2282,22 +2282,10 @@ async function openStatsModal(betId, matchName, statsJson) {
     
     let liveStats = null;
     
-    // Si es un partido en vivo, intentar obtener estadísticas reales
-    if (betData && betData.liveMatchId && betData.sport) {
-        let leagueSlug = 'eng.1'; // Por defecto
-        
-        // Determinar el slug de la liga según el deporte/liga
-        if (betData.sport === 'futbol') {
-            if (matchName.includes('Premier')) leagueSlug = 'eng.1';
-            else if (matchName.includes('La Liga')) leagueSlug = 'esp.1';
-            else if (matchName.includes('Bundesliga')) leagueSlug = 'ger.1';
-            else if (matchName.includes('Serie A')) leagueSlug = 'ita.1';
-            else if (matchName.includes('Ligue 1')) leagueSlug = 'fra.1';
-            else if (matchName.includes('Champions')) leagueSlug = 'uefa.champions';
-            else if (matchName.includes('Libertadores')) leagueSlug = 'conmebol.libertadores';
-            else leagueSlug = 'eng.1';
-        }
-        
+    // Si es un partido en vivo/finalizado, obtener estadísticas reales desde ESPN
+    if (betData && betData.liveMatchId) {
+        // Use stored ligaSlug if available; otherwise fall back to 'eng.1'
+        const leagueSlug = betData.ligaSlug || 'eng.1';
         liveStats = await fetchLiveMatchStats(leagueSlug, betData.liveMatchId);
     }
     
@@ -2779,9 +2767,17 @@ function publishBet(liveMatchId = null) {
     };
     
     // Guardar el ID del partido en vivo si existe
-    if (liveMatchId) {
-        data.liveMatchId = liveMatchId;
+    const resolvedLiveId = liveMatchId || window._pendingLiveMatchId || null;
+    const resolvedLigaSlug = window._pendingLigaSlug || null;
+    if (resolvedLiveId) {
+        data.liveMatchId = resolvedLiveId;
     }
+    if (resolvedLigaSlug) {
+        data.ligaSlug = resolvedLigaSlug;
+    }
+    // Clear pending globals after use
+    window._pendingLiveMatchId = null;
+    window._pendingLigaSlug = null;
     
     if (editingId) db.collection('bets').doc(editingId).update(data).then(() => { alert('Actualizada'); clearForm(); editingId = null; });
     else db.collection('bets').add(data).then(() => { alert('Publicada'); clearForm(); });
@@ -2938,14 +2934,16 @@ function loadBets() {
             else if (b.type === 'premium' && !auth.currentUser && showResult) displayPrediction = '🔒 Inicia sesión para ver el pronóstico';
 
             container.innerHTML += `
-            <div class="bet-card">
+            <div class="bet-card" id="bet-card-${b.id}">
                 ${logosHtml}
                 <div>
                     <div class="tag ${b.type === 'premium' ? 'premium' : 'free'}">${b.type === 'premium' ? '💎 PREMIUM' : '🎁 GRATIS'}</div>
                     <span class="result-tag ${resultClass}">${resultText}</span>
+                    ${b.liveMatchId ? `<span style="background:#ff4444; color:#fff; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:bold; margin-left:6px;">🔴 EN VIVO</span>` : ''}
                 </div>
                 <h3>🏆 ${b.match}</h3>
                 <p>${displayPrediction}</p>
+                <div id="bet-inline-stats-${b.id}" style="display:none; margin:10px 0; padding:10px; background:#0c0c0c; border-radius:12px; border:1px solid #222;"></div>
                 <div style="margin-top:15px;">
                     <div style="color:#0f0; font-size:24px;">💰 ${b.odds}</div>
                     <button class="btn btn-blue" style="margin-top:10px; padding:8px 15px; font-size:12px;" onclick="openStatsModal('${b.id}','${escapeAttr(b.match)}','${statsJsonStr}')">${statsIndicator}</button>
@@ -2953,6 +2951,48 @@ function loadBets() {
                 </div>
             </div>`;
         }
+        // After all bets rendered, load inline stats for those with a live match
+        (async () => {
+            for (const b of betsArray) {
+                if (!b.liveMatchId || !b.ligaSlug) continue;
+                const el = document.getElementById(`bet-inline-stats-${b.id}`);
+                if (!el) continue;
+                try {
+                    const stats = await fetchLiveMatchStats(b.ligaSlug, b.liveMatchId);
+                    if (!stats) continue;
+                    const hasAnyStats = stats.cornersLocal + stats.cornersAway + stats.yellowLocal + stats.yellowAway +
+                        stats.shotsLocal + stats.shotsAway + stats.foulsLocal + stats.foulsAway > 0;
+                    if (!hasAnyStats && stats.goalsLocal === 0 && stats.goalsAway === 0) continue;
+                    const rows = [
+                        ['⚽', 'Goles', stats.goalsLocal, stats.goalsAway],
+                        ['🎯', 'Corners', stats.cornersLocal, stats.cornersAway],
+                        ['🟨', 'Amarillas', stats.yellowLocal, stats.yellowAway],
+                        ['🟥', 'Rojas', stats.redLocal, stats.redAway],
+                        ['⚠️', 'Faltas', stats.foulsLocal, stats.foulsAway],
+                        ['💥', 'Remates', stats.shotsLocal, stats.shotsAway],
+                        ['🎯', 'A Puerta', stats.shotsOnTargetLocal, stats.shotsOnTargetAway],
+                    ];
+                    const posRow = stats.possessionLocal > 0
+                        ? `<div style="grid-column:1/-1; display:flex; justify-content:space-between; font-size:12px; color:#ccc; padding:2px 0; border-top:1px solid #1a1a1a; margin-top:4px;">
+                               <span>📊 Posesión</span>
+                               <span style="font-weight:bold; color:#00ff88;">${stats.possessionLocal}% — ${stats.possessionAway}%</span>
+                           </div>` : '';
+                    el.innerHTML = `
+                        <div style="font-size:11px; color:#00ff88; font-weight:bold; margin-bottom:6px; text-transform:uppercase; letter-spacing:.5px;">📈 Estadísticas del Partido</div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px 12px;">
+                            ${rows.map(([ico, lbl, l, a]) =>
+                                `<div style="display:flex; justify-content:space-between; font-size:12px; color:#ccc; padding:2px 0;">
+                                    <span>${ico} ${lbl}</span>
+                                    <span style="font-weight:bold; color:#fff;">${l} - ${a}</span>
+                                </div>`
+                            ).join('')}
+                        </div>
+                        ${posRow}
+                        <div style="font-size:10px; color:#555; margin-top:6px; text-align:right;">Fuente: ESPN</div>`;
+                    el.style.display = 'block';
+                } catch(e) { /* silent */ }
+            }
+        })();
     });
 }
 
@@ -3927,6 +3967,8 @@ async function prepareBetFromLiveMatch(localTeam, awayTeam, sport, localLogo, aw
 async function createBetFromLiveMatch(idx) {
     const m = (window._currentLivePartidos || [])[idx];
     if (!m) return;
+    window._pendingLiveMatchId = m.id || null;
+    window._pendingLigaSlug   = m.ligaSlug || null;
     await prepareBetFromLiveMatch(m.local.name, m.away.name, m.sport, m.local.logo, m.away.logo);
 }
 
