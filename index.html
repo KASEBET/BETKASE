@@ -2699,7 +2699,7 @@ function getTeamCurrentLogo(teamName) {
 }
 
 /* ── CARGAR APUESTAS ── */
-function loadBets() {
+ffunction loadBets() {
     if (betsUnsubscribe) betsUnsubscribe();
     betsUnsubscribe = db.collection('bets').orderBy('createdAt', 'desc').onSnapshot(async snap => {
         const container = document.getElementById('bets');
@@ -2760,34 +2760,7 @@ function loadBets() {
                 </div>`;
             }
 
-            let displayPrediction = b.prediction;
-            if (b.type === 'premium' && !auth.currentUser && !showResult) displayPrediction = '🔒 Contenido Premium - Hazte premium para ver';
-            else if (b.type === 'premium' && !auth.currentUser && showResult) displayPrediction = '🔒 Inicia sesión para ver el pronóstico';
-
-            // Gratis: solo 1 visible por día para visitantes
-            if (b.type === 'gratis' && !auth.currentUser) {
-                const todayStr = new Date().toDateString();
-                const betDateStr = new Date(b.createdAt).toDateString();
-                const isTodayBet = betDateStr === todayStr;
-                if (isTodayBet) {
-                    if (!window._freeShownToday) window._freeShownToday = 0;
-                    if (window._freeShownToday >= 1) {
-                        container.innerHTML += `
-                        <div class="bet-card" style="text-align:center; filter:blur(0); position:relative; overflow:hidden;">
-                            <div style="position:absolute; inset:0; background:rgba(0,0,0,0.65); backdrop-filter:blur(4px); z-index:1; border-radius:16px;"></div>
-                            <div style="position:relative; z-index:2; padding:30px 20px;">
-                                <div style="font-size:36px; margin-bottom:10px;">🔒</div>
-                                <div style="font-size:16px; font-weight:bold; color:#fff; margin-bottom:8px;">Apuesta Gratis bloqueada</div>
-                                <div style="color:#aaa; font-size:13px; margin-bottom:20px;">Inicia sesión para ver esta apuesta gratis</div>
-                                <button onclick="document.getElementById('loginBox').scrollIntoView({behavior:'smooth'})" style="background:#00ff88; border:none; padding:10px 24px; border-radius:20px; cursor:pointer; font-weight:bold; color:black;">Iniciar Sesión</button>
-                            </div>
-                        </div>`;
-                        continue;
-                    }
-                    window._freeShownToday++;
-                }
-            }
-
+            // Obtener logos del partido (se usan tanto para apuestas normales como para bloqueadas)
             const parts = b.match ? b.match.split(' vs ') : [];
             const localLogo = (parts[0] ? getTeamCurrentLogo(parts[0]) : '') || b.image || '';
             const awayLogo = (parts[1] ? getTeamCurrentLogo(parts[1]) : '') || b.awayImage || '';
@@ -2797,6 +2770,48 @@ function loadBets() {
             } else if (localLogo) {
                 logosHtml = `<div class="match-logos"><img class="team-logo" src="${localLogo}" onerror="this.style.display='none'" alt="Equipo"></div>`;
             }
+
+            // Gratis: solo 1 pronóstico visible por día para visitantes
+            // Las apuestas gratis adicionales se muestran con logos, equipo, cuota pero sin pronóstico
+            if (b.type === 'gratis' && !auth.currentUser) {
+                const todayStr = new Date().toDateString();
+                const betDateStr = new Date(b.createdAt).toDateString();
+                const isTodayBet = betDateStr === todayStr;
+                if (isTodayBet) {
+                    if (!window._freeShownToday) window._freeShownToday = 0;
+                    if (window._freeShownToday >= 1) {
+                        // Apuesta bloqueada - mostrar logos, equipo, cuota pero ocultar pronóstico
+                        container.innerHTML += `
+                        <div class="bet-card" style="position:relative; overflow:hidden;">
+                            ${logosHtml}
+                            <div>
+                                <div class="tag free">🎁 GRATIS</div>
+                                <span class="result-tag ${resultClass}">${resultText}</span>
+                            </div>
+                            <h3>🏆 ${b.match}</h3>
+                            <div style="margin-top:15px;">
+                                <div style="color:#0f0; font-size:24px; margin-bottom:15px;">💰 ${b.odds}</div>
+                            </div>
+                            <div style="position:relative; margin-top:10px; padding:15px; background:rgba(0,0,0,0.3); border-radius:15px; text-align:center;">
+                                <div style="filter:blur(5px); user-select:none;">🔒 ${b.prediction}</div>
+                                <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; width:90%;">
+                                    <div style="font-size:28px; margin-bottom:5px;">🔒</div>
+                                    <div style="font-size:14px; font-weight:bold; color:#fff; margin-bottom:8px;">Inicia sesión para ver el pronóstico</div>
+                                    <button onclick="document.getElementById('loginBox').scrollIntoView({behavior:'smooth'})" style="background:#00ff88; border:none; padding:8px 20px; border-radius:20px; cursor:pointer; font-weight:bold; color:black; font-size:13px;">Iniciar Sesión</button>
+                                </div>
+                            </div>
+                            <button class="btn btn-blue" style="margin-top:10px; padding:8px 15px; font-size:12px; width:100%;" onclick="openStatsModal('${b.id}','${escapeAttr(b.match)}','${statsJsonStr}')">${statsIndicator}</button>
+                        </div>`;
+                        continue;
+                    }
+                    window._freeShownToday++;
+                }
+            }
+
+            // Apuesta normal (primera gratis del día o usuario logueado)
+            let displayPrediction = b.prediction;
+            if (b.type === 'premium' && !auth.currentUser && !showResult) displayPrediction = '🔒 Contenido Premium - Hazte premium para ver';
+            else if (b.type === 'premium' && !auth.currentUser && showResult) displayPrediction = '🔒 Inicia sesión para ver el pronóstico';
 
             container.innerHTML += `
             <div class="bet-card">
